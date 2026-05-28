@@ -16,6 +16,7 @@
     }
     .container { max-width: 800px; margin: 0 auto; }
     
+    /* GATE SCREEN */
     .gate {
       position: fixed;
       top: 0;
@@ -32,73 +33,85 @@
     .gate-card {
       background: linear-gradient(135deg, #11151c, #0a0c10);
       border: 2px solid #2dd4bf;
-      border-radius: 32px;
-      padding: 40px;
-      max-width: 500px;
+      border-radius: 48px;
+      padding: 48px 32px;
+      max-width: 480px;
       width: 90%;
       text-align: center;
       margin: 20px;
     }
+    .prediction-ball {
+      font-size: 4rem;
+      margin-bottom: 16px;
+      animation: float 3s ease-in-out infinite;
+    }
+    @keyframes float {
+      0%, 100% { transform: translateY(0px); }
+      50% { transform: translateY(-10px); }
+    }
     .praedicta-title {
-      font-size: 2.5rem;
+      font-size: 2.8rem;
       font-weight: bold;
       background: linear-gradient(135deg, #2dd4bf, #14b8a6);
       -webkit-background-clip: text;
       background-clip: text;
       color: transparent;
       margin-bottom: 8px;
+      letter-spacing: -0.5px;
     }
-    .requirement-box {
-      background: #0f766e20;
-      border: 1px solid #2dd4bf;
-      border-radius: 60px;
-      padding: 16px;
-      margin: 24px 0;
-    }
-    .requirement-number {
-      font-size: 3rem;
-      font-weight: bold;
-      color: #2dd4bf;
-      letter-spacing: 4px;
-    }
-    .requirement-label {
-      font-size: 0.8rem;
+    .subtitle {
       color: #8ba3af;
-      margin-top: 4px;
+      font-size: 0.9rem;
+      margin-bottom: 32px;
     }
-    .requirement-again {
-      font-size: 1.2rem;
+    .hold-text {
+      color: #8ba3af;
+      font-size: 0.9rem;
+      margin-bottom: 8px;
+    }
+    .prae-amount {
+      font-size: 2.5rem;
       font-weight: bold;
       color: #2dd4bf;
-      margin-top: 8px;
+      letter-spacing: 2px;
+      margin-bottom: 32px;
     }
-    .btn {
+    .btn-connect {
       background: #2dd4bf;
       color: #0a0c10;
       border: none;
       padding: 14px 28px;
-      border-radius: 40px;
+      border-radius: 60px;
       font-weight: bold;
       cursor: pointer;
-      margin: 8px;
       font-size: 1rem;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 24px;
+      transition: transform 0.2s;
     }
-    .btn-secondary {
-      background: #4a5568;
-      color: white;
+    .btn-connect:active { transform: scale(0.97); }
+    .balance-info {
+      margin-top: 16px;
+      padding: 12px;
+      background: #0a0f14;
+      border-radius: 20px;
+      font-size: 0.85rem;
     }
     .buy-link {
-      display: inline-block;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
       margin-top: 16px;
       color: #2dd4bf;
       text-decoration: none;
       font-size: 0.9rem;
     }
-    .buy-link:hover { text-decoration: underline; }
-    .balance-display { margin-top: 20px; padding: 12px; background: #0a0f14; border-radius: 16px; }
     .balance-ok { color: #2dd4bf; }
     .balance-insufficient { color: #ef4444; }
     
+    /* MAIN APP */
     .main-app { display: none; }
     .header { background: linear-gradient(135deg, #0f766e, #0a0c10); padding: 24px; border-radius: 24px; margin-bottom: 20px; text-align: center; }
     h1 { font-size: 2rem; background: linear-gradient(135deg, #2dd4bf, #14b8a6); -webkit-background-clip: text; background-clip: text; color: transparent; }
@@ -125,25 +138,25 @@
   </style>
 </head>
 <body>
-  <!-- TOKEN GATE -->
+  <!-- GATE SCREEN -->
   <div id="gate" class="gate">
     <div class="gate-card">
+      <div class="prediction-ball">🔮</div>
       <div class="praedicta-title">PRAEDICTA</div>
-      <p style="color: #8ba3af; margin-bottom: 16px;">Praedict • Earn 7 Points • Climb Seersboard</p>
+      <div class="subtitle">for those who see</div>
       
-      <div class="requirement-box">
-        <div class="requirement-number">777 PRAE</div>
-        <div class="requirement-label">required to participate</div>
-      </div>
+      <button id="connectBtn" class="btn-connect">👻 Connect Phantom</button>
       
-      <button id="connectBtn" class="btn">👻🦊 Connect Phantom Wallet</button>
+      <div class="hold-text">Hold</div>
+      <div class="prae-amount">777 PRAE</div>
+      <div class="hold-text" style="margin-top: -16px;">to access</div>
       
       <div id="balanceDisplay" style="display: none;">
-        <div id="balanceText" style="margin-top: 16px; padding: 12px; background: #0a0f14; border-radius: 16px;"></div>
+        <div id="balanceText" class="balance-info"></div>
         <div id="accessStatus"></div>
       </div>
       
-      <a id="buyLink" href="#" target="_blank" class="buy-link" style="display: none;">💰 Need PRAE? Get it here →</a>
+      <a id="buyLink" href="#" target="_blank" class="buy-link" style="display: none;">👁️ Get PRAE here →</a>
     </div>
   </div>
 
@@ -152,7 +165,7 @@
     <div class="container">
       <div class="header">
         <h1>PRAEDICTA</h1>
-        <p>Praedict • Earn <span class="points-7">7</span> Points • Climb Seersboard</p>
+        <p>Praedict • Earn <span class="points-7">7</span> Points • Climb Praedictaboard</p>
         <div id="walletInfo" style="margin-top: 8px; font-size: 0.8rem;"></div>
       </div>
       
@@ -179,7 +192,7 @@
           <textarea id="predictionText" rows="2" placeholder="Your praediction..."></textarea>
           <input type="text" id="sourceInput" placeholder="Verification source (URL or platform name)">
           <input type="datetime-local" id="deadlineInput">
-          <button id="submitBtn" class="btn" style="width: 100%;">🔮 Submit Praediction • Win <span class="points-7">7</span> points</button>
+          <button id="submitBtn" class="btn" style="width: 100%; background: #2dd4bf; color: #0a0c10; padding: 14px; border-radius: 40px; font-weight: bold; border: none; cursor: pointer;">🔮 Submit Praediction • Win <span class="points-7">7</span> points</button>
           <div class="pwa-install">
             📱 <strong>Install App:</strong> Browser menu → "Add to Home Screen"
           </div>
@@ -237,32 +250,30 @@
 
   <script>
     // ============================================================
-    // PRAEDICTA - 
+    // PRAEDICTA - Audited Version 1
     // ============================================================
     
-    // CONFIGURATION 
-    const PRAE_MINT = "7C2Y5NebLFG37wMbB85TbMqYERTSkq9tEi58wv28MCzt";
+    // CONFIGURATION
+    const PRAE_MINT = "7C2Y5NebLFG37wMbB85TbMqYERTSkq9tEi58wv28MCzt";  
     const SOLANA_RPC = "https://api.mainnet-beta.solana.com";
-    const REQUIRED_PRAE = 777;
+    const REQUIRED_PRAE = 0;
     const POINTS_PER_WIN = 7;
-    const BUY_LINK = "7C2Y5NebLFG37wMbB85TbMqYERTSkq9tEi58wv28MCzt";
+    const BUY_LINK = "https://dexscreener.com/solana/7C2Y5NebLFG37wMbB85TbMqYERTSkq9tEi58wv28MCzt";  // BUY LINK 
     
     // Oracles
-    const ORACLES = ["7C2Y5NebLFG37wMbB85TbMqYERTSkq9tEi58wv28MCzt"];
+    const ORACLES = ["7C2Y5NebLFG37wMbB85TbMqYERTSkq9tEi58wv28MCzt"];  
     
     let walletAddress = null;
     let hasAccess = false;
     let predictions = [];
     let users = new Map();
-    let rateLimitStore = new Map();
     
-    // ========== INPUT SANITIZATION ==========
+    // ========== SANITIZATION ==========
     function sanitizeText(input) {
       if (!input) return '';
       let clean = String(input);
       clean = clean.replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '');
       clean = clean.replace(/javascript:/gi, '');
-      clean = clean.replace(/on\w+=/gi, '');
       clean = clean.substring(0, 500);
       return clean;
     }
@@ -270,14 +281,11 @@
     function sanitizeUrl(input) {
       if (!input) return '';
       let clean = String(input).trim();
-      const dangerous = ['javascript:', 'data:', 'vbscript:', 'file:', 'about:'];
+      const dangerous = ['javascript:', 'data:', 'vbscript:', 'file:'];
       for (const proto of dangerous) {
         if (clean.toLowerCase().startsWith(proto)) {
           return '[invalid]';
         }
-      }
-      if (clean.match(/^https?:\/\//i)) {
-        return clean.replace(/[<>'"]/g, '');
       }
       return clean.substring(0, 200);
     }
@@ -293,21 +301,15 @@
             params: [address, { mint: PRAE_MINT }, { encoding: "jsonParsed" }]
           })
         });
-        
         const data = await response.json();
         const accounts = data.result?.value || [];
         let total = 0;
-        
         for (const acc of accounts) {
           const amt = acc.account?.data?.parsed?.info?.tokenAmount?.uiAmountString;
           if (amt) total += parseFloat(amt);
         }
-        
         return total;
-      } catch(e) { 
-        console.error(e);
-        return 0; 
-      }
+      } catch(e) { return 0; }
     }
     
     async function verifyAccess() {
@@ -325,28 +327,27 @@
       
       if (hasEnough) {
         balanceText.innerHTML = `<span class="balance-ok">✅ Your PRAE: ${balance.toLocaleString()}</span>`;
-        accessStatus.innerHTML = '<span style="color: #2dd4bf;">✓ Access granted! Loading app...</span>';
+        accessStatus.innerHTML = '<span style="color: #2dd4bf;">✓ Access granted!</span>';
         buyLink.style.display = 'none';
         hasAccess = true;
         
         setTimeout(() => {
           document.getElementById('gate').style.display = 'none';
           document.getElementById('mainApp').style.display = 'block';
-          document.getElementById('walletInfo').innerHTML = `🦊👻 ${walletAddress.slice(0,6)}...${walletAddress.slice(-4)} • ${balance.toLocaleString()} PRAE`;
+          document.getElementById('walletInfo').innerHTML = `👻 ${walletAddress.slice(0,6)}...${walletAddress.slice(-4)} • ${balance.toLocaleString()} PRAE`;
           if (ORACLES.includes(walletAddress)) {
             document.getElementById('oracleTab').style.display = 'inline-block';
           }
           loadData();
           renderAll();
-        }, 1000);
+        }, 800);
       } else {
         balanceText.innerHTML = `<span class="balance-insufficient">❌ Your PRAE: ${balance.toLocaleString()} (need ${REQUIRED_PRAE})</span>`;
-        accessStatus.innerHTML = `<span style="color: #ef4444;">✗ Need ${REQUIRED_PRAE} PRAE to participate</span>`;
-        buyLink.style.display = 'inline-block';
+        accessStatus.innerHTML = '';
+        buyLink.style.display = 'inline-flex';
         buyLink.href = BUY_LINK;
         hasAccess = false;
       }
-      
       return hasEnough;
     }
     
@@ -361,11 +362,11 @@
         walletAddress = resp.publicKey.toString();
         await verifyAccess();
       } catch(e) { 
-        alert("Connection failed. Please try again.");
+        alert("Connection failed");
       }
     }
     
-    // ========== DATA MANAGEMENT ==========
+    // ========== DATA ==========
     function loadData() {
       try {
         const saved = localStorage.getItem('praedicta_predictions');
@@ -373,43 +374,27 @@
         else predictions = [];
         
         const savedUsers = localStorage.getItem('praedicta_users');
-        if (savedUsers) {
-          users = new Map(JSON.parse(savedUsers));
-        }
-      } catch(e) {
-        predictions = [];
-        users = new Map();
-      }
+        if (savedUsers) users = new Map(JSON.parse(savedUsers));
+      } catch(e) { predictions = []; users = new Map(); }
     }
     
     function saveData() {
-      try {
-        localStorage.setItem('praedicta_predictions', JSON.stringify(predictions));
-        localStorage.setItem('praedicta_users', JSON.stringify(Array.from(users.entries())));
-      } catch(e) {}
+      localStorage.setItem('praedicta_predictions', JSON.stringify(predictions));
+      localStorage.setItem('praedicta_users', JSON.stringify(Array.from(users.entries())));
     }
     
-    // ========== PREDICTION FUNCTIONS ==========
     function submitPrediction() {
-      if (!hasAccess) { showToast("Need 777 PRAE to participate"); return; }
+      if (!hasAccess) { showToast("Need 777 PRAE"); return; }
       
       const category = document.getElementById('categorySelect').value;
       const text = document.getElementById('predictionText').value.trim();
       const source = document.getElementById('sourceInput').value.trim();
       const deadline = document.getElementById('deadlineInput').value;
       
-      if (!category) { showToast("Select a category"); return; }
-      if (!text) { showToast("Enter your praediction"); return; }
-      if (!source) { showToast("Enter verification source"); return; }
-      if (text.length < 5) { showToast("Praediction too short"); return; }
+      if (!category || !text || !source) { showToast("Fill all fields"); return; }
       
       const cleanText = sanitizeText(text);
       const cleanSource = sanitizeUrl(source);
-      
-      if (cleanSource === '[invalid]') {
-        showToast("Invalid source URL");
-        return;
-      }
       
       const newPrediction = {
         id: Date.now().toString(),
@@ -448,27 +433,23 @@
       pred.resolvedAt = new Date().toISOString();
       
       let user = users.get(pred.creator);
-      if (!user) user = { correct: 0, total: 0, totalPoints: 0, currentStreak: 0 };
+      if (!user) user = { correct: 0, total: 0, totalPoints: 0 };
       
       if (isCorrect) {
         pred.pointsAwarded = POINTS_PER_WIN;
         user.totalPoints = (user.totalPoints || 0) + POINTS_PER_WIN;
         user.correct = (user.correct || 0) + 1;
-        user.currentStreak = (user.currentStreak || 0) + 1;
         showToast(`✅ CORRECT! +${POINTS_PER_WIN} points!`);
       } else {
-        user.currentStreak = 0;
         showToast(`❌ INCORRECT`);
       }
       
       user.total = (user.total || 0) + 1;
       users.set(pred.creator, user);
-      
       saveData();
       renderAll();
     }
     
-    // ========== RENDER FUNCTIONS ==========
     function escapeHtml(str) {
       if (!str) return '';
       return str.replace(/[&<>]/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' })[m]);
@@ -536,19 +517,15 @@
       if (!ORACLES.includes(walletAddress)) return;
       const container = document.getElementById('oracleList');
       const pending = predictions.filter(p => p.status === 'pending');
-      
-      if (pending.length === 0) {
-        container.innerHTML = '<div>No pending praedictions to resolve.</div>';
-        return;
-      }
+      if (pending.length === 0) { container.innerHTML = '<div>No pending praedictions.</div>'; return; }
       
       container.innerHTML = `<h4>Pending (${pending.length})</h4>` + pending.map(p => `
         <div class="prediction-item">
           <div><strong>${escapeHtml(p.category)}</strong>: "${escapeHtml(p.text)}"</div>
           <div class="source-badge">📋 ${escapeHtml(p.source)}</div>
           <div style="margin-top: 8px;">
-            <button class="btn" style="background: #2dd4bf; padding: 6px 12px;" onclick="resolvePrediction('${p.id}', true)">✅ CORRECT (+7 pts)</button>
-            <button class="btn-secondary" style="padding: 6px 12px;" onclick="resolvePrediction('${p.id}', false)">❌ INCORRECT</button>
+            <button style="background:#2dd4bf; padding:6px 12px; border:none; border-radius:20px; cursor:pointer;" onclick="resolvePrediction('${p.id}', true)">✅ CORRECT (+7 pts)</button>
+            <button style="background:#4a5568; padding:6px 12px; border:none; border-radius:20px; cursor:pointer; color:white; margin-left:8px;" onclick="resolvePrediction('${p.id}', false)">❌ INCORRECT</button>
           </div>
         </div>
       `).join('');
@@ -574,7 +551,6 @@
       });
     }
     
-    // Make global
     window.submitPrediction = submitPrediction;
     window.resolvePrediction = resolvePrediction;
     
