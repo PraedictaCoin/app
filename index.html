@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <meta name="theme-color" content="#2dd4bf">
-  <title>PRAE Predictor • 7 Points</title>
+  <title>PRAEDICTA • 7 Points</title>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body {
@@ -64,21 +64,26 @@
     .status-correct { color: #2dd4bf; }
     .status-incorrect { color: #ef4444; }
     .points-7 { font-size: 1.2rem; font-weight: bold; color: #fbbf24; display: inline-block; margin: 0 2px; }
+    .debug-panel { background: #1a202c; border-radius: 12px; padding: 12px; margin-top: 12px; font-family: monospace; font-size: 0.7rem; display: none; }
+    .debug-panel.show { display: block; }
+    .ghost-icon { font-size: 1.2rem; display: inline-block; }
+    .eye-icon { font-size: 1.2rem; display: inline-block; }
   </style>
 </head>
 <body>
   <!-- TOKEN GATE -->
   <div id="gate" class="gate">
     <div class="gate-card">
-      <div style="font-size: 4rem;">🔮</div>
-      <h2 style="margin: 16px 0;">PRAEDICTA - For those who see</h2>
+      <div style="font-size: 4rem;">👁️🔮</div>
+      <h2 style="margin: 16px 0;">PRAEDICTA</h2>
       <p>Hold <strong>777 PRAE</strong> to access</p>
       <div class="requirement">777 PRAE</div>
-      <button id="connectBtn" class="btn">🦊 Connect Phantom</button>
+      <button id="connectBtn" class="btn">👻 Connect Phantom</button>
       <div id="balanceDisplay" class="balance-display" style="display: none;">
         <div id="balanceText">Checking...</div>
         <div id="accessStatus"></div>
       </div>
+      <button id="debugBtn" style="background: #4a5568; margin-top: 12px; padding: 8px 16px; font-size: 0.7rem;">🔧 Debug Token Check</button>
     </div>
   </div>
 
@@ -86,13 +91,13 @@
   <div id="mainApp" class="main-app">
     <div class="container">
       <div class="header">
-        <h1>🔮 PRAEDICTA BOARD</h1>
-        <p>Predict • Earn <span class="points-7">7</span> Points • Climb Seersboard</p>
+        <h1>👁️ PRAEDICTA</h1>
+        <p>Praedict • Earn <span class="points-7">7</span> Points • Climb Leaderboard</p>
         <div id="walletInfo" style="margin-top: 8px; font-size: 0.8rem;"></div>
       </div>
       
       <div class="tabs">
-        <button class="tab-btn active" data-tab="feed">📰 Praedict</button>
+        <button class="tab-btn active" data-tab="feed">👁️ Praedict</button>
         <button class="tab-btn" data-tab="my">📝 My Praedictions</button>
         <button class="tab-btn" data-tab="leaderboard">🏆 Top 7</button>
         <button class="tab-btn" data-tab="faq">❓ FAQ</button>
@@ -114,7 +119,7 @@
           <textarea id="predictionText" rows="2" placeholder="Your praediction..."></textarea>
           <input type="text" id="sourceInput" placeholder="Verification source (URL or platform name)">
           <input type="datetime-local" id="deadlineInput">
-          <button id="submitBtn" class="btn" style="width: 100%;">🔮 Submit • Win <span class="points-7">7</span> points</button>
+          <button id="submitBtn" class="btn" style="width: 100%;">👁️ Submit Praediction • Win <span class="points-7">7</span> points</button>
           <div class="pwa-install">
             📱 <strong>Install App:</strong> Browser menu → "Add to Home Screen"
           </div>
@@ -131,7 +136,7 @@
       
       <div id="leaderboardTab" class="tab-content" style="display:none;">
         <div class="card">
-          <h3>🏆 Top 7 Seers</h3>
+          <h3>🏆 Top 7 Praedictors</h3>
           <div id="leaderboardList"></div>
           <div style="margin-top: 16px; text-align: center; font-size: 0.7rem; color: #8ba3af;">
             ✨ Each correct praediction earns <span class="points-7">7</span> points
@@ -147,11 +152,11 @@
             <div class="faq-a">NO! The app only CHECKS your balance. Your tokens stay in your wallet. No gas fees, no staking.</div>
           </div>
           <div class="faq-item">
-            <div class="faq-q">🎲 What can I predict?</div>
+            <div class="faq-q">🎲 What can I praedict?</div>
             <div class="faq-a">Anything with a verifiable source! Crypto, sports, elections, or WILDCARD.</div>
           </div>
           <div class="faq-item">
-            <div class="faq-q">🦉 Who verifies predictions?</div>
+            <div class="faq-q">🦉 Who verifies praedictions?</div>
             <div class="faq-a">Trusted community Oracles. All resolutions are transparent.</div>
           </div>
           <div class="faq-item">
@@ -174,21 +179,26 @@
     </div>
   </div>
 
+  <div id="debugPanel" class="debug-panel">
+    <strong>🔧 Debug Info:</strong>
+    <div id="debugOutput"></div>
+  </div>
+
   <script>
     // ============================================================
-    // SECURITY AUDITED VERSION - FIXED ALL ISSUES
+    // PRAEDICTA - The Ultimate Praediction Platform
     // ============================================================
     
     // CONFIGURATION - REPLACE THESE!
-    const PRAE_MINT = "7C2Y5NebLFG37wMbB85TbMqYERTSkq9tEi58wv28MCzt";
+    const PRAE_MINT = "PRAE_MINT_ADDRESS_HERE";  // ← PUT YOUR ACTUAL PRAE MINT HERE
     const SOLANA_RPC = "https://api.mainnet-beta.solana.com";
     const REQUIRED_PRAE = 777;
     const POINTS_PER_WIN = 7;
     
-    // Oracles - ONLY these addresses can resolve predictions
-    const ORACLES = ["7C2Y5NebLFG37wMbB85TbMqYERTSkq9tEi58wv28MCzt"];
+    // Oracles - ONLY these addresses can resolve praedictions
+    const ORACLES = ["0xYourWalletHere"];
     
-    // Rate limiting configuration
+    // Rate limiting
     const RATE_LIMIT = {
       maxPerMinute: 5,
       maxPerDay: 20,
@@ -202,92 +212,150 @@
     let rateLimitStore = new Map();
     
     // ========== SECURITY: Input Sanitization ==========
-    // Prevents XSS, script injection, malicious URLs
-    
     function sanitizeText(input) {
       if (!input) return '';
-      // Convert to string, remove script tags and dangerous patterns
       let clean = String(input);
       clean = clean.replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '');
       clean = clean.replace(/javascript:/gi, '');
       clean = clean.replace(/on\w+=/gi, '');
       clean = clean.replace(/<[^>]*>/g, '');
-      clean = clean.substring(0, 500); // Max length
+      clean = clean.substring(0, 500);
       return clean;
     }
     
     function sanitizeUrl(input) {
       if (!input) return '';
       let clean = String(input).trim();
-      // Block dangerous protocols
       const dangerous = ['javascript:', 'data:', 'vbscript:', 'file:', 'about:'];
       for (const proto of dangerous) {
         if (clean.toLowerCase().startsWith(proto)) {
           return '[invalid-protocol]';
         }
       }
-      // Allow http, https, or plain text (platform names)
       if (clean.match(/^https?:\/\//i)) {
         return clean.replace(/[<>'"]/g, '');
       }
-      // Plain text - safe
       return clean.substring(0, 200);
     }
     
-    // ========== SECURITY: Rate Limiting ==========
     function checkRateLimit(userId, action) {
       const now = Date.now();
       const key = `${userId}:${action}`;
-      
-      if (!rateLimitStore.has(key)) {
-        rateLimitStore.set(key, []);
-      }
-      
+      if (!rateLimitStore.has(key)) rateLimitStore.set(key, []);
       const timestamps = rateLimitStore.get(key);
       const recent = timestamps.filter(t => now - t < RATE_LIMIT.windowMs);
+      if (recent.length >= RATE_LIMIT.maxPerMinute) return false;
       
-      if (recent.length >= RATE_LIMIT.maxPerMinute) {
-        return false;
-      }
-      
-      // Check daily limit
       const today = new Date().toDateString();
       const dailyKey = `${userId}:${action}:${today}`;
       const dailyStore = JSON.parse(localStorage.getItem('rate_limit_daily') || '{}');
       const dailyCount = dailyStore[dailyKey] || 0;
-      
-      if (dailyCount >= RATE_LIMIT.maxPerDay) {
-        return false;
-      }
+      if (dailyCount >= RATE_LIMIT.maxPerDay) return false;
       
       dailyStore[dailyKey] = dailyCount + 1;
       localStorage.setItem('rate_limit_daily', JSON.stringify(dailyStore));
-      
       recent.push(now);
       rateLimitStore.set(key, recent);
       return true;
     }
     
-    // ========== TOKEN CHECK (Real on-chain - can't fake) ==========
+    // ========== IMPROVED TOKEN CHECK (Finds ALL tokens, even "spam") ==========
     async function checkPRAEBalance(address) {
+      try {
+        // Get ALL token accounts (not filtered by mint)
+        const response = await fetch(SOLANA_RPC, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            jsonrpc: "2.0", id: 1, method: "getTokenAccountsByOwner",
+            params: [address, { programId: "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA" }, { encoding: "jsonParsed" }]
+          })
+        });
+        
+        const data = await response.json();
+        const accounts = data.result?.value || [];
+        let total = 0;
+        
+        console.log("=== TOKEN CHECK DEBUG ===");
+        console.log("Looking for mint:", PRAE_MINT);
+        console.log("Total token accounts found:", accounts.length);
+        
+        for (const acc of accounts) {
+          const mint = acc.account?.data?.parsed?.info?.mint;
+          const amt = acc.account?.data?.parsed?.info?.tokenAmount?.uiAmountString;
+          const decimals = acc.account?.data?.parsed?.info?.tokenAmount?.decimals;
+          
+          if (amt && parseFloat(amt) > 0) {
+            console.log(`Token: ${mint}, Balance: ${amt}, Decimals: ${decimals}`);
+          }
+          
+          if (mint === PRAE_MINT && amt) {
+            total += parseFloat(amt);
+            console.log(`✅ FOUND PRAE! Adding ${amt} to total`);
+          }
+        }
+        
+        console.log("Total PRAE balance found:", total);
+        return total;
+      } catch(e) { 
+        console.error("Balance check error:", e);
+        return 0; 
+      }
+    }
+    
+    // Debug function to show all tokens
+    async function debugAllTokens() {
+      if (!walletAddress) {
+        document.getElementById('debugOutput').innerHTML = "Connect wallet first";
+        document.getElementById('debugPanel').classList.add('show');
+        return;
+      }
+      
+      document.getElementById('debugOutput').innerHTML = "Scanning wallet...";
+      
       try {
         const response = await fetch(SOLANA_RPC, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             jsonrpc: "2.0", id: 1, method: "getTokenAccountsByOwner",
-            params: [address, { mint: PRAE_MINT }, { encoding: "jsonParsed" }]
+            params: [walletAddress, { programId: "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA" }, { encoding: "jsonParsed" }]
           })
         });
+        
         const data = await response.json();
         const accounts = data.result?.value || [];
-        let total = 0;
+        
+        let output = `<strong>Wallet:</strong> ${walletAddress.slice(0,10)}...<br>`;
+        output += `<strong>Looking for PRAE mint:</strong> ${PRAE_MINT}<br><br>`;
+        output += `<strong>All tokens found:</strong><br>`;
+        
+        let foundPRAE = false;
+        
         for (const acc of accounts) {
+          const mint = acc.account?.data?.parsed?.info?.mint;
           const amt = acc.account?.data?.parsed?.info?.tokenAmount?.uiAmountString;
-          if (amt) total += parseFloat(amt);
+          const decimals = acc.account?.data?.parsed?.info?.tokenAmount?.decimals;
+          
+          if (amt && parseFloat(amt) > 0) {
+            const isPRAE = mint === PRAE_MINT;
+            output += `${isPRAE ? '✅ ' : '• '} Mint: ${mint.slice(0,8)}... Balance: ${amt}<br>`;
+            if (isPRAE) foundPRAE = true;
+          }
         }
-        return total;
-      } catch(e) { return 0; }
+        
+        if (!foundPRAE) {
+          output += `<br><span style="color: #ef4444;">❌ PRAE token not found in your wallet!</span><br>`;
+          output += `<span style="color: #fbbf24;">💡 Tip: Make sure you have the correct PRAE mint address.</span>`;
+        } else {
+          output += `<br><span style="color: #2dd4bf;">✅ PRAE token found! You should have access.</span>`;
+        }
+        
+        document.getElementById('debugOutput').innerHTML = output;
+        document.getElementById('debugPanel').classList.add('show');
+      } catch(e) {
+        document.getElementById('debugOutput').innerHTML = `Error: ${e.message}`;
+      }
     }
     
     async function verifyAccess() {
@@ -299,7 +367,7 @@
         hasAccess = true;
         document.getElementById('gate').style.display = 'none';
         document.getElementById('mainApp').style.display = 'block';
-        document.getElementById('walletInfo').innerHTML = `🦊 ${walletAddress.slice(0,6)}...${walletAddress.slice(-4)} • ${balance.toLocaleString()} PRAE`;
+        document.getElementById('walletInfo').innerHTML = `👻 ${walletAddress.slice(0,6)}...${walletAddress.slice(-4)} • ${balance.toLocaleString()} PRAE`;
         if (ORACLES.includes(walletAddress)) {
           document.getElementById('oracleTab').style.display = 'inline-block';
         }
@@ -307,7 +375,7 @@
         renderAll();
       } else {
         document.getElementById('balanceDisplay').style.display = 'block';
-        document.getElementById('balanceText').innerHTML = `❌ You have ${balance.toLocaleString()} PRAE (need ${REQUIRED_PRAE})`;
+        document.getElementById('balanceText').innerHTML = `❌ Your PRAE: ${balance.toLocaleString()}`;
         document.getElementById('accessStatus').innerHTML = `<span style="color: #ef4444;">✗ Need ${REQUIRED_PRAE} PRAE</span>`;
       }
       return hasEnough;
@@ -326,14 +394,13 @@
       } catch(e) { alert("Connection failed"); }
     }
     
-    // ========== DATA MANAGEMENT ==========
     function loadData() {
       try {
-        const saved = localStorage.getItem('prae_predictions_secure');
+        const saved = localStorage.getItem('praedicta_predictions');
         if (saved) predictions = JSON.parse(saved);
         else predictions = [];
         
-        const savedUsers = localStorage.getItem('prae_users_secure');
+        const savedUsers = localStorage.getItem('praedicta_users');
         if (savedUsers) {
           const parsed = JSON.parse(savedUsers);
           users = new Map(parsed);
@@ -347,17 +414,16 @@
     
     function saveData() {
       try {
-        localStorage.setItem('prae_predictions_secure', JSON.stringify(predictions));
-        localStorage.setItem('prae_users_secure', JSON.stringify(Array.from(users.entries())));
+        localStorage.setItem('praedicta_predictions', JSON.stringify(predictions));
+        localStorage.setItem('praedicta_users', JSON.stringify(Array.from(users.entries())));
       } catch(e) {
         console.error("Failed to save data:", e);
       }
     }
     
-    // ========== PREDICTION SUBMISSION ==========
     function submitPrediction() {
       if (!hasAccess) { showToast("Need 777 PRAE"); return; }
-      if (!checkRateLimit(walletAddress, 'predict')) { showToast("Too many predictions! Slow down."); return; }
+      if (!checkRateLimit(walletAddress, 'predict')) { showToast("Too many praedictions! Slow down."); return; }
       
       const category = document.getElementById('categorySelect').value;
       const text = document.getElementById('predictionText').value.trim();
@@ -365,11 +431,10 @@
       const deadline = document.getElementById('deadlineInput').value;
       
       if (!category) { showToast("Select a category"); return; }
-      if (!text) { showToast("Enter prediction"); return; }
+      if (!text) { showToast("Enter your praediction"); return; }
       if (!source) { showToast("Enter verification source"); return; }
-      if (text.length < 5) { showToast("Prediction too short"); return; }
+      if (text.length < 5) { showToast("Praediction too short"); return; }
       
-      // Sanitize ALL user inputs!
       const cleanText = sanitizeText(text);
       const cleanSource = sanitizeUrl(source);
       
@@ -400,10 +465,9 @@
       document.getElementById('sourceInput').value = '';
       document.getElementById('deadlineInput').value = '';
       
-      showToast("✅ Prediction submitted! Win 7 points if correct!");
+      showToast("✅ Praediction submitted! Win 7 points if correct!");
     }
     
-    // ========== ORACLE RESOLUTION ==========
     async function resolvePrediction(id, isCorrect) {
       if (!ORACLES.includes(walletAddress)) { showToast("Only oracles can resolve"); return; }
       
@@ -436,7 +500,6 @@
       renderAll();
     }
     
-    // ========== RENDER FUNCTIONS ==========
     function renderAll() {
       renderPredictions();
       renderMyPredictions();
@@ -457,7 +520,7 @@
     function renderPredictions() {
       const container = document.getElementById('predictionsList');
       const pending = predictions.filter(p => p.status === 'pending').slice(0, 30);
-      if (pending.length === 0) { container.innerHTML = '<div class="card">✨ No pending predictions. Be the first!</div>'; return; }
+      if (pending.length === 0) { container.innerHTML = '<div class="card">✨ No pending praedictions. Be the first!</div>'; return; }
       
       container.innerHTML = pending.map(p => `
         <div class="card">
@@ -473,7 +536,7 @@
     function renderMyPredictions() {
       const container = document.getElementById('myPredictionsList');
       const mine = predictions.filter(p => p.creator === walletAddress);
-      if (mine.length === 0) { container.innerHTML = '<div>No predictions yet. Make one to win <span class="points-7">7</span> points!</div>'; return; }
+      if (mine.length === 0) { container.innerHTML = '<div>No praedictions yet. Make one to win <span class="points-7">7</span> points!</div>'; return; }
       
       container.innerHTML = mine.map(p => `
         <div class="prediction-item">
@@ -493,7 +556,7 @@
         .slice(0, 7);
       
       const container = document.getElementById('leaderboardList');
-      if (sorted.length === 0) { container.innerHTML = '<div>No predictions resolved yet. Be the first!</div>'; return; }
+      if (sorted.length === 0) { container.innerHTML = '<div>No praedictions resolved yet. Be the first!</div>'; return; }
       
       container.innerHTML = sorted.map((u, i) => `
         <div class="leaderboard-entry">
@@ -511,7 +574,7 @@
       const pending = predictions.filter(p => p.status === 'pending');
       
       if (pending.length === 0) {
-        container.innerHTML = '<div>No pending predictions to resolve.</div>';
+        container.innerHTML = '<div>No pending praedictions to resolve.</div>';
         return;
       }
       
@@ -547,22 +610,23 @@
       });
     }
     
-    // Make functions global for onclick handlers
+    // Make functions global
     window.submitPrediction = submitPrediction;
     window.resolvePrediction = resolvePrediction;
+    window.debugAllTokens = debugAllTokens;
     
     document.getElementById('connectBtn').addEventListener('click', connectWallet);
     document.getElementById('submitBtn').addEventListener('click', submitPrediction);
+    document.getElementById('debugBtn').addEventListener('click', debugAllTokens);
     
     setupTabs();
     
-    // Auto-connect if already connected
     if (window.solana?.isConnected && window.solana?.publicKey) {
       walletAddress = window.solana.publicKey.toString();
       verifyAccess();
     }
     
-    console.log("✅ PRAEDICTA Board ready! Secure mode active.");
+    console.log("👁️ PRAEDICTA ready! 👻");
   </script>
 </body>
 </html>
