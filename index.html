@@ -3,13 +3,12 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <title>PRAEDICTA • Final Fixed</title>
+  <title>PRAEDICTA • Final</title>
   <style>
-    /* same as before – kept for brevity */
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body {
       background: #0a0c10;
-      font-family: system-ui, -apple-system, sans-serif;
+      font-family: system-ui, sans-serif;
       color: #e2e8f0;
       padding: 16px;
       min-height: 100vh;
@@ -228,609 +227,550 @@
 
 <script>
 // ============================================================
-// PRAEDICTA - FINAL FIXED: No duplicate loads, cache-busting, safe saves
+// PRAEDICTA - SUPABASE VERSION (NO MORE GIST ISSUES)
+// Replace the placeholders with your actual Supabase URL and anon key
 // ============================================================
-(function() {
-  const WORKER_URL = "https://praedicta-backend.predicta.workers.dev";
-  const ADMIN_ADDRESS = "7C2Y5NebLFG37wMbB85TbMqYERTSkq9tEi58wv28MCzt";
-  const ADMIN_ADDRESSES = [ADMIN_ADDRESS];
-  const REQUIRED_PRAE = 0;   // set to 777 for production
-  const BUY_LINK = "https://dexscreener.com/solana/7C2Y5NebLFG37wMbB85TbMqYERTSkq9tEi58wv28MCzt";
-  const DISPUTE_WINDOW_DAYS = 7;
-  const DISPUTE_BOND = 7;
-  const REPUTATION_DECAY_FACTOR = 0.95;
-  const MAX_ACTIVE_PRAEDICTIONS_PER_USER = 5;
-  const MAX_CREATIONS_PER_DAY = 7;
+const SUPABASE_URL = "https://klgwyaeqnklydlqatzys.supabase.co";
+const SUPABASE_ANON_KEY = "sb_publishable_OL32s1-muu_5d5ACQ_4kVQ_yEEeyJl1";
 
-  let state = { markets: [], users: {}, admins: ADMIN_ADDRESSES, pendingProposals: [] };
-  let walletAddress = null;
-  let hasAccess = false;
-  let actionCooldown = false;
-  let isFirstLoad = true; // to prevent multiple loads
+let supabase = null;
+let walletAddress = null;
+let hasAccess = false;
+let actionCooldown = false;
 
-  // ---------- Daily helpers ----------
-  function getUTCDayKey() { return new Date().toISOString().slice(0,10); }
-  function refreshDailyVotes(addr) {
-    const u = state.users[addr];
-    if (!u) return;
-    const today = getUTCDayKey();
-    if (u.lastVoteDay !== today) {
-      u.votesLeft = 7;
-      u.lastVoteDay = today;
-      u.dailyVotesUsed = 0;
-    } else if (u.votesLeft === undefined) u.votesLeft = 7;
-  }
-  function canPraedict(addr) { const u = state.users[addr]; if (!u) return false; refreshDailyVotes(addr); return u.votesLeft > 0; }
-  function consumeVote(addr) {
-    const u = state.users[addr];
-    if (!u) return false;
-    refreshDailyVotes(addr);
-    if (u.votesLeft <= 0) return false;
-    u.votesLeft--;
-    u.dailyVotesUsed++;
-    return true;
-  }
-  function canCreateToday(addr) {
-    const u = state.users[addr];
-    if (!u) return true;
-    const today = getUTCDayKey();
-    if (u.lastCreateDay !== today) {
-      u.creationsToday = 0;
-      u.lastCreateDay = today;
-    }
-    return (u.creationsToday || 0) < MAX_CREATIONS_PER_DAY;
-  }
-  function recordCreation(addr) {
-    const u = state.users[addr];
-    if (!u) return;
-    const today = getUTCDayKey();
-    if (u.lastCreateDay !== today) {
-      u.creationsToday = 1;
-      u.lastCreateDay = today;
-    } else {
-      u.creationsToday = (u.creationsToday || 0) + 1;
-    }
-  }
+// ---------- Helper: daily votes (7 per UTC day) ----------
+function getUTCDayKey() { return new Date().toISOString().slice(0,10); }
 
-  function isSimilarTitle(newTitle, existingTitles, threshold = 0.6) {
-    const normalize = (s) => s.toLowerCase().replace(/[^\w\s]/g, '');
-    const newWords = new Set(normalize(newTitle).split(/\s+/));
-    for (const existing of existingTitles) {
-      const existingWords = new Set(normalize(existing).split(/\s+/));
-      const intersection = [...newWords].filter(w => existingWords.has(w)).length;
-      const union = newWords.size + existingWords.size - intersection;
-      const similarity = union === 0 ? 0 : intersection / union;
-      if (similarity >= threshold) return true;
-    }
-    return false;
+// ---------- Load predictions from Supabase ----------
+async function loadPredictions() {
+  const { data, error } = await supabase
+    .from('predictions')
+    .select('*')
+    .order('created_at', { ascending: false });
+  if (error) {
+    console.error(error);
+    showToast("Failed to load predictions");
+    return [];
   }
+  return data;
+}
 
-  async function fetchWithRetry(url, options = {}, retries = 3, delay = 500) {
-    for (let i = 0; i < retries; i++) {
-      try {
-        const res = await fetch(url, options);
-        if (res.ok) return res;
-        throw new Error(`HTTP ${res.status}`);
-      } catch (err) {
-        if (i === retries - 1) throw err;
-        await new Promise(r => setTimeout(r, delay * Math.pow(2, i)));
-      }
-    }
+async function loadUser(address) {
+  const { data, error } = await supabase
+    .from('users')
+    .select('*')
+    .eq('address', address)
+    .maybeSingle();
+  if (error && error.code !== 'PGRST116') {
+    console.error(error);
+    return null;
   }
+  return data;
+}
 
-  // Load Gist with cache-busting, only once
-  async function loadGlobalState() {
-    if (!isFirstLoad) {
-      console.log("Skipping load – already loaded");
-      return;
-    }
-    isFirstLoad = false;
-    try {
-      const url = `${WORKER_URL}?_=${Date.now()}`;
-      const res = await fetchWithRetry(url, {}, 3, 500);
-      const data = await res.json();
-      console.log("[DEBUG] Gist content:", data);
-      if (data && typeof data === 'object') {
-        state = data;
-        showToast("✅ State loaded from Gist");
-      } else {
-        showToast("⚠️ Gist returned invalid – keeping previous state");
-      }
-    } catch (err) {
-      console.error(err);
-      showToast("⚠️ Failed to load from Gist – keeping previous state");
-    }
-    // Ensure admins are set
-    if (!state.admins || state.admins.length === 0) state.admins = ADMIN_ADDRESSES;
-    // Apply reputation decay and refresh votes
-    const now = Date.now();
-    for (let addr in state.users) {
-      const u = state.users[addr];
-      const lastActive = u.lastActive ? new Date(u.lastActive).getTime() : now;
-      const weeks = (now - lastActive) / (7 * 86400000);
-      if (weeks > 0 && u.reputation) u.reputation = Math.max(0.1, u.reputation * Math.pow(REPUTATION_DECAY_FACTOR, weeks));
-      u.lastActive = new Date().toISOString();
-      refreshDailyVotes(addr);
-    }
-    renderAll();
-  }
+async function upsertUser(user) {
+  const { error } = await supabase
+    .from('users')
+    .upsert(user, { onConflict: 'address' });
+  if (error) console.error(error);
+}
 
-  // Save to Gist (only if state has changed)
-  async function saveGlobalState() {
-    try {
-      await fetchWithRetry(WORKER_URL, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(state) }, 3, 500);
-      console.log("State saved to Gist");
-    } catch (err) {
-      console.error("Failed to save to Gist:", err);
-      showToast("⚠️ Failed to save – check your connection");
-    }
-  }
+async function updatePrediction(prediction) {
+  const { error } = await supabase
+    .from('predictions')
+    .upsert(prediction, { onConflict: 'id' });
+  if (error) console.error(error);
+}
 
-  async function checkPRAEBalance() { return REQUIRED_PRAE === 0 ? 999999 : 999999; }
+// ---------- Render all UI ----------
+let currentPredictions = [];
 
-  async function verifyAccess() {
-    if (!walletAddress) return false;
-    const balance = await checkPRAEBalance();
-    const hasEnough = balance >= REQUIRED_PRAE;
-    const balanceDiv = document.getElementById('balanceDisplay');
-    const balanceText = document.getElementById('balanceText');
-    const accessStatus = document.getElementById('accessStatus');
-    const buyLink = document.getElementById('buyLink');
-    balanceDiv.style.display = 'block';
-    if (hasEnough) {
-      balanceText.innerHTML = `<span class="balance-ok">✅ Your PRAE: ${balance.toLocaleString()}</span>`;
-      accessStatus.innerHTML = '<span style="color:#2dd4bf;">✓ Access granted!</span>';
-      buyLink.style.display = 'none';
-      hasAccess = true;
-      await loadGlobalState(); // only called once per session
-      // Ensure current user exists in state
-      if (!state.users[walletAddress]) {
-        state.users[walletAddress] = {
-          balance: 1000, reputation: 0.5, correctVotes: 0, totalVotes: 0,
-          lastActive: new Date().toISOString(), seerscore: 0,
-          referredBy: null, referralBonusClaimed: false,
-          votesLeft: 7, lastVoteDay: getUTCDayKey(), dailyVotesUsed: 0,
-          creationsToday: 0, lastCreateDay: getUTCDayKey()
-        };
-        await saveGlobalState();
-      }
-      refreshDailyVotes(walletAddress);
-      setTimeout(() => {
-        document.getElementById('gate').style.display = 'none';
-        document.getElementById('mainApp').style.display = 'block';
-        document.getElementById('profileGetPraeBtn').href = BUY_LINK;
-        document.getElementById('headerGetPraeBtn').style.display = 'inline-flex';
-        document.getElementById('headerGetPraeBtn').href = BUY_LINK;
-        updateReferralLink();
-      }, 800);
-    } else {
-      balanceText.innerHTML = `<span class="balance-insufficient">❌ Your PRAE: ${balance.toLocaleString()} (need ${REQUIRED_PRAE})</span>`;
-      accessStatus.innerHTML = '';
-      buyLink.style.display = 'inline-block';
-      buyLink.href = BUY_LINK;
-      hasAccess = false;
-    }
-    return hasEnough;
-  }
+async function renderAll() {
+  currentPredictions = await loadPredictions();
+  renderPraedictions();
+  renderLeaderboard();
+  renderProfile();
+  renderDisputesDashboard();
+  document.getElementById('totalPraedictions').innerText = currentPredictions.filter(p => p.status === 'active').length;
+  const totalBets = currentPredictions.reduce((sum, p) => sum + (p.bets?.length || 0), 0);
+  document.getElementById('totalBets').innerText = totalBets;
+  const user = await loadUser(walletAddress);
+  document.getElementById('totalVolume').innerText = user?.seerscore || 0;
+}
 
-  async function connectWallet() {
-    if (!window.solana || !window.solana.isPhantom) {
-      alert("Install Phantom Wallet");
-      window.open('https://phantom.app/', '_blank');
-      return;
-    }
-    try {
-      const resp = await window.solana.connect();
-      walletAddress = resp.publicKey.toString();
-      if (!state.users[walletAddress]) {
-        state.users[walletAddress] = {
-          balance: 1000, reputation: 0.5, correctVotes: 0, totalVotes: 0,
-          lastActive: new Date().toISOString(), seerscore: 0,
-          referredBy: null, referralBonusClaimed: false,
-          votesLeft: 7, lastVoteDay: getUTCDayKey(), dailyVotesUsed: 0,
-          creationsToday: 0, lastCreateDay: getUTCDayKey()
-        };
-      }
-      refreshDailyVotes(walletAddress);
-      await saveGlobalState();
-      await verifyAccess();
-    } catch(e) { alert("Connection failed: " + e.message); }
-  }
-
-  function updateReferralLink() {
-    const elem = document.getElementById('referralLink');
-    if (elem && walletAddress) elem.textContent = `${window.location.origin}${window.location.pathname}?ref=${walletAddress}`;
-  }
-  function copyReferralLink() {
-    const elem = document.getElementById('referralLink');
-    if (elem) { navigator.clipboard.writeText(elem.textContent); showToast("📋 Referral link copied!"); }
-  }
-  async function awardReferralBonus(newUserAddr) {
-    const newUser = state.users[newUserAddr];
-    if (!newUser || newUser.referralBonusClaimed || !newUser.referredBy) return;
-    const referrer = state.users[newUser.referredBy];
-    if (referrer) {
-      referrer.seerscore = (referrer.seerscore || 0) + 77;
-      newUser.seerscore = (newUser.seerscore || 0) + 77;
-      newUser.referralBonusClaimed = true;
-      await saveGlobalState();
-      showToast(`🎉 Referral bonus! You got +77 Seerscore. Your referrer got +77 Seerscore.`);
-      renderAll();
-    }
-  }
-
-  function withCooldown(action, msg) {
-    if (actionCooldown) { showToast(msg); return; }
-    actionCooldown = true;
-    action();
-    setTimeout(() => { actionCooldown = false; }, 3000);
-  }
-
-  function praedict(praedictionId, outcome) {
-    withCooldown(async () => {
-      const market = state.markets.find(m => m.id === praedictionId);
-      if (!market || market.status !== "active") { showToast("Praediction not active"); return; }
-      if (market.bets.find(b => b.user === walletAddress)) { showToast("You already praedicted on this market!"); return; }
-      if (!canPraedict(walletAddress)) { showToast("No votes left today! Come back tomorrow."); return; }
-      consumeVote(walletAddress);
-      market.bets.push({ user: walletAddress, outcome, amount: 1, timestamp: new Date().toISOString() });
-      market.bettingPool[outcome] += 1;
-      await saveGlobalState();
-      renderAll();
-      awardReferralBonus(walletAddress);
-      showToast(`👁️ Praedicted ${outcome.toUpperCase()}! (1 vote used)`);
-    }, "Please wait before another action");
-  }
-
-  function oracleVote(praedictionId, outcome) {
-    withCooldown(async () => {
-      const market = state.markets.find(m => m.id === praedictionId);
-      if (!market || market.status !== "active") { showToast("Praediction not active"); return; }
-      if (market.resolutionDate && new Date(market.resolutionDate) > new Date()) { showToast("Not yet resolvable"); return; }
-      if (market.oracleVotes.voters.includes(walletAddress)) { showToast("Already voted as oracle"); return; }
-      const user = state.users[walletAddress] || { balance: 1000, reputation: 0.5 };
-      const power = user.balance * (0.5 + (user.reputation || 0.5));
-      market.oracleVotes[outcome] += power;
-      market.oracleVotes.voters.push(walletAddress);
-      await saveGlobalState();
-      renderAll();
-      showToast(`🗳️ Voted ${outcome} with ${power.toFixed(2)} power`);
-      checkAndResolveMarket(praedictionId);
-    }, "Please wait before voting again");
-  }
-
-  function checkAndResolveMarket(praedictionId) {
-    const market = state.markets.find(m => m.id === praedictionId);
-    if (!market || market.status !== "active") return;
-    const total = market.oracleVotes.yes + market.oracleVotes.no;
-    if (total === 0) return;
-    const yesRatio = market.oracleVotes.yes / total;
-    const noRatio = market.oracleVotes.no / total;
-    if (yesRatio >= market.resolutionThreshold) resolveMarket(praedictionId, "yes");
-    else if (noRatio >= market.resolutionThreshold) resolveMarket(praedictionId, "no");
-  }
-
-  function resolveMarket(praedictionId, outcome) {
-    const market = state.markets.find(m => m.id === praedictionId);
-    if (!market || market.status !== "active") return;
-    market.status = "resolved";
-    market.resolvedOutcome = outcome;
-    market.resolvedAt = new Date().toISOString();
-    market.disputeDeadline = new Date(Date.now() + DISPUTE_WINDOW_DAYS * 86400000).toISOString();
-    const totalPool = market.bettingPool.yes + market.bettingPool.no;
-    const winningPool = market.bettingPool[outcome];
-    if (winningPool > 0) {
-      for (const bet of market.bets) {
-        if (bet.outcome === outcome) {
-          let user = state.users[bet.user] || { balance: 0, reputation: 0.5, correctVotes: 0, totalVotes: 0, seerscore: 0 };
-          user.seerscore = (user.seerscore || 0) + 7;
-          user.correctVotes++;
-          user.totalVotes++;
-          user.reputation = user.correctVotes / user.totalVotes;
-          state.users[bet.user] = user;
-          awardReferralBonus(bet.user);
-        } else {
-          let user = state.users[bet.user];
-          if (user) { user.totalVotes++; user.reputation = user.correctVotes / user.totalVotes; state.users[bet.user] = user; }
-        }
-      }
-    }
-    saveGlobalState().then(() => { renderAll(); showToast(`🏆 Resolved! Outcome: ${outcome.toUpperCase()}`); });
-  }
-
-  function raiseDispute(praedictionId) {
-    const market = state.markets.find(m => m.id === praedictionId);
-    if (!market || market.status !== "resolved") { showToast("Only resolved praedictions can be disputed"); return; }
-    if (new Date() > new Date(market.disputeDeadline)) { showToast("Dispute window closed"); return; }
-    if (market.dispute?.active) { showToast("Dispute already active"); return; }
-    const user = state.users[walletAddress];
-    if (!user || user.balance < DISPUTE_BOND) { showToast(`Need ${DISPUTE_BOND} voting rights to dispute`); return; }
-    const proposedOutcome = prompt("Correct outcome? (yes/no)", market.resolvedOutcome === "yes" ? "no" : "yes");
-    if (!["yes","no"].includes(proposedOutcome)) return;
-    const evidence = prompt("Evidence URL:", "");
-    if (!evidence) return;
-    user.balance -= DISPUTE_BOND;
-    state.users[walletAddress] = user;
-    market.dispute = { active: true, challenger: walletAddress, proposedOutcome, evidence, bondAmount: DISPUTE_BOND, resolvedByAdmin: null, adminDecision: null };
-    market.status = "disputed";
-    saveGlobalState().then(() => renderAll());
-    showToast("⚠️ Dispute raised! Oracle will review.");
-  }
-
-  async function adminResolveDispute(praedictionId, acceptChallenge) {
-    if (!ADMIN_ADDRESSES.includes(walletAddress)) { showToast("Only oracle can resolve disputes"); return; }
-    const market = state.markets.find(m => m.id === praedictionId);
-    if (!market || market.status !== "disputed" || !market.dispute?.active) return;
-    if (acceptChallenge) {
-      market.resolvedOutcome = market.dispute.proposedOutcome;
-      if (state.users[market.dispute.challenger]) state.users[market.dispute.challenger].balance += market.dispute.bondAmount;
-      showToast(`✅ Dispute accepted! Outcome changed to ${market.dispute.proposedOutcome.toUpperCase()}.`);
-    } else {
-      let adminTreasury = state.users[ADMIN_ADDRESSES[0]] || { balance: 0 };
-      adminTreasury.balance += market.dispute.bondAmount * 0.5;
-      state.users[ADMIN_ADDRESSES[0]] = adminTreasury;
-      showToast("❌ Dispute rejected. Bond slashed.");
-    }
-    market.status = "resolved";
-    market.dispute.active = false;
-    market.dispute.resolvedByAdmin = walletAddress;
-    market.dispute.adminDecision = acceptChallenge ? "accepted" : "rejected";
-    await saveGlobalState();
-    renderAll();
-  }
-
-  async function tryAutoResolve(market) {
-    if (!market.autoSource || !market.targetValue || market.status !== "active") return false;
-    if (new Date() <= new Date(market.resolutionDate)) return false;
-    let price = null;
-    try {
-      const idMap = { coingecko_btc:"bitcoin", coingecko_eth:"ethereum", coingecko_sol:"solana", coingecko_doge:"dogecoin", coingecko_matic:"polygon-pos", coingecko_avax:"avalanche-2", coingecko_link:"chainlink" };
-      const coinId = idMap[market.autoSource];
-      if (coinId) {
-        const resp = await fetch(`https://api.coingecko.com/api/v3/simple/price?ids=${coinId}&vs_currencies=usd`);
-        const data = await resp.json();
-        price = data[coinId]?.usd;
-      }
-    } catch(e) { return false; }
-    if (price === null) return false;
-    const target = parseFloat(market.targetValue);
-    if (isNaN(target)) return false;
-    const outcome = price >= target ? "yes" : "no";
-    resolveMarket(market.id, outcome);
-    showToast(`🤖 Auto-resolved: ${market.title} → ${outcome.toUpperCase()} (${price} USD)`);
-    return true;
-  }
-
-  async function autoResolveAllMarkets() { for (const m of state.markets) if (m.status === "active" && m.autoSource) await tryAutoResolve(m); }
-  function autoResolveExpired() {
-    const now = new Date();
-    let changed = false;
-    for (const m of state.markets) {
-      if (m.status !== "active" || !m.autoResolveDate) continue;
-      if (new Date(m.autoResolveDate) <= now) {
-        m.status = "resolved";
-        m.resolvedOutcome = "expired";
-        m.resolvedAt = new Date().toISOString();
-        changed = true;
-        showToast(`🕒 "${m.title}" auto-resolved EXPIRED.`);
-      }
-    }
-    if (changed) { saveGlobalState(); renderAll(); }
-  }
-
-  function createPraediction() {
-    const title = document.getElementById('praedictionTitle').value.trim();
-    const description = document.getElementById('praedictionDescription').value.trim();
-    const category = document.getElementById('categorySelect').value;
-    const resolutionDate = document.getElementById('resolutionDate').value;
-    const autoSource = document.getElementById('autoSource').value;
-    const targetValue = document.getElementById('targetValue').value.trim();
-    if (!title || !description || !resolutionDate) { showToast("Fill all fields"); return; }
-    if (!canCreateToday(walletAddress)) { showToast(`You can only create ${MAX_CREATIONS_PER_DAY} praedictions per day.`); return; }
-    const userActiveCount = state.markets.filter(m => m.creator === walletAddress && m.status === "active").length;
-    if (userActiveCount >= MAX_ACTIVE_PRAEDICTIONS_PER_USER) { showToast(`Max ${MAX_ACTIVE_PRAEDICTIONS_PER_USER} active praedictions`); return; }
-    const activeTitles = state.markets.filter(m => m.status === "active").map(m => m.title);
-    if (activeTitles.some(t => t.toLowerCase() === title.toLowerCase())) { showToast("❌ Identical active praediction exists"); return; }
-    if (isSimilarTitle(title, activeTitles, 0.6) && !confirm("⚠️ Similar active praediction exists. Still create?")) return;
-    const minDate = new Date(); minDate.setHours(minDate.getHours() + 24);
-    const selectedDate = new Date(resolutionDate);
-    if (selectedDate < minDate) { showToast("Resolution date must be at least 24h from now"); return; }
-    recordCreation(walletAddress);
-    const newMarket = {
-      id: "praed_" + Date.now(),
-      title, description, category, creator: walletAddress,
-      createdAt: new Date().toISOString(), resolutionDate,
-      status: "active",
-      bettingPool: { yes: 0, no: 0 }, bets: [],
-      oracleVotes: { yes: 0, no: 0, voters: [] },
-      resolutionThreshold: 0.66,
-      resolvedOutcome: null, resolvedAt: null, disputeDeadline: null,
-      dispute: { active: false },
-      autoResolveDate: new Date(selectedDate.getTime() + 7 * 86400000).toISOString(),
-      autoSource: autoSource || null, targetValue: targetValue || null
-    };
-    state.markets.unshift(newMarket);
-    saveGlobalState().then(() => {
-      renderAll();
-      document.getElementById('praedictionTitle').value = "";
-      document.getElementById('praedictionDescription').value = "";
-      document.getElementById('resolutionDate').value = "";
-      document.getElementById('autoSource').value = "";
-      document.getElementById('targetValue').value = "";
-      showToast("✨ Praediction created!");
-    });
-  }
-
-  function renderAll() {
-    renderPraedictions();
-    renderLeaderboard();
-    renderProfile();
-    renderDisputesDashboard();
-    document.getElementById('totalPraedictions').innerText = state.markets.filter(m => m.status === "active").length;
-    document.getElementById('totalBets').innerText = state.markets.reduce((s,m) => s + m.bets.length, 0);
-    document.getElementById('totalVolume').innerText = state.users[walletAddress]?.seerscore || 0;
-  }
-
-  function renderLeaderboard() {
-    const container = document.getElementById('leaderboardList');
-    if (!container) return;
-    const sorted = Object.entries(state.users).map(([a,u]) => ({ addr:a, seerscore: u.seerscore||0, correct: u.correctVotes||0, total: u.totalVotes||0 })).sort((a,b) => b.seerscore - a.seerscore).slice(0,20);
-    if (sorted.length === 0) { container.innerHTML = '<div>No users yet</div>'; return; }
-    container.innerHTML = sorted.map((u,i) => `<div class="leaderboard-item"><div>${i+1}. ${u.addr.slice(0,6)}...${u.addr.slice(-4)}</div><div>${u.seerscore > 0 ? '⭐ ' + u.seerscore : '👁️ ' + u.seerscore} pts</div><div>🎯 ${((u.correct/(u.total||1))*100).toFixed(0)}%</div></div>`).join('');
-  }
-
-  function renderProfile() {
-    const container = document.getElementById('profileStats');
-    const headline = document.getElementById('profileHeadline');
-    if (headline && walletAddress) headline.innerText = `Welcome Seer: ${walletAddress.slice(0,8)}...${walletAddress.slice(-6)}`;
-    if (!container) return;
-    const u = state.users[walletAddress] || { balance:0, reputation:0, correctVotes:0, totalVotes:0, seerscore:0, votesLeft:7, creationsToday:0, lastCreateDay:getUTCDayKey() };
-    refreshDailyVotes(walletAddress);
-    const votesLeft = u.votesLeft !== undefined ? u.votesLeft : 0;
-    const today = getUTCDayKey();
-    const creationsUsed = (u.lastCreateDay === today) ? (u.creationsToday || 0) : 0;
-    const creationsLeft = MAX_CREATIONS_PER_DAY - creationsUsed;
-    container.innerHTML = `
-      <div class="profile-stat">🦉 Reputation: ${(u.reputation||0.5).toFixed(3)}</div>
-      <div class="profile-stat">✨ Creations left today: ${creationsLeft}/${MAX_CREATIONS_PER_DAY}</div>
-      <div class="profile-stat">🗳️ Votes left today: ${votesLeft}/7</div>
-      <div class="profile-stat">📝 Praedictions made: ${u.totalVotes || 0}</div>
-      <div class="profile-stat">🎯 Accuracy: ${((u.correctVotes||0)/(u.totalVotes||1)*100).toFixed(0)}%</div>
-      <div class="profile-stat">👁️ Total Seerscore: ${u.seerscore || 0}</div>
-    `;
-  }
-
-  function renderPraedictions() {
-    const container = document.getElementById('praedictionsContainer');
-    if (!container) return;
-    container.innerHTML = state.markets.map(m => {
-      const isActive = m.status === "active";
-      const isResolved = m.status === "resolved";
-      const isDisputed = m.status === "disputed";
-      const totalVol = m.bettingPool.yes + m.bettingPool.no;
-      const yesProb = totalVol > 0 ? (m.bettingPool.yes / totalVol * 100).toFixed(1) : 50;
-      const noProb = totalVol > 0 ? (m.bettingPool.no / totalVol * 100).toFixed(1) : 50;
-      const totalVotes = m.oracleVotes.yes + m.oracleVotes.no;
-      const oracleConsensus = totalVotes > 0 ? Math.max(m.oracleVotes.yes / totalVotes, m.oracleVotes.no / totalVotes) * 100 : 0;
-      const canDispute = isResolved && new Date() <= new Date(m.disputeDeadline) && !m.dispute?.active;
-      const isAdmin = ADMIN_ADDRESSES.includes(walletAddress);
-      const deadline = m.resolutionDate ? new Date(m.resolutionDate).toLocaleString() : 'No deadline';
-      return `
-        <div class="praediction-card">
-          <div class="praediction-title">
-            ${escapeHtml(m.title)}
-            <span class="badge ${isActive ? 'badge-active' : isDisputed ? 'badge-disputed' : 'badge-resolved'}">
-              ${isActive ? 'ACTIVE' : isDisputed ? 'DISPUTED' : 'RESOLVED'}
-            </span>
-            ${isAdmin ? '<span class="admin-badge">ADMIN</span>' : ''}
-          </div>
-          <div>${escapeHtml(m.description)}</div>
-          <div style="font-size:0.7rem; margin:4px 0;">📂 ${escapeHtml(m.category)}</div>
-          <div style="font-size:0.7rem; margin:4px 0;">⏰ ${deadline}</div>
-          <div class="share-buttons">
-            <button class="share-btn" onclick="shareOnTwitter(${JSON.stringify(m)})">🐦 Share</button>
-            <button class="share-btn" onclick="shareOnTelegram(${JSON.stringify(m)})">📱 Share</button>
-          </div>
-          <div style="display:flex; justify-content:space-between; margin:12px 0;">
-            <div><span class="outcome-yes">YES</span> ${yesProb}%<br>👁️ ${m.bettingPool.yes}</div>
-            <div><span class="outcome-no">NO</span> ${noProb}%<br>👁️ ${m.bettingPool.no}</div>
-          </div>
-          ${isActive ? `
-            <div class="action-buttons">
-              <button class="btn-praedict" onclick="praedict('${m.id}','yes')">👁️ Praedict YES</button>
-              <button class="btn-praedict" onclick="praedict('${m.id}','no')">👁️ Praedict NO</button>
-            </div>
-          ` : ''}
-          ${isResolved ? (m.resolvedOutcome === 'expired' ?
-            `<div style="background:#4a5568;padding:10px;border-radius:12px;margin-top:12px;text-align:center;">🕒 EXPIRED</div>` :
-            `<div style="background:var(--bg-primary);padding:10px;border-radius:12px;margin-top:12px;text-align:center;">
-              🏆 RESOLVED: ${m.resolvedOutcome === 'yes' ? '✅ YES' : '❌ NO'}
-              <div>${new Date(m.resolvedAt).toLocaleDateString()}</div>
-              ${canDispute ? `<button class="btn-dispute" onclick="raiseDispute('${m.id}')">⚠️ Dispute (7 voting rights)</button>` : ''}
-            </div>`
-          ) : ''}
-          ${isDisputed && m.dispute ? `<div style="background:#fbbf2420;padding:10px;border-radius:12px;margin-top:12px;text-align:center;">⚠️ DISPUTE ACTIVE – Awaiting oracle decision</div>` : ''}
-          <div class="oracle-consensus">
-            <div>🦉 ORACLE CONSENSUS (${oracleConsensus.toFixed(1)}% reached)</div>
-            <div><span class="oracle-vote vote-yes">YES: ${m.oracleVotes.yes.toFixed(0)}</span> <span class="oracle-vote vote-no">NO: ${m.oracleVotes.no.toFixed(0)}</span></div>
-            <div>${m.oracleVotes.voters.length} voted • Threshold: ${m.resolutionThreshold*100}%</div>
-            ${isActive && (!m.resolutionDate || new Date(m.resolutionDate) <= new Date()) ?
-              `<div><button class="btn-vote" onclick="oracleVote('${m.id}','yes')">🗳️ Vote YES</button><button class="btn-vote" onclick="oracleVote('${m.id}','no')">🗳️ Vote NO</button></div>` : ''
-            }
-          </div>
+function renderPraedictions() {
+  const container = document.getElementById('praedictionsContainer');
+  if (!container) return;
+  container.innerHTML = currentPredictions.map(p => {
+    const isActive = p.status === 'active';
+    const isResolved = p.status === 'resolved';
+    const isDisputed = p.status === 'disputed';
+    const totalVol = (p.betting_pool_yes || 0) + (p.betting_pool_no || 0);
+    const yesProb = totalVol > 0 ? ((p.betting_pool_yes || 0) / totalVol * 100).toFixed(1) : 50;
+    const noProb = totalVol > 0 ? ((p.betting_pool_no || 0) / totalVol * 100).toFixed(1) : 50;
+    const totalVotes = (p.oracle_votes_yes || 0) + (p.oracle_votes_no || 0);
+    const oracleConsensus = totalVotes > 0 ? Math.max((p.oracle_votes_yes || 0) / totalVotes, (p.oracle_votes_no || 0) / totalVotes) * 100 : 0;
+    const canDispute = isResolved && new Date() <= new Date(p.dispute_deadline) && !p.dispute?.active;
+    const isAdmin = (walletAddress === '7C2Y5NebLFG37wMbB85TbMqYERTSkq9tEi58wv28MCzt');
+    const deadline = p.resolution_date ? new Date(p.resolution_date).toLocaleString() : 'No deadline';
+    return `
+      <div class="praediction-card">
+        <div class="praediction-title">
+          ${escapeHtml(p.title)}
+          <span class="badge ${isActive ? 'badge-active' : isDisputed ? 'badge-disputed' : 'badge-resolved'}">
+            ${isActive ? 'ACTIVE' : isDisputed ? 'DISPUTED' : 'RESOLVED'}
+          </span>
+          ${isAdmin ? '<span class="admin-badge">ADMIN</span>' : ''}
         </div>
-      `;
-    }).join('');
-  }
-
-  function renderDisputesDashboard() {
-    const container = document.getElementById('disputesList');
-    if (!container) return;
-    const disputed = state.markets.filter(m => m.status === 'disputed' && m.dispute?.active);
-    if (disputed.length === 0) { container.innerHTML = '<div>No open disputes.</div>'; return; }
-    container.innerHTML = disputed.map(m => `
-      <div class="dispute-item">
-        <div><strong>${escapeHtml(m.title)}</strong></div>
-        <div>Challenger: ${m.dispute.challenger.slice(0,8)}...</div>
-        <div>Claims: ${m.dispute.proposedOutcome.toUpperCase()}</div>
-        <div>Evidence: <a href="${escapeHtml(m.dispute.evidence)}" target="_blank">View</a></div>
-        <div>Bond: ${m.dispute.bondAmount} voting rights</div>
-        ${ADMIN_ADDRESSES.includes(walletAddress) ?
-          `<div><button class="btn-praedict" onclick="adminResolveDispute('${m.id}', true)">✅ Accept</button> <button class="btn-praedict" onclick="adminResolveDispute('${m.id}', false)">❌ Reject</button></div>` :
-          '<div>⏳ Waiting for oracle</div>'
-        }
+        <div>${escapeHtml(p.description)}</div>
+        <div style="font-size:0.7rem; margin:4px 0;">📂 ${escapeHtml(p.category)}</div>
+        <div style="font-size:0.7rem; margin:4px 0;">⏰ ${deadline}</div>
+        <div class="share-buttons">
+          <button class="share-btn" onclick="shareOnTwitter(${JSON.stringify(p)})">🐦 Share</button>
+          <button class="share-btn" onclick="shareOnTelegram(${JSON.stringify(p)})">📱 Share</button>
+        </div>
+        <div style="display:flex; justify-content:space-between; margin:12px 0;">
+          <div><span class="outcome-yes">YES</span> ${yesProb}%<br>👁️ ${p.betting_pool_yes || 0}</div>
+          <div><span class="outcome-no">NO</span> ${noProb}%<br>👁️ ${p.betting_pool_no || 0}</div>
+        </div>
+        ${isActive ? `
+          <div class="action-buttons">
+            <button class="btn-praedict" onclick="praedict('${p.id}','yes')">👁️ Praedict YES</button>
+            <button class="btn-praedict" onclick="praedict('${p.id}','no')">👁️ Praedict NO</button>
+          </div>
+        ` : ''}
+        ${isResolved ? (p.resolved_outcome === 'expired' ?
+          `<div style="background:#4a5568;padding:10px;border-radius:12px;margin-top:12px;text-align:center;">🕒 EXPIRED</div>` :
+          `<div style="background:var(--bg-primary);padding:10px;border-radius:12px;margin-top:12px;text-align:center;">
+            🏆 RESOLVED: ${p.resolved_outcome === 'yes' ? '✅ YES' : '❌ NO'}
+            <div>${new Date(p.resolved_at).toLocaleDateString()}</div>
+            ${canDispute ? `<button class="btn-dispute" onclick="raiseDispute('${p.id}')">⚠️ Dispute (7 voting rights)</button>` : ''}
+          </div>`
+        ) : ''}
+        ${isDisputed && p.dispute ? `<div style="background:#fbbf2420;padding:10px;border-radius:12px;margin-top:12px;text-align:center;">⚠️ DISPUTE ACTIVE – Awaiting oracle decision</div>` : ''}
+        <div class="oracle-consensus">
+          <div>🦉 ORACLE CONSENSUS (${oracleConsensus.toFixed(1)}% reached)</div>
+          <div><span class="oracle-vote vote-yes">YES: ${p.oracle_votes_yes || 0}</span> <span class="oracle-vote vote-no">NO: ${p.oracle_votes_no || 0}</span></div>
+          <div>${p.oracle_voters?.length || 0} voted • Threshold: ${(p.resolution_threshold || 0.66)*100}%</div>
+          ${isActive && (!p.resolution_date || new Date(p.resolution_date) <= new Date()) ?
+            `<div><button class="btn-vote" onclick="oracleVote('${p.id}','yes')">🗳️ Vote YES</button><button class="btn-vote" onclick="oracleVote('${p.id}','no')">🗳️ Vote NO</button></div>` : ''
+          }
+        </div>
       </div>
-    `).join('');
+    `;
+  }).join('');
+}
+
+async function renderLeaderboard() {
+  const container = document.getElementById('leaderboardList');
+  if (!container) return;
+  const { data, error } = await supabase
+    .from('users')
+    .select('address, seerscore, correct_votes, total_votes')
+    .order('seerscore', { ascending: false })
+    .limit(20);
+  if (error) { container.innerHTML = '<div>Error loading leaderboard</div>'; return; }
+  if (!data.length) { container.innerHTML = '<div>No users yet</div>'; return; }
+  container.innerHTML = data.map((u, i) => `
+    <div class="leaderboard-item">
+      <div>${i+1}. ${u.address.slice(0,6)}...${u.address.slice(-4)}</div>
+      <div>${u.seerscore > 0 ? '⭐ ' + u.seerscore : '👁️ ' + u.seerscore} pts</div>
+      <div>🎯 ${((u.correct_votes||0)/(u.total_votes||1)*100).toFixed(0)}%</div>
+    </div>
+  `).join('');
+}
+
+async function renderProfile() {
+  const container = document.getElementById('profileStats');
+  const headline = document.getElementById('profileHeadline');
+  if (headline && walletAddress) headline.innerText = `Welcome Seer: ${walletAddress.slice(0,8)}...${walletAddress.slice(-6)}`;
+  if (!container) return;
+  const user = await loadUser(walletAddress);
+  if (!user) return;
+  const votesLeft = user.votes_left !== undefined ? user.votes_left : 7;
+  const today = getUTCDayKey();
+  const creationsUsed = (user.last_create_day === today) ? (user.creations_today || 0) : 0;
+  const creationsLeft = 7 - creationsUsed;
+  container.innerHTML = `
+    <div class="profile-stat">🦉 Reputation: ${(user.reputation||0.5).toFixed(3)}</div>
+    <div class="profile-stat">✨ Creations left today: ${creationsLeft}/7</div>
+    <div class="profile-stat">🗳️ Votes left today: ${votesLeft}/7</div>
+    <div class="profile-stat">📝 Praedictions made: ${user.total_votes || 0}</div>
+    <div class="profile-stat">🎯 Accuracy: ${((user.correct_votes||0)/(user.total_votes||1)*100).toFixed(0)}%</div>
+    <div class="profile-stat">👁️ Total Seerscore: ${user.seerscore || 0}</div>
+  `;
+}
+
+async function renderDisputesDashboard() {
+  const container = document.getElementById('disputesList');
+  if (!container) return;
+  const disputed = currentPredictions.filter(p => p.status === 'disputed' && p.dispute?.active);
+  if (disputed.length === 0) { container.innerHTML = '<div>No open disputes.</div>'; return; }
+  container.innerHTML = disputed.map(p => `
+    <div class="dispute-item">
+      <div><strong>${escapeHtml(p.title)}</strong></div>
+      <div>Challenger: ${p.dispute.challenger.slice(0,8)}...</div>
+      <div>Claims: ${p.dispute.proposed_outcome.toUpperCase()}</div>
+      <div>Evidence: <a href="${escapeHtml(p.dispute.evidence)}" target="_blank">View</a></div>
+      <div>Bond: ${p.dispute.bond_amount} voting rights</div>
+      ${walletAddress === '7C2Y5NebLFG37wMbB85TbMqYERTSkq9tEi58wv28MCzt' ?
+        `<div><button class="btn-praedict" onclick="adminResolveDispute('${p.id}', true)">✅ Accept</button> <button class="btn-praedict" onclick="adminResolveDispute('${p.id}', false)">❌ Reject</button></div>` :
+        '<div>⏳ Waiting for oracle</div>'
+      }
+    </div>
+  `).join('');
+}
+
+// ---------- Actions ----------
+async function praedict(predictionId, outcome) {
+  if (actionCooldown) { showToast("Please wait before another action"); return; }
+  actionCooldown = true;
+  try {
+    // Load current user and prediction
+    let user = await loadUser(walletAddress);
+    if (!user) { showToast("User not found"); return; }
+    const prediction = currentPredictions.find(p => p.id === predictionId);
+    if (!prediction || prediction.status !== 'active') { showToast("Praediction not active"); return; }
+    if (prediction.bets?.some(b => b.user === walletAddress)) { showToast("You already praedicted on this market!"); return; }
+    const today = getUTCDayKey();
+    if (user.last_vote_day !== today) {
+      user.votes_left = 7;
+      user.last_vote_day = today;
+      user.daily_votes_used = 0;
+    }
+    if (user.votes_left <= 0) { showToast("No votes left today! Come back tomorrow."); return; }
+    user.votes_left--;
+    user.daily_votes_used++;
+    await upsertUser(user);
+    // Update prediction
+    const bets = prediction.bets || [];
+    bets.push({ user: walletAddress, outcome, amount: 1, timestamp: new Date().toISOString() });
+    const bettingPoolYes = (prediction.betting_pool_yes || 0) + (outcome === 'yes' ? 1 : 0);
+    const bettingPoolNo = (prediction.betting_pool_no || 0) + (outcome === 'no' ? 1 : 0);
+    await supabase
+      .from('predictions')
+      .update({ bets, betting_pool_yes: bettingPoolYes, betting_pool_no: bettingPoolNo })
+      .eq('id', predictionId);
+    await renderAll();
+    showToast(`👁️ Praedicted ${outcome.toUpperCase()}! (1 vote used)`);
+  } catch(e) { console.error(e); showToast("Error"); }
+  setTimeout(() => { actionCooldown = false; }, 3000);
+}
+
+async function oracleVote(predictionId, outcome) {
+  if (actionCooldown) { showToast("Please wait before another action"); return; }
+  actionCooldown = true;
+  try {
+    let user = await loadUser(walletAddress);
+    if (!user) { showToast("User not found"); return; }
+    const prediction = currentPredictions.find(p => p.id === predictionId);
+    if (!prediction || prediction.status !== 'active') { showToast("Praediction not active"); return; }
+    if (prediction.resolution_date && new Date(prediction.resolution_date) > new Date()) { showToast("Not yet resolvable"); return; }
+    if (prediction.oracle_voters?.includes(walletAddress)) { showToast("Already voted as oracle"); return; }
+    const votingPower = (user.balance || 1000) * (0.5 + (user.reputation || 0.5));
+    const oracleVotesYes = (prediction.oracle_votes_yes || 0) + (outcome === 'yes' ? votingPower : 0);
+    const oracleVotesNo = (prediction.oracle_votes_no || 0) + (outcome === 'no' ? votingPower : 0);
+    const oracleVoters = [...(prediction.oracle_voters || []), walletAddress];
+    await supabase
+      .from('predictions')
+      .update({ oracle_votes_yes: oracleVotesYes, oracle_votes_no: oracleVotesNo, oracle_voters: oracleVoters })
+      .eq('id', predictionId);
+    await renderAll();
+    showToast(`🗳️ Voted ${outcome} with ${votingPower.toFixed(2)} power`);
+    // Check consensus
+    const total = oracleVotesYes + oracleVotesNo;
+    if (total > 0) {
+      const yesRatio = oracleVotesYes / total;
+      const noRatio = oracleVotesNo / total;
+      const threshold = prediction.resolution_threshold || 0.66;
+      if (yesRatio >= threshold) resolveMarket(predictionId, 'yes');
+      else if (noRatio >= threshold) resolveMarket(predictionId, 'no');
+    }
+  } catch(e) { console.error(e); showToast("Error"); }
+  setTimeout(() => { actionCooldown = false; }, 3000);
+}
+
+async function resolveMarket(predictionId, outcome) {
+  try {
+    const prediction = currentPredictions.find(p => p.id === predictionId);
+    if (!prediction || prediction.status !== 'active') return;
+    const totalPool = (prediction.betting_pool_yes || 0) + (prediction.betting_pool_no || 0);
+    const winningPool = outcome === 'yes' ? (prediction.betting_pool_yes || 0) : (prediction.betting_pool_no || 0);
+    if (winningPool > 0 && prediction.bets) {
+      for (const bet of prediction.bets) {
+        if (bet.outcome === outcome) {
+          let user = await loadUser(bet.user);
+          if (user) {
+            user.seerscore = (user.seerscore || 0) + 7;
+            user.correct_votes = (user.correct_votes || 0) + 1;
+            user.total_votes = (user.total_votes || 0) + 1;
+            user.reputation = user.correct_votes / user.total_votes;
+            await upsertUser(user);
+          }
+        } else {
+          let user = await loadUser(bet.user);
+          if (user) {
+            user.total_votes = (user.total_votes || 0) + 1;
+            user.reputation = (user.correct_votes || 0) / user.total_votes;
+            await upsertUser(user);
+          }
+        }
+      }
+    }
+    await supabase
+      .from('predictions')
+      .update({ status: 'resolved', resolved_outcome: outcome, resolved_at: new Date().toISOString(), dispute_deadline: new Date(Date.now() + 7*86400000).toISOString() })
+      .eq('id', predictionId);
+    await renderAll();
+    showToast(`🏆 Resolved! Outcome: ${outcome.toUpperCase()}`);
+  } catch(e) { console.error(e); }
+}
+
+async function raiseDispute(predictionId) {
+  const prediction = currentPredictions.find(p => p.id === predictionId);
+  if (!prediction || prediction.status !== 'resolved') { showToast("Only resolved praedictions can be disputed"); return; }
+  if (new Date() > new Date(prediction.dispute_deadline)) { showToast("Dispute window closed"); return; }
+  if (prediction.dispute?.active) { showToast("Dispute already active"); return; }
+  const user = await loadUser(walletAddress);
+  if (!user || user.balance < 7) { showToast("Need 7 voting rights to dispute"); return; }
+  const proposedOutcome = prompt("Correct outcome? (yes/no)", prediction.resolved_outcome === 'yes' ? 'no' : 'yes');
+  if (!['yes','no'].includes(proposedOutcome)) return;
+  const evidence = prompt("Evidence URL:", "");
+  if (!evidence) return;
+  user.balance -= 7;
+  await upsertUser(user);
+  const dispute = {
+    active: true,
+    challenger: walletAddress,
+    proposed_outcome: proposedOutcome,
+    evidence,
+    bond_amount: 7,
+    resolved_by_admin: null,
+    admin_decision: null
+  };
+  await supabase
+    .from('predictions')
+    .update({ status: 'disputed', dispute })
+    .eq('id', predictionId);
+  await renderAll();
+  showToast("⚠️ Dispute raised! Oracle will review.");
+}
+
+async function adminResolveDispute(predictionId, acceptChallenge) {
+  if (walletAddress !== '7C2Y5NebLFG37wMbB85TbMqYERTSkq9tEi58wv28MCzt') { showToast("Only oracle can resolve disputes"); return; }
+  const prediction = currentPredictions.find(p => p.id === predictionId);
+  if (!prediction || prediction.status !== 'disputed' || !prediction.dispute?.active) return;
+  const dispute = prediction.dispute;
+  if (acceptChallenge) {
+    const newOutcome = dispute.proposed_outcome;
+    const challenger = await loadUser(dispute.challenger);
+    if (challenger) challenger.balance = (challenger.balance || 0) + 7;
+    await upsertUser(challenger);
+    await supabase
+      .from('predictions')
+      .update({ resolved_outcome: newOutcome, status: 'resolved', dispute: { ...dispute, active: false, resolved_by_admin: walletAddress, admin_decision: 'accepted' } })
+      .eq('id', predictionId);
+    showToast(`✅ Dispute accepted! Outcome changed to ${newOutcome.toUpperCase()}.`);
+  } else {
+    const adminTreasury = await loadUser(walletAddress);
+    if (adminTreasury) adminTreasury.balance = (adminTreasury.balance || 0) + 3.5;
+    await upsertUser(adminTreasury);
+    await supabase
+      .from('predictions')
+      .update({ status: 'resolved', dispute: { ...dispute, active: false, resolved_by_admin: walletAddress, admin_decision: 'rejected' } })
+      .eq('id', predictionId);
+    showToast("❌ Dispute rejected. Bond slashed.");
   }
+  await renderAll();
+}
 
-  function escapeHtml(str) { if (!str) return ''; return str.replace(/[&<>]/g, m => ({ '&':'&amp;','<':'&lt;','>':'&gt;' })[m]); }
-  function showToast(msg) { const t=document.createElement('div'); t.className='toast'; t.textContent=msg; document.body.appendChild(t); setTimeout(()=>t.remove(),3000); }
-  function shareOnTwitter(p) { const text=`🔮 Praediction: "${p.title}" on PRAEDICTA. Join me!`; const url=`https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(window.location.href)}`; const w=window.open(url,'_blank','noopener,noreferrer'); if(!w||w.closed||typeof w.closed==='undefined'){ showToast("Pop-up blocked. Please allow pop-ups or share manually."); alert(`Share this link:\n${url}`); } }
-  function shareOnTelegram(p) { const text=`🔮 Praediction: "${p.title}" on PRAEDICTA. Join me! ${window.location.href}`; const url=`https://t.me/share/url?url=${encodeURIComponent(window.location.href)}&text=${encodeURIComponent(text)}`; const w=window.open(url,'_blank','noopener,noreferrer'); if(!w||w.closed||typeof w.closed==='undefined'){ showToast("Pop-up blocked. Please allow pop-ups or share manually."); alert(`Share this link:\n${url}`); } }
-  function exportData() { const dataStr=JSON.stringify(state,null,2); const blob=new Blob([dataStr],{type:"application/json"}); const url=URL.createObjectURL(blob); const a=document.createElement('a'); a.href=url; a.download=`praedicta_export_${Date.now()}.json`; a.click(); URL.revokeObjectURL(url); showToast("📥 Data exported"); }
+async function createPraediction() {
+  const title = document.getElementById('praedictionTitle').value.trim();
+  const description = document.getElementById('praedictionDescription').value.trim();
+  const category = document.getElementById('categorySelect').value;
+  const resolutionDate = document.getElementById('resolutionDate').value;
+  const autoSource = document.getElementById('autoSource').value;
+  const targetValue = document.getElementById('targetValue').value.trim();
+  if (!title || !description || !resolutionDate) { showToast("Fill all fields"); return; }
+  // Check daily creation limit
+  let user = await loadUser(walletAddress);
+  const today = getUTCDayKey();
+  if (user.last_create_day !== today) {
+    user.creations_today = 0;
+    user.last_create_day = today;
+  }
+  if (user.creations_today >= 7) { showToast("You can only create 7 praedictions per day."); return; }
+  // Check active limit
+  const activeCount = currentPredictions.filter(p => p.creator === walletAddress && p.status === 'active').length;
+  if (activeCount >= 5) { showToast("Max 5 active praedictions"); return; }
+  // Check duplicate titles
+  const existingTitles = currentPredictions.filter(p => p.status === 'active').map(p => p.title.toLowerCase());
+  if (existingTitles.includes(title.toLowerCase())) { showToast("❌ Identical active praediction exists"); return; }
+  // Enforce 24h min resolution
+  const minDate = new Date(); minDate.setHours(minDate.getHours() + 24);
+  const selectedDate = new Date(resolutionDate);
+  if (selectedDate < minDate) { showToast("Resolution date must be at least 24h from now"); return; }
+  user.creations_today++;
+  await upsertUser(user);
+  const newPrediction = {
+    id: "praed_" + Date.now(),
+    title, description, category,
+    creator: walletAddress,
+    created_at: new Date().toISOString(),
+    resolution_date: resolutionDate,
+    status: 'active',
+    betting_pool_yes: 0,
+    betting_pool_no: 0,
+    bets: [],
+    oracle_votes_yes: 0,
+    oracle_votes_no: 0,
+    oracle_voters: [],
+    resolution_threshold: 0.66,
+    resolved_outcome: null,
+    resolved_at: null,
+    dispute_deadline: null,
+    dispute: { active: false },
+    auto_resolve_date: new Date(selectedDate.getTime() + 7*86400000).toISOString(),
+    auto_source: autoSource || null,
+    target_value: targetValue || null
+  };
+  await supabase.from('predictions').insert(newPrediction);
+  await renderAll();
+  document.getElementById('praedictionTitle').value = "";
+  document.getElementById('praedictionDescription').value = "";
+  document.getElementById('resolutionDate').value = "";
+  document.getElementById('autoSource').value = "";
+  document.getElementById('targetValue').value = "";
+  showToast("✨ Praediction created!");
+}
 
-  function initTheme() { const saved=localStorage.getItem('praedicta_theme'); if(saved==='light') document.body.classList.add('light'); else document.body.classList.remove('light'); }
-  function toggleTheme() { document.body.classList.toggle('light'); localStorage.setItem('praedicta_theme',document.body.classList.contains('light')?'light':'dark'); }
-  function openDonation() { window.open('https://ko-fi.com/yourusername','_blank'); }
+// ---------- Wallet & Init ----------
+async function verifyAccess() {
+  if (!walletAddress) return false;
+  // For demo, we skip real balance check (set REQUIRED_PRAE to 0)
+  const hasEnough = true;
+  const balanceDiv = document.getElementById('balanceDisplay');
+  const balanceText = document.getElementById('balanceText');
+  const accessStatus = document.getElementById('accessStatus');
+  const buyLink = document.getElementById('buyLink');
+  balanceDiv.style.display = 'block';
+  if (hasEnough) {
+    balanceText.innerHTML = `<span class="balance-ok">✅ Your PRAE: ∞ (test mode)</span>`;
+    accessStatus.innerHTML = '<span style="color:#2dd4bf;">✓ Access granted!</span>';
+    buyLink.style.display = 'none';
+    hasAccess = true;
+    await renderAll();
+    setTimeout(() => {
+      document.getElementById('gate').style.display = 'none';
+      document.getElementById('mainApp').style.display = 'block';
+      document.getElementById('profileGetPraeBtn').href = "https://dexscreener.com/solana/7C2Y5NebLFG37wMbB85TbMqYERTSkq9tEi58wv28MCzt";
+      document.getElementById('headerGetPraeBtn').style.display = 'inline-flex';
+      document.getElementById('headerGetPraeBtn').href = "https://dexscreener.com/solana/7C2Y5NebLFG37wMbB85TbMqYERTSkq9tEi58wv28MCzt";
+      updateReferralLink();
+    }, 800);
+  } else {
+    balanceText.innerHTML = `<span class="balance-insufficient">❌ Your PRAE: 0 (need 777)</span>`;
+    accessStatus.innerHTML = '';
+    buyLink.style.display = 'inline-block';
+    buyLink.href = "https://dexscreener.com/solana/7C2Y5NebLFG37wMbB85TbMqYERTSkq9tEi58wv28MCzt";
+    hasAccess = false;
+  }
+  return hasEnough;
+}
 
-  // Tab switching
-  document.querySelectorAll('.tab-btn').forEach(btn => {
-    btn.addEventListener('click', () => {
-      const tabId = btn.getAttribute('data-tab');
-      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-      btn.classList.add('active');
-      document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
-      document.getElementById(`tab-${tabId}`).classList.add('active');
-      if (tabId === 'leaderboard') renderLeaderboard();
-      if (tabId === 'profile') { renderProfile(); updateReferralLink(); }
-      if (tabId === 'disputes') renderDisputesDashboard();
-    });
+async function connectWallet() {
+  if (!window.solana || !window.solana.isPhantom) {
+    alert("Install Phantom Wallet");
+    window.open('https://phantom.app/', '_blank');
+    return;
+  }
+  try {
+    const resp = await window.solana.connect();
+    walletAddress = resp.publicKey.toString();
+    // Ensure user exists in Supabase
+    const existing = await loadUser(walletAddress);
+    if (!existing) {
+      await upsertUser({
+        address: walletAddress,
+        balance: 1000,
+        reputation: 0.5,
+        correct_votes: 0,
+        total_votes: 0,
+        last_active: new Date().toISOString(),
+        seerscore: 0,
+        referred_by: null,
+        referral_bonus_claimed: false,
+        votes_left: 7,
+        last_vote_day: getUTCDayKey(),
+        daily_votes_used: 0,
+        creations_today: 0,
+        last_create_day: getUTCDayKey()
+      });
+    }
+    await verifyAccess();
+  } catch(e) { alert("Connection failed: " + e.message); }
+}
+
+function updateReferralLink() {
+  const elem = document.getElementById('referralLink');
+  if (elem && walletAddress) elem.textContent = `${window.location.origin}${window.location.pathname}?ref=${walletAddress}`;
+}
+
+function copyReferralLink() {
+  const elem = document.getElementById('referralLink');
+  if (elem) { navigator.clipboard.writeText(elem.textContent); showToast("📋 Referral link copied!"); }
+}
+
+// ---------- Helpers ----------
+function escapeHtml(str) { if (!str) return ''; return str.replace(/[&<>]/g, m => ({ '&':'&amp;','<':'&lt;','>':'&gt;' })[m]); }
+function showToast(msg) { const t=document.createElement('div'); t.className='toast'; t.textContent=msg; document.body.appendChild(t); setTimeout(()=>t.remove(),3000); }
+function shareOnTwitter(p) { const text=`🔮 Praediction: "${p.title}" on PRAEDICTA. Join me!`; const url=`https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(window.location.href)}`; const w=window.open(url,'_blank','noopener,noreferrer'); if(!w||w.closed||typeof w.closed==='undefined'){ showToast("Pop-up blocked. Please allow pop-ups or share manually."); alert(`Share this link:\n${url}`); } }
+function shareOnTelegram(p) { const text=`🔮 Praediction: "${p.title}" on PRAEDICTA. Join me! ${window.location.href}`; const url=`https://t.me/share/url?url=${encodeURIComponent(window.location.href)}&text=${encodeURIComponent(text)}`; const w=window.open(url,'_blank','noopener,noreferrer'); if(!w||w.closed||typeof w.closed==='undefined'){ showToast("Pop-up blocked. Please allow pop-ups or share manually."); alert(`Share this link:\n${url}`); } }
+function exportData() { showToast("Export not implemented in Supabase version"); }
+function initTheme() { const saved=localStorage.getItem('praedicta_theme'); if(saved==='light') document.body.classList.add('light'); else document.body.classList.remove('light'); }
+function toggleTheme() { document.body.classList.toggle('light'); localStorage.setItem('praedicta_theme',document.body.classList.contains('light')?'light':'dark'); }
+function openDonation() { window.open('https://ko-fi.com/yourusername','_blank'); }
+
+// ---------- Supabase initialization ----------
+const { createClient } = supabase;
+supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+// ---------- Event listeners ----------
+document.querySelectorAll('.tab-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const tabId = btn.getAttribute('data-tab');
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+    document.getElementById(`tab-${tabId}`).classList.add('active');
+    if (tabId === 'leaderboard') renderLeaderboard();
+    if (tabId === 'profile') { renderProfile(); updateReferralLink(); }
+    if (tabId === 'disputes') renderDisputesDashboard();
   });
+});
 
-  document.getElementById('themeToggle')?.addEventListener('click', toggleTheme);
-  initTheme();
-  document.getElementById('reloadStateBtn')?.addEventListener('click', async () => { isFirstLoad = false; await loadGlobalState(); showToast("Reloaded"); });
-  document.getElementById('createPraedictionBtn')?.addEventListener('click', createPraediction);
-  document.getElementById('connectBtn')?.addEventListener('click', connectWallet);
-  document.getElementById('exportDataBtn')?.addEventListener('click', exportData);
-  document.getElementById('copyReferralBtn')?.addEventListener('click', copyReferralLink);
-  document.getElementById('donateBtn')?.addEventListener('click', openDonation);
+document.getElementById('themeToggle')?.addEventListener('click', toggleTheme);
+initTheme();
+document.getElementById('reloadStateBtn')?.addEventListener('click', async () => { await renderAll(); showToast("Reloaded"); });
+document.getElementById('createPraedictionBtn')?.addEventListener('click', createPraediction);
+document.getElementById('connectBtn')?.addEventListener('click', connectWallet);
+document.getElementById('exportDataBtn')?.addEventListener('click', exportData);
+document.getElementById('copyReferralBtn')?.addEventListener('click', copyReferralLink);
+document.getElementById('donateBtn')?.addEventListener('click', openDonation);
 
-  window.praedict = praedict;
-  window.oracleVote = oracleVote;
-  window.raiseDispute = raiseDispute;
-  window.adminResolveDispute = adminResolveDispute;
-  window.shareOnTwitter = shareOnTwitter;
-  window.shareOnTelegram = shareOnTelegram;
+window.praedict = praedict;
+window.oracleVote = oracleVote;
+window.raiseDispute = raiseDispute;
+window.adminResolveDispute = adminResolveDispute;
+window.shareOnTwitter = shareOnTwitter;
+window.shareOnTelegram = shareOnTelegram;
 
-  setInterval(() => { autoResolveAllMarkets(); autoResolveExpired(); for(let u in state.users) refreshDailyVotes(u); saveGlobalState(); renderProfile(); }, 3600000);
-
-  // Only auto-connect if wallet is already connected (e.g., after refresh)
-  if (window.solana?.isConnected && window.solana?.publicKey) {
-    walletAddress = window.solana.publicKey.toString();
-    verifyAccess();
-  }
-})();
+if (window.solana?.isConnected && window.solana?.publicKey) {
+  walletAddress = window.solana.publicKey.toString();
+  verifyAccess();
+}
 </script>
+<!-- Include Supabase JS library -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </body>
 </html>
