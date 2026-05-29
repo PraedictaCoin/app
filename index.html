@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PRAEDICTA • Final Working</title>
+    <title>PRAEDICTA • Working</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
@@ -126,11 +126,12 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
 // ============================================================
-// PRAEDICTA - SIMPLE WORKING VERSION
+// PRAEDICTA - FIXED REDECLARATION ERROR
 // ============================================================
 const SUPABASE_URL = "https://klgwyaeqnklydlqatzys.supabase.co";
 const SUPABASE_ANON_KEY = "sb_publishable_OL32s1-muu_5d5ACQ_4kVQ_yEEeyJl1";
-const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+// Use a different variable name to avoid conflict with global supabase
+const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 let walletAddress = null;
 
@@ -148,7 +149,7 @@ function getUTCDayKey() { return new Date().toISOString().slice(0,10); }
 
 // ---------- DATABASE OPERATIONS ----------
 async function loadPredictions() {
-    const { data, error } = await supabase
+    const { data, error } = await supabaseClient
         .from('predictions')
         .select('*')
         .order('created_at', { ascending: false });
@@ -161,7 +162,7 @@ async function loadPredictions() {
 }
 
 async function loadUser(address) {
-    const { data, error } = await supabase
+    const { data, error } = await supabaseClient
         .from('users')
         .select('*')
         .eq('address', address)
@@ -171,14 +172,14 @@ async function loadUser(address) {
 }
 
 async function upsertUser(user) {
-    const { error } = await supabase
+    const { error } = await supabaseClient
         .from('users')
         .upsert(user, { onConflict: 'address' });
     if (error) console.error(error);
 }
 
 async function createPrediction(pred) {
-    const { error } = await supabase
+    const { error } = await supabaseClient
         .from('predictions')
         .insert(pred);
     if (error) {
@@ -224,7 +225,7 @@ async function renderPredictions() {
 }
 
 async function renderLeaderboard() {
-    const { data, error } = await supabase
+    const { data, error } = await supabaseClient
         .from('users')
         .select('address, seerscore')
         .order('seerscore', { ascending: false })
@@ -277,7 +278,7 @@ async function praedict(id, outcome) {
     bets.push({ user: walletAddress, outcome, amount: 1, timestamp: new Date().toISOString() });
     const bettingPoolYes = (market.betting_pool_yes || 0) + (outcome === 'yes' ? 1 : 0);
     const bettingPoolNo = (market.betting_pool_no || 0) + (outcome === 'no' ? 1 : 0);
-    const { error } = await supabase
+    const { error } = await supabaseClient
         .from('predictions')
         .update({ bets, betting_pool_yes: bettingPoolYes, betting_pool_no: bettingPoolNo })
         .eq('id', id);
