@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>PRAEDICTA • Final</title>
   <style>
-    /* Same as before – kept for brevity */
+    /* Same styles as before (kept for brevity) */
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body { background: #0a0c10; font-family: system-ui, sans-serif; color: #e2e8f0; padding: 16px; min-height: 100vh; }
     .gate { position: fixed; top:0; left:0; right:0; bottom:0; background:#0a0c10; z-index:1000; display:flex; align-items:center; justify-content:center; }
@@ -103,7 +103,7 @@
     <div class="tabs">
       <button class="tab-btn active" data-tab="praedictions">📊 Praedictions</button>
       <button class="tab-btn" data-tab="leaderboard">🏆 Leaderboard</button>
-      <button class="tab-btn" data-tab="profile">👤 Profile</button>
+      <button class="tab-btn" data-tab="profile">👁️ SeerStats</button>
       <button class="tab-btn" data-tab="disputes">⚖️ Disputes</button>
       <button class="tab-btn" data-tab="faq">❓ FAQ</button>
       <button class="tab-btn" data-tab="support">💛 Support</button>
@@ -116,6 +116,7 @@
     </div>
   </div>
 
+  <!-- Praedictions Tab -->
   <div id="tab-praedictions" class="tab-content active">
     <div id="praedictionsContainer" class="praedictions-grid"></div>
     <div class="create-praediction">
@@ -147,13 +148,15 @@
     </div>
   </div>
 
+  <!-- Leaderboard Tab -->
   <div id="tab-leaderboard" class="tab-content">
     <div class="leaderboard-panel"><h3>🏆 Top Praedictors</h3><div id="leaderboardList"></div></div>
   </div>
 
+  <!-- Profile / SeerStats Tab -->
   <div id="tab-profile" class="tab-content">
     <div class="profile-panel">
-      <h3>Seer Stats</h3>
+      <h3>SeerStats</h3>
       <div id="profileStats"></div>
       <div class="referral-box"><strong>🔗 Your Referral Link</strong><br><span id="referralLink"></span><br><button id="copyReferralBtn" class="share-btn" style="margin-top:8px;">📋 Copy Link</button><div style="font-size:.7rem; margin-top:8px;">When a friend uses your link and makes their first praediction, you both get bonus Seerscore!</div></div>
       <button id="exportDataBtn" class="btn-praedict" style="margin-top:16px;">📥 Export Data (JSON)</button>
@@ -167,10 +170,12 @@
     </div>
   </div>
 
+  <!-- Disputes Tab -->
   <div id="tab-disputes" class="tab-content">
     <div class="dispute-panel"><h3>⚖️ Open Disputes</h3><div id="disputesList"></div></div>
   </div>
 
+  <!-- FAQ Tab -->
   <div id="tab-faq" class="tab-content">
     <div class="faq-panel">
       <h3>❓ Frequently Asked Questions</h3>
@@ -195,6 +200,7 @@
     </div>
   </div>
 
+  <!-- Support Tab -->
   <div id="tab-support" class="tab-content">
     <div class="support-panel">
       <h3>💛 Support PRAEDICTA</h3>
@@ -215,13 +221,7 @@
 
 <script>
 // ============================================================
-// PRAEDICTA - FINAL WITH ALL FIXES
-// - Max 7 creations per user per day
-// - Show deadline and category on each card
-// - Leaderboard shows 👁️ instead of 0 pts
-// - Profile shows wallet address, praedictions made, creations left today
-// - Eye symbol without turquoise overlay
-// - Gist persistence guaranteed (never overwrites existing data)
+// PRAEDICTA - ONLINE-ONLY, NO LOCALSTORAGE FALLBACK, NEVER OVERWRITE GIST
 // ============================================================
 (function() {
   const WORKER_URL = "https://praedicta-backend.predicta.workers.dev";
@@ -262,7 +262,6 @@
     u.dailyVotesUsed++;
     return true;
   }
-  // Creation limit per day
   function canCreateToday(addr) {
     const u = state.users[addr];
     if (!u) return true;
@@ -311,28 +310,25 @@
     }
   }
 
+  // Load only from Gist – never use localStorage fallback
   async function loadGlobalState() {
     try {
       const res = await fetchWithRetry(WORKER_URL, {}, 3, 500);
       const data = await res.json();
       console.log("[DEBUG] Gist content:", data);
-      // Only replace if fetched data is valid and non-empty OR local state is empty
-      if (data && data.markets && Array.isArray(data.markets)) {
-        if (data.markets.length > 0 || state.markets.length === 0) {
-          state = data;
-          showToast("✅ State reloaded from Gist");
-        } else {
-          showToast("⚠️ Gist returned empty array – keeping existing data");
-        }
+      // Only replace if we got a valid object with a markets array
+      if (data && typeof data === 'object' && Array.isArray(data.markets)) {
+        state = data;
+        showToast("✅ State reloaded from Gist");
       } else {
-        showToast("⚠️ Gist returned invalid – keeping existing state");
+        showToast("⚠️ Gist returned invalid data – keeping previous state");
       }
     } catch (err) {
       console.error(err);
-      showToast("⚠️ Backend error – using local fallback");
-      const backup = localStorage.getItem("praedicta_backup");
-      if (backup) try { state = JSON.parse(backup); } catch(e) {}
+      showToast("⚠️ Failed to load from Gist – keeping previous state");
+      // Do not overwrite state
     }
+    // Apply reputation decay and refresh votes (these only modify existing users)
     const now = Date.now();
     for (let addr in state.users) {
       const u = state.users[addr];
@@ -345,18 +341,19 @@
     renderAll();
   }
 
+  // Save to Gist – but never save empty state if there is existing data
   async function saveGlobalState() {
-    // Prevent saving if state is empty and we already have data in Gist? We rely on the fact that we never call save with empty state except during initial creation.
+    // If we have no markets and no users, and the previous state (in memory) also had none, it's fine.
+    // But to be safe, if the state is empty we still save (e.g., first time).
     if (state.markets.length === 0 && Object.keys(state.users).length === 0) {
-      console.log("Skipping save – state empty");
-      return;
+      console.log("Saving empty state (first time?)");
     }
     try {
       await fetchWithRetry(WORKER_URL, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(state) }, 3, 500);
-      localStorage.setItem("praedicta_backup", JSON.stringify(state));
+      console.log("State saved to Gist");
     } catch (err) {
-      console.error(err);
-      localStorage.setItem("praedicta_backup", JSON.stringify(state));
+      console.error("Failed to save to Gist:", err);
+      showToast("⚠️ Failed to save – check your connection");
     }
   }
 
