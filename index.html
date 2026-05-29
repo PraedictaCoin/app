@@ -140,15 +140,28 @@
     let hasAccess = false;
     
     // ---------- HELPER: Load/Save global state via Worker ----------
-   async function loadGlobalState() {
+ // Helper: fetch with retry
+async function fetchWithRetry(url, options = {}, retries = 3, delay = 500) {
+  for (let i = 0; i < retries; i++) {
+    try {
+      const res = await fetch(url, options);
+      if (res.ok) return res;
+      // If not ok, throw to trigger retry
+      throw new Error(`HTTP ${res.status}`);
+    } catch (err) {
+      if (i === retries - 1) throw err;
+      await new Promise(r => setTimeout(r, delay * Math.pow(2, i))); // exponential backoff
+    }
+  }
+}
+
+async function loadGlobalState() {
   try {
-    const res = await fetch(WORKER_URL);
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const res = await fetchWithRetry(WORKER_URL, {}, 3, 500);
     const data = await res.json();
     if (data && data.markets) {
       state = data;
     } else {
-      // Initialise fresh state if Gist is empty or malformed
       state = {
         markets: [],
         users: {},
@@ -157,9 +170,8 @@
       };
     }
   } catch(e) {
-    console.error("Failed to load from worker:", e);
+    console.error("Failed to load from worker after retries:", e);
     showToast("⚠️ Could not connect to backend. Using local fallback (single user).");
-    // Fallback to localStorage
     const saved = localStorage.getItem('praedicta_fallback');
     if (saved) {
       state = JSON.parse(saved);
@@ -171,6 +183,20 @@
         pendingProposals: []
       };
     }
+  }
+}
+
+async function saveGlobalState() {
+  try {
+    await fetchWithRetry(WORKER_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(state)
+    }, 3, 500);
+    localStorage.setItem('praedicta_fallback', JSON.stringify(state));
+  } catch(e) {
+    console.error("Failed to save to worker after retries, saving locally only", e);
+    localStorage.setItem('praedicta_fallback', JSON.stringify(state));
   }
 }
         // Ensure admins exist (if not, set default from first user? For demo we set placeholder)
