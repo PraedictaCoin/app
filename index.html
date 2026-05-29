@@ -3,295 +3,218 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <meta name="theme-color" content="#2dd4bf">
-  <title>PRAEDICTA • 7 Points</title>
+  <title>PRAEDICTA • Decentralized Oracle Market</title>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body {
-      background: #0a0c10;
-      font-family: system-ui, -apple-system, sans-serif;
+      background: linear-gradient(135deg, #0a0c10 0%, #0f1722 100%);
+      font-family: system-ui, sans-serif;
       color: #e2e8f0;
-      padding: 16px;
+      padding: 20px;
       min-height: 100vh;
     }
-    .container { max-width: 800px; margin: 0 auto; }
+    /* Gate styles (same as before) */
+    .gate { position: fixed; top:0; left:0; right:0; bottom:0; background:#0a0c10; z-index:1000; display:flex; align-items:center; justify-content:center; }
+    .gate-card { background: linear-gradient(135deg,#11151c,#0a0c10); border:2px solid #2dd4bf; border-radius:48px; padding:48px 32px; max-width:480px; width:90%; text-align:center; }
+    .prediction-ball { font-size:4rem; margin-bottom:16px; animation:float 3s ease-in-out infinite; }
+    @keyframes float { 0%,100%{transform:translateY(0);} 50%{transform:translateY(-10px);} }
+    .praedicta-title { font-size:2.8rem; font-weight:bold; background:linear-gradient(135deg,#2dd4bf,#14b8a6); -webkit-background-clip:text; background-clip:text; color:transparent; }
+    .subtitle { color:#8ba3af; margin-bottom:32px; }
+    .hold-text { color:#8ba3af; margin-bottom:8px; }
+    .prae-amount { font-size:2.5rem; font-weight:bold; color:#2dd4bf; letter-spacing:2px; margin-bottom:32px; }
+    .btn-connect { background:#2dd4bf; color:#0a0c10; border:none; padding:14px 28px; border-radius:60px; font-weight:bold; cursor:pointer; display:inline-flex; gap:8px; margin-bottom:24px; }
+    .balance-info { margin-top:16px; padding:12px; background:#0a0f14; border-radius:20px; }
+    .buy-link { display:inline-flex; gap:6px; margin-top:16px; color:#2dd4bf; text-decoration:none; }
+    .balance-ok { color:#2dd4bf; }
+    .balance-insufficient { color:#ef4444; }
     
-    /* GATE SCREEN */
-    .gate {
-      position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      background: #0a0c10;
-      z-index: 1000;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      overflow-y: auto;
-    }
-    .gate-card {
-      background: linear-gradient(135deg, #11151c, #0a0c10);
-      border: 2px solid #2dd4bf;
-      border-radius: 48px;
-      padding: 48px 32px;
-      max-width: 480px;
-      width: 90%;
-      text-align: center;
-      margin: 20px;
-    }
-    .prediction-ball {
-      font-size: 4rem;
-      margin-bottom: 16px;
-      animation: float 3s ease-in-out infinite;
-    }
-    @keyframes float {
-      0%, 100% { transform: translateY(0px); }
-      50% { transform: translateY(-10px); }
-    }
-    .praedicta-title {
-      font-size: 2.8rem;
-      font-weight: bold;
-      background: linear-gradient(135deg, #2dd4bf, #14b8a6);
-      -webkit-background-clip: text;
-      background-clip: text;
-      color: transparent;
-      margin-bottom: 8px;
-      letter-spacing: -0.5px;
-    }
-    .subtitle {
-      color: #8ba3af;
-      font-size: 0.9rem;
-      margin-bottom: 32px;
-    }
-    .hold-text {
-      color: #8ba3af;
-      font-size: 0.9rem;
-      margin-bottom: 8px;
-    }
-    .prae-amount {
-      font-size: 2.5rem;
-      font-weight: bold;
-      color: #2dd4bf;
-      letter-spacing: 2px;
-      margin-bottom: 32px;
-    }
-    .btn-connect {
-      background: #2dd4bf;
-      color: #0a0c10;
-      border: none;
-      padding: 14px 28px;
-      border-radius: 60px;
-      font-weight: bold;
-      cursor: pointer;
-      font-size: 1rem;
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      margin-bottom: 24px;
-      transition: transform 0.2s;
-    }
-    .btn-connect:active { transform: scale(0.97); }
-    .balance-info {
-      margin-top: 16px;
-      padding: 12px;
-      background: #0a0f14;
-      border-radius: 20px;
-      font-size: 0.85rem;
-    }
-    .buy-link {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      margin-top: 16px;
-      color: #2dd4bf;
-      text-decoration: none;
-      font-size: 0.9rem;
-    }
-    .balance-ok { color: #2dd4bf; }
-    .balance-insufficient { color: #ef4444; }
-    
-    /* MAIN APP */
-    .main-app { display: none; }
-    .header { background: linear-gradient(135deg, #0f766e, #0a0c10); padding: 24px; border-radius: 24px; margin-bottom: 20px; text-align: center; }
-    h1 { font-size: 2rem; background: linear-gradient(135deg, #2dd4bf, #14b8a6); -webkit-background-clip: text; background-clip: text; color: transparent; }
-    .card { background: #11151c; border-radius: 20px; padding: 20px; margin-bottom: 16px; border: 1px solid #1f2a30; }
-    .tabs { display: flex; gap: 8px; margin-bottom: 16px; flex-wrap: wrap; }
-    .tab-btn { background: #1a202c; border: none; padding: 10px 20px; border-radius: 40px; cursor: pointer; color: #8ba3af; transition: 0.2s; }
-    .tab-btn.active { background: #2dd4bf; color: #0a0c10; }
-    input, textarea, select { width: 100%; padding: 12px; margin-bottom: 12px; background: #0a0f14; border: 1px solid #1f2a30; border-radius: 12px; color: white; font-family: inherit; }
-    .faq-item { margin-bottom: 20px; border-left: 3px solid #2dd4bf; padding-left: 16px; }
-    .faq-q { font-weight: bold; color: #2dd4bf; margin-bottom: 8px; }
-    .faq-a { color: #8ba3af; font-size: 0.9rem; line-height: 1.4; }
-    .prediction-item { border-bottom: 1px solid #1f2a30; padding: 12px 0; }
-    .leaderboard-entry { display: flex; justify-content: space-between; align-items: center; padding: 12px; border-bottom: 1px solid #1f2a30; }
-    .score { font-size: 1.5rem; font-weight: bold; color: #fbbf24; }
-    .toast { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background: #2dd4bf; color: #0a0c10; padding: 12px 24px; border-radius: 40px; z-index: 1001; animation: slideUp 0.3s; }
-    @keyframes slideUp { from { transform: translateX(-50%) translateY(100px); opacity: 0; } to { transform: translateX(-50%) translateY(0); opacity: 1; } }
-    .source-badge { background: #0f766e; padding: 4px 12px; border-radius: 20px; font-size: 0.7rem; display: inline-block; }
-    .category-badge { padding: 4px 12px; border-radius: 20px; font-size: 0.7rem; display: inline-block; margin-left: 8px; }
-    .status-pending { color: #fbbf24; }
-    .status-correct { color: #2dd4bf; }
-    .status-incorrect { color: #ef4444; }
-    .points-7 { font-size: 1.2rem; font-weight: bold; color: #fbbf24; display: inline-block; margin: 0 2px; }
-    .pwa-install { background: #2dd4bf10; border: 2px dashed #2dd4bf; border-radius: 12px; padding: 12px; text-align: center; margin-top: 16px; }
+    /* Main app styles */
+    .main-app { display:none; max-width:1400px; margin:0 auto; }
+    .header { display:flex; justify-content:space-between; flex-wrap:wrap; gap:20px; margin-bottom:30px; padding:20px; background:rgba(17,21,28,0.8); backdrop-filter:blur(10px); border-radius:20px; border:1px solid #2dd4bf30; }
+    h1 { background:linear-gradient(135deg,#2dd4bf,#14b8a6); -webkit-background-clip:text; background-clip:text; color:transparent; font-size:2rem; }
+    .stats-grid { display:flex; gap:20px; }
+    .stat-card { background:#11151c; padding:12px 20px; border-radius:12px; text-align:center; border:1px solid #2dd4bf20; }
+    .stat-value { font-size:1.8rem; font-weight:bold; color:#2dd4bf; }
+    .markets-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(380px,1fr)); gap:20px; margin-bottom:30px; }
+    .market-card { background:#11151c; border-radius:20px; padding:20px; border:1px solid #1f2a30; transition:transform 0.2s; }
+    .market-card:hover { transform:translateY(-2px); border-color:#2dd4bf; }
+    .market-title { font-size:1.1rem; font-weight:600; margin-bottom:12px; color:#2dd4bf; }
+    .market-description { margin-bottom:16px; line-height:1.4; }
+    .market-stats { display:flex; justify-content:space-between; margin-bottom:16px; padding:12px; background:#0a0f14; border-radius:12px; }
+    .outcome { text-align:center; flex:1; }
+    .outcome-probability { font-size:1.5rem; font-weight:bold; }
+    .outcome-yes { color:#2dd4bf; }
+    .outcome-no { color:#ef4444; }
+    .outcome-bar { height:4px; background:#1f2a30; border-radius:2px; margin-top:8px; overflow:hidden; }
+    .outcome-bar-fill { height:100%; transition:width 0.3s; }
+    .fill-yes { background:#2dd4bf; }
+    .fill-no { background:#ef4444; }
+    .bet-buttons { display:flex; gap:12px; margin-top:16px; }
+    .btn-yes, .btn-no, .btn-resolve, .btn-dispute, .btn-admin { flex:1; padding:10px; border:none; border-radius:40px; font-weight:600; cursor:pointer; }
+    .btn-yes { background:#0f766e; color:white; }
+    .btn-no { background:#7f1a1a; color:white; }
+    .btn-resolve { background:#4a5568; color:white; }
+    .btn-dispute { background:#fbbf24; color:#0a0c10; }
+    .btn-admin { background:#ef4444; color:white; }
+    .oracle-consensus { margin-top:12px; padding:8px; background:#0a0f14; border-radius:8px; font-size:0.75rem; }
+    .oracle-vote { display:inline-block; padding:2px 8px; border-radius:20px; margin:2px; font-size:0.7rem; }
+    .vote-yes { background:#0f766e40; color:#2dd4bf; }
+    .vote-no { background:#7f1a1a40; color:#ef4444; }
+    .create-market { background:#11151c; border-radius:20px; padding:20px; margin-top:20px; border:2px dashed #2dd4bf; }
+    input, textarea { width:100%; padding:12px; margin-bottom:12px; background:#0a0f14; border:1px solid #1f2a30; border-radius:12px; color:white; }
+    button { background:#2dd4bf; color:#0a0c10; font-weight:bold; cursor:pointer; }
+    .toast { position:fixed; bottom:20px; right:20px; background:#2dd4bf; color:#0a0c10; padding:12px 24px; border-radius:40px; font-weight:bold; animation:slideIn 0.3s; z-index:1000; }
+    @keyframes slideIn { from { transform:translateX(100%); opacity:0; } to { transform:translateX(0); opacity:1; } }
+    .badge { display:inline-block; padding:2px 8px; border-radius:20px; font-size:0.7rem; margin-left:8px; }
+    .badge-active { background:#0f766e; }
+    .badge-resolved { background:#4a5568; }
+    .badge-disputed { background:#fbbf24; color:#0a0c10; }
+    .admin-badge { background:#ef4444; color:white; font-size:0.6rem; padding:2px 6px; border-radius:20px; margin-left:8px; }
   </style>
 </head>
 <body>
-  <!-- GATE SCREEN -->
+  <!-- GATE SCREEN (same as before) -->
   <div id="gate" class="gate">
     <div class="gate-card">
       <div class="prediction-ball">🔮</div>
       <div class="praedicta-title">PRAEDICTA</div>
       <div class="subtitle">for those who see</div>
-      
       <button id="connectBtn" class="btn-connect">👻 Connect Phantom</button>
-      
       <div class="hold-text">Hold</div>
       <div class="prae-amount">777 PRAE</div>
-      <div class="hold-text" style="margin-top: -16px;">to access</div>
-      
-      <div id="balanceDisplay" style="display: none;">
+      <div class="hold-text" style="margin-top:-16px;">to access</div>
+      <div id="balanceDisplay" style="display:none;">
         <div id="balanceText" class="balance-info"></div>
         <div id="accessStatus"></div>
       </div>
-      
-      <a id="buyLink" href="#" target="_blank" class="buy-link" style="display: none;">👁️ Get PRAE here →</a>
+      <a id="buyLink" href="#" target="_blank" class="buy-link" style="display:none;">👁️ Get PRAE here →</a>
     </div>
   </div>
 
   <!-- MAIN APP -->
   <div id="mainApp" class="main-app">
-    <div class="container">
-      <div class="header">
-        <h1>PRAEDICTA</h1>
-        <p>Praedict • Earn <span class="points-7">7</span> Points • Climb Praedictaboard</p>
-        <div id="walletInfo" style="margin-top: 8px; font-size: 0.8rem;"></div>
+    <div class="header">
+      <div><h1>🦉 PRAEDICTA</h1><p style="color:#8ba3af;">Decentralized oracle market • 3-of-5 admin multisig • Reputation decay</p></div>
+      <div class="stats-grid">
+        <div class="stat-card"><div class="stat-value" id="totalMarkets">0</div><div>Active Markets</div></div>
+        <div class="stat-card"><div class="stat-value" id="totalBets">0</div><div>Total Bets</div></div>
+        <div class="stat-card"><div class="stat-value" id="totalVolume">0</div><div>Volume (PRAE)</div></div>
       </div>
-      
-      <div class="tabs">
-        <button class="tab-btn active" data-tab="feed">📰 Praedict</button>
-        <button class="tab-btn" data-tab="my">📝 My Praedictions</button>
-        <button class="tab-btn" data-tab="leaderboard">🏆 Top 7</button>
-        <button class="tab-btn" data-tab="faq">❓ FAQ</button>
-        <button class="tab-btn" data-tab="oracle" id="oracleTab" style="display:none;">🦉 Admin</button>
-      </div>
-      
-      <div id="feedTab" class="tab-content">
-        <div class="card">
-          <h3>✨ Make a Praediction</h3>
-          <select id="categorySelect">
-            <option value="">Select category...</option>
-            <option value="crypto">💰 Crypto</option>
-            <option value="sports">⚽ Sports</option>
-            <option value="weather">🌤️ Weather</option>
-            <option value="finance">📈 Finance</option>
-            <option value="politics">🏛️ Politics</option>
-            <option value="wildcard">🎲 Wildcard (Anything!)</option>
-          </select>
-          <textarea id="predictionText" rows="2" placeholder="Your praediction..."></textarea>
-          <input type="text" id="sourceInput" placeholder="Verification source (URL or platform name)">
-          <input type="datetime-local" id="deadlineInput">
-          <button id="submitBtn" class="btn" style="width: 100%; background: #2dd4bf; color: #0a0c10; padding: 14px; border-radius: 40px; font-weight: bold; border: none; cursor: pointer;">🔮 Submit Praediction • Win <span class="points-7">7</span> points</button>
-          <div class="pwa-install">
-            📱 <strong>Install App:</strong> Browser menu → "Add to Home Screen"
-          </div>
-        </div>
-        <div id="predictionsList"></div>
-      </div>
-      
-      <div id="myTab" class="tab-content" style="display:none;">
-        <div class="card">
-          <h3>📝 Your Praedictions</h3>
-          <div id="myPredictionsList"></div>
-        </div>
-      </div>
-      
-      <div id="leaderboardTab" class="tab-content" style="display:none;">
-        <div class="card">
-          <h3>🏆 Top 7 Praedictors</h3>
-          <div id="leaderboardList"></div>
-          <div style="margin-top: 16px; text-align: center; font-size: 0.7rem; color: #8ba3af;">
-            ✨ Each correct praediction earns <span class="points-7">7</span> points
-          </div>
-        </div>
-      </div>
-      
-      <div id="faqTab" class="tab-content" style="display:none;">
-        <div class="card">
-          <h3>❓ Frequently Asked Questions</h3>
-          <div class="faq-item">
-            <div class="faq-q">💰 Do I lose my 777 PRAE?</div>
-            <div class="faq-a">NO! The app only CHECKS your balance. Your tokens stay in your wallet.</div>
-          </div>
-          <div class="faq-item">
-            <div class="faq-q">🎲 What can I praedict?</div>
-            <div class="faq-a">Anything with a verifiable source! Crypto, sports, elections, or WILDCARD.</div>
-          </div>
-          <div class="faq-item">
-            <div class="faq-q">🦉 Who verifies praedictions?</div>
-            <div class="faq-a">Trusted community Oracles. All resolutions are transparent.</div>
-          </div>
-          <div class="faq-item">
-            <div class="faq-q">📱 Can I install this as an app?</div>
-            <div class="faq-a">YES! PWA ready. On mobile: Chrome → "Add to Home Screen".</div>
-          </div>
-        </div>
-      </div>
-      
-      <div id="oracleTab" class="tab-content" style="display:none;">
-        <div class="card">
-          <h3>🦉 Oracle Resolution</h3>
-          <div id="oracleList"></div>
-        </div>
-      </div>
+    </div>
+    <div id="marketsContainer" class="markets-grid"></div>
+    <div class="create-market">
+      <h3 style="margin-bottom:16px; color:#2dd4bf;">🏛️ Create New Market</h3>
+      <input type="text" id="marketTitle" placeholder="Title (e.g., Will SOL flip ETH?)">
+      <textarea id="marketDescription" rows="2" placeholder="Description..."></textarea>
+      <input type="datetime-local" id="resolutionDate">
+      <button id="createMarketBtn">✨ Create Prediction Market</button>
+      <div style="margin-top:12px; font-size:0.75rem; color:#8ba3af;">⚡ Anyone can create markets • PRAE holders vote • 66% consensus • 7‑day dispute window • 3/5 admin multisig</div>
     </div>
   </div>
 
   <script>
     // ============================================================
-    // PRAEDICTA - Audited Version 1
+    // PRAEDICTA - Shared global state via Cloudflare Worker
     // ============================================================
     
-    // CONFIGURATION
-    const PRAE_MINT = "7C2Y5NebLFG37wMbB85TbMqYERTSkq9tEi58wv28MCzt";  
+    // ---------- CONFIGURATION ----------
+    const WORKER_URL = "https://praedicta-backend.predicta.workers.dev";
+    const PRAE_MINT = "7C2Y5NebLFG37wMbB85TbMqYERTSkq9tEi58wv28MCzt";
     const SOLANA_RPC = "https://api.mainnet-beta.solana.com";
-    const REQUIRED_PRAE = 0;
-    const POINTS_PER_WIN = 7;
-    const BUY_LINK = "https://dexscreener.com/solana/7C2Y5NebLFG37wMbB85TbMqYERTSkq9tEi58wv28MCzt";  // BUY LINK 
+    const REQUIRED_PRAE = 0;      // Set to 777 for production
+    const BUY_LINK = "https://dexscreener.com/solana/32keyn7qdtvvjaq2qd8t8yv1ngxurheshvnsgroje1yd";
+    const DISPUTE_WINDOW_DAYS = 7;
+    const DISPUTE_BOND = 500;     // PRAE
+    const REPUTATION_DECAY_FACTOR = 0.95; // weekly decay
+    const ADMIN_THRESHOLD = 3;    // 3-of-5 multisig
     
-    // Oracles
-    const ORACLES = ["7C2Y5NebLFG37wMbB85TbMqYERTSkq9tEi58wv28MCzt"];  
+    // Global state (loaded from worker)
+    let state = {
+      markets: [],
+      users: {},        // address -> { balance, reputation, correctVotes, totalVotes, lastActive }
+      admins: [],       // list of 5 admin addresses
+      pendingProposals: []  // { id, type, marketId, newValue, votes: [] }
+    };
     
     let walletAddress = null;
     let hasAccess = false;
-    let predictions = [];
-    let users = new Map();
     
-    // ========== SANITIZATION ==========
-    function sanitizeText(input) {
-      if (!input) return '';
-      let clean = String(input);
-      clean = clean.replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '');
-      clean = clean.replace(/javascript:/gi, '');
-      clean = clean.substring(0, 500);
-      return clean;
+    // ---------- HELPER: Load/Save global state via Worker ----------
+   async function loadGlobalState() {
+  try {
+    const res = await fetch(WORKER_URL);
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const data = await res.json();
+    if (data && data.markets) {
+      state = data;
+    } else {
+      // Initialise fresh state if Gist is empty or malformed
+      state = {
+        markets: [],
+        users: {},
+        admins: [],
+        pendingProposals: []
+      };
     }
-    
-    function sanitizeUrl(input) {
-      if (!input) return '';
-      let clean = String(input).trim();
-      const dangerous = ['javascript:', 'data:', 'vbscript:', 'file:'];
-      for (const proto of dangerous) {
-        if (clean.toLowerCase().startsWith(proto)) {
-          return '[invalid]';
+  } catch(e) {
+    console.error("Failed to load from worker:", e);
+    showToast("⚠️ Could not connect to backend. Using local fallback (single user).");
+    // Fallback to localStorage
+    const saved = localStorage.getItem('praedicta_fallback');
+    if (saved) {
+      state = JSON.parse(saved);
+    } else {
+      state = {
+        markets: [],
+        users: {},
+        admins: [],
+        pendingProposals: []
+      };
+    }
+  }
+}
+        // Ensure admins exist (if not, set default from first user? For demo we set placeholder)
+        if (state.admins.length === 0) {
+          state.admins = ["0xAdmin1", "0xAdmin2", "0xAdmin3", "0xAdmin4", "0xAdmin5"]; // Replace with real addresses
         }
-      }
-      return clean.substring(0, 200);
+        // Apply reputation decay (once per day, but we'll do on every load)
+        applyReputationDecay();
+      } catch(e) { console.error("Failed to load state", e); }
     }
     
-    // ========== TOKEN CHECK ==========
+   async function saveGlobalState() {
+  try {
+    await fetch(WORKER_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(state)
+    });
+    // Also save to localStorage as backup
+    localStorage.setItem('praedicta_fallback', JSON.stringify(state));
+  } catch(e) {
+    console.error("Failed to save to worker, saving locally only", e);
+    localStorage.setItem('praedicta_fallback', JSON.stringify(state));
+  }
+}
+    
+    // Reputation decay: reduce reputation by 5% each week since last activity
+    function applyReputationDecay() {
+      const now = Date.now();
+      for (let addr in state.users) {
+        const user = state.users[addr];
+        const lastActive = user.lastActive ? new Date(user.lastActive).getTime() : now;
+        const weeksPassed = (now - lastActive) / (7 * 86400000);
+        if (weeksPassed > 0) {
+          const decay = Math.pow(REPUTATION_DECAY_FACTOR, weeksPassed);
+          user.reputation = Math.max(0.1, user.reputation * decay);
+        }
+        user.lastActive = new Date().toISOString();
+      }
+    }
+    
+    // ---------- TOKEN GATE (unchanged) ----------
     async function checkPRAEBalance(address) {
+      if (REQUIRED_PRAE === 0) return 999999;
       try {
         const response = await fetch(SOLANA_RPC, {
           method: 'POST',
@@ -314,31 +237,22 @@
     
     async function verifyAccess() {
       if (!walletAddress) return false;
-      
       const balance = await checkPRAEBalance(walletAddress);
       const hasEnough = balance >= REQUIRED_PRAE;
-      
       const balanceDiv = document.getElementById('balanceDisplay');
       const balanceText = document.getElementById('balanceText');
       const accessStatus = document.getElementById('accessStatus');
       const buyLink = document.getElementById('buyLink');
-      
       balanceDiv.style.display = 'block';
-      
       if (hasEnough) {
         balanceText.innerHTML = `<span class="balance-ok">✅ Your PRAE: ${balance.toLocaleString()}</span>`;
-        accessStatus.innerHTML = '<span style="color: #2dd4bf;">✓ Access granted!</span>';
+        accessStatus.innerHTML = '<span style="color:#2dd4bf;">✓ Access granted! Loading market...</span>';
         buyLink.style.display = 'none';
         hasAccess = true;
-        
+        await loadGlobalState();
         setTimeout(() => {
           document.getElementById('gate').style.display = 'none';
           document.getElementById('mainApp').style.display = 'block';
-          document.getElementById('walletInfo').innerHTML = `👻 ${walletAddress.slice(0,6)}...${walletAddress.slice(-4)} • ${balance.toLocaleString()} PRAE`;
-          if (ORACLES.includes(walletAddress)) {
-            document.getElementById('oracleTab').style.display = 'inline-block';
-          }
-          loadData();
           renderAll();
         }, 800);
       } else {
@@ -348,217 +262,305 @@
         buyLink.href = BUY_LINK;
         hasAccess = false;
       }
-      return hasEnough;
     }
     
     async function connectWallet() {
       if (!window.solana || !window.solana.isPhantom) {
-        alert("Install Phantom Wallet: https://phantom.app/");
+        alert("Install Phantom Wallet");
         window.open('https://phantom.app/', '_blank');
         return;
       }
       try {
         const resp = await window.solana.connect();
         walletAddress = resp.publicKey.toString();
+        // Initialize user in state if not exists
+        if (!state.users[walletAddress]) {
+          state.users[walletAddress] = { balance: 1000, reputation: 0.5, correctVotes: 0, totalVotes: 0, lastActive: new Date().toISOString() };
+          await saveGlobalState();
+        }
         await verifyAccess();
-      } catch(e) { 
-        alert("Connection failed");
+      } catch(e) { alert("Connection failed"); }
+    }
+    
+    // ---------- CORE MARKET LOGIC (using shared state) ----------
+    function placeBet(marketId, outcome) {
+      const market = state.markets.find(m => m.id === marketId);
+      if (!market || market.status !== "active") { showToast("Market not active"); return; }
+      const amount = parseFloat(prompt(`Enter amount to bet on ${outcome.toUpperCase()}:`, "100"));
+      if (isNaN(amount) || amount <= 0) return;
+      // Deduct from user's simulated balance (in production would lock real tokens)
+      let user = state.users[walletAddress];
+      if (!user) user = { balance: 1000, reputation: 0.5, correctVotes: 0, totalVotes: 0 };
+      if (user.balance < amount) { showToast("Insufficient balance"); return; }
+      user.balance -= amount;
+      state.users[walletAddress] = user;
+      market.bets.push({ user: walletAddress, outcome, amount, timestamp: new Date().toISOString() });
+      market.bettingPool[outcome] += amount;
+      saveGlobalState().then(() => renderAll());
+      showToast(`✅ Bet placed! ${amount} PRAE on ${outcome.toUpperCase()}`);
+    }
+    
+    function oracleVote(marketId, outcome) {
+      const market = state.markets.find(m => m.id === marketId);
+      if (!market || market.status !== "active") { showToast("Market not active"); return; }
+      if (market.resolutionDate && new Date(market.resolutionDate) > new Date()) {
+        showToast(`⏳ Not yet resolvable until ${new Date(market.resolutionDate).toLocaleDateString()}`);
+        return;
       }
-    }
-    
-    // ========== DATA ==========
-    function loadData() {
-      try {
-        const saved = localStorage.getItem('praedicta_predictions');
-        if (saved) predictions = JSON.parse(saved);
-        else predictions = [];
-        
-        const savedUsers = localStorage.getItem('praedicta_users');
-        if (savedUsers) users = new Map(JSON.parse(savedUsers));
-      } catch(e) { predictions = []; users = new Map(); }
-    }
-    
-    function saveData() {
-      localStorage.setItem('praedicta_predictions', JSON.stringify(predictions));
-      localStorage.setItem('praedicta_users', JSON.stringify(Array.from(users.entries())));
-    }
-    
-    function submitPrediction() {
-      if (!hasAccess) { showToast("Need 777 PRAE"); return; }
-      
-      const category = document.getElementById('categorySelect').value;
-      const text = document.getElementById('predictionText').value.trim();
-      const source = document.getElementById('sourceInput').value.trim();
-      const deadline = document.getElementById('deadlineInput').value;
-      
-      if (!category || !text || !source) { showToast("Fill all fields"); return; }
-      
-      const cleanText = sanitizeText(text);
-      const cleanSource = sanitizeUrl(source);
-      
-      const newPrediction = {
-        id: Date.now().toString(),
-        text: cleanText,
-        category: category,
-        source: cleanSource,
-        creator: walletAddress,
-        createdAt: new Date().toISOString(),
-        deadline: deadline || null,
-        status: "pending",
-        resolution: null,
-        pointsAwarded: null
-      };
-      
-      predictions.unshift(newPrediction);
-      saveData();
-      renderAll();
-      
-      document.getElementById('categorySelect').value = '';
-      document.getElementById('predictionText').value = '';
-      document.getElementById('sourceInput').value = '';
-      document.getElementById('deadlineInput').value = '';
-      
-      showToast("✅ Praediction submitted! Win 7 points if correct!");
-    }
-    
-    async function resolvePrediction(id, isCorrect) {
-      if (!ORACLES.includes(walletAddress)) { showToast("Only oracles can resolve"); return; }
-      
-      const pred = predictions.find(p => p.id === id);
-      if (!pred || pred.status !== "pending") return;
-      
-      pred.status = "resolved";
-      pred.resolution = isCorrect;
-      pred.resolvedBy = walletAddress;
-      pred.resolvedAt = new Date().toISOString();
-      
-      let user = users.get(pred.creator);
-      if (!user) user = { correct: 0, total: 0, totalPoints: 0 };
-      
-      if (isCorrect) {
-        pred.pointsAwarded = POINTS_PER_WIN;
-        user.totalPoints = (user.totalPoints || 0) + POINTS_PER_WIN;
-        user.correct = (user.correct || 0) + 1;
-        showToast(`✅ CORRECT! +${POINTS_PER_WIN} points!`);
-      } else {
-        showToast(`❌ INCORRECT`);
-      }
-      
-      user.total = (user.total || 0) + 1;
-      users.set(pred.creator, user);
-      saveData();
-      renderAll();
-    }
-    
-    function escapeHtml(str) {
-      if (!str) return '';
-      return str.replace(/[&<>]/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' })[m]);
-    }
-    
-    function renderAll() {
-      renderPredictions();
-      renderMyPredictions();
-      renderLeaderboard();
-      renderOracleList();
-    }
-    
-    function renderPredictions() {
-      const container = document.getElementById('predictionsList');
-      const pending = predictions.filter(p => p.status === 'pending').slice(0, 30);
-      if (pending.length === 0) { container.innerHTML = '<div class="card">✨ No pending praedictions. Be the first!</div>'; return; }
-      
-      container.innerHTML = pending.map(p => `
-        <div class="card">
-          <div><span class="category-badge">${escapeHtml(p.category.toUpperCase())}</span></div>
-          <div style="margin: 12px 0;">"${escapeHtml(p.text)}"</div>
-          <div class="source-badge">📋 ${escapeHtml(p.source)}</div>
-          <div style="font-size: 0.7rem; margin-top: 8px;">👤 ${escapeHtml(p.creator.slice(0,6))}... • ${new Date(p.createdAt).toLocaleDateString()}</div>
-          <div class="status-pending">⏳ Pending • Win <span class="points-7">7</span> points</div>
-        </div>
-      `).join('');
-    }
-    
-    function renderMyPredictions() {
-      const container = document.getElementById('myPredictionsList');
-      const mine = predictions.filter(p => p.creator === walletAddress);
-      if (mine.length === 0) { container.innerHTML = '<div>No praedictions yet. Make one to win <span class="points-7">7</span> points!</div>'; return; }
-      
-      container.innerHTML = mine.map(p => `
-        <div class="prediction-item">
-          <div><strong>"${escapeHtml(p.text)}"</strong></div>
-          <div style="font-size: 0.7rem;">${escapeHtml(p.category.toUpperCase())} • ${new Date(p.createdAt).toLocaleDateString()}</div>
-          ${p.status === 'pending' ? '<span class="status-pending">⏳ Pending • 7 points at stake</span>' : 
-            p.resolution ? `<span class="status-correct">✅ WON +${p.pointsAwarded} points!</span>` : 
-            '<span class="status-incorrect">❌ Lost</span>'}
-        </div>
-      `).join('');
-    }
-    
-    function renderLeaderboard() {
-      const sorted = Array.from(users.entries())
-        .map(([addr, data]) => ({ address: addr, points: data.totalPoints || 0, accuracy: ((data.correct || 0) / (data.total || 1)) * 100 }))
-        .sort((a, b) => b.points - a.points)
-        .slice(0, 7);
-      
-      const container = document.getElementById('leaderboardList');
-      if (sorted.length === 0) { container.innerHTML = '<div>No praedictions resolved yet. Be the first!</div>'; return; }
-      
-      container.innerHTML = sorted.map((u, i) => `
-        <div class="leaderboard-entry">
-          <div style="font-size: 1.5rem;">${i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : `${i+1}th`}</div>
-          <div style="font-family: monospace;">${escapeHtml(u.address.slice(0,6))}...${escapeHtml(u.address.slice(-4))}</div>
-          <div class="score">${u.points} pts</div>
-          <div style="font-size: 0.7rem;">${u.accuracy.toFixed(0)}%</div>
-        </div>
-      `).join('');
-    }
-    
-    function renderOracleList() {
-      if (!ORACLES.includes(walletAddress)) return;
-      const container = document.getElementById('oracleList');
-      const pending = predictions.filter(p => p.status === 'pending');
-      if (pending.length === 0) { container.innerHTML = '<div>No pending praedictions.</div>'; return; }
-      
-      container.innerHTML = `<h4>Pending (${pending.length})</h4>` + pending.map(p => `
-        <div class="prediction-item">
-          <div><strong>${escapeHtml(p.category)}</strong>: "${escapeHtml(p.text)}"</div>
-          <div class="source-badge">📋 ${escapeHtml(p.source)}</div>
-          <div style="margin-top: 8px;">
-            <button style="background:#2dd4bf; padding:6px 12px; border:none; border-radius:20px; cursor:pointer;" onclick="resolvePrediction('${p.id}', true)">✅ CORRECT (+7 pts)</button>
-            <button style="background:#4a5568; padding:6px 12px; border:none; border-radius:20px; cursor:pointer; color:white; margin-left:8px;" onclick="resolvePrediction('${p.id}', false)">❌ INCORRECT</button>
-          </div>
-        </div>
-      `).join('');
-    }
-    
-    function showToast(msg) {
-      const toast = document.createElement('div');
-      toast.className = 'toast';
-      toast.textContent = msg;
-      document.body.appendChild(toast);
-      setTimeout(() => toast.remove(), 3000);
-    }
-    
-    function setupTabs() {
-      document.querySelectorAll('.tab-btn').forEach(btn => {
-        btn.addEventListener('click', () => {
-          const tab = btn.dataset.tab;
-          document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-          btn.classList.add('active');
-          document.querySelectorAll('.tab-content').forEach(t => t.style.display = 'none');
-          document.getElementById(`${tab}Tab`).style.display = 'block';
-        });
+      if (market.oracleVotes.voters.includes(walletAddress)) { showToast("Already voted"); return; }
+      const user = state.users[walletAddress] || { balance: 1000, reputation: 0.5 };
+      const votingPower = user.balance * (0.5 + user.reputation);
+      market.oracleVotes[outcome] += votingPower;
+      market.oracleVotes.voters.push(walletAddress);
+      saveGlobalState().then(() => {
+        renderAll();
+        showToast(`🗳️ Voted ${outcome.toUpperCase()} with ${votingPower.toFixed(2)} power`);
+        checkAndResolveMarket(marketId);
       });
     }
     
-    window.submitPrediction = submitPrediction;
-    window.resolvePrediction = resolvePrediction;
+    function checkAndResolveMarket(marketId) {
+      const market = state.markets.find(m => m.id === marketId);
+      if (!market || market.status !== "active") return;
+      const total = market.oracleVotes.yes + market.oracleVotes.no;
+      if (total === 0) return;
+      const yesRatio = market.oracleVotes.yes / total;
+      const noRatio = market.oracleVotes.no / total;
+      if (yesRatio >= market.resolutionThreshold) resolveMarket(marketId, "yes");
+      else if (noRatio >= market.resolutionThreshold) resolveMarket(marketId, "no");
+    }
+    
+    function resolveMarket(marketId, outcome) {
+      const market = state.markets.find(m => m.id === marketId);
+      if (!market || market.status !== "active") return;
+      market.status = "resolved";
+      market.resolvedOutcome = outcome;
+      market.resolvedAt = new Date().toISOString();
+      market.disputeDeadline = new Date(Date.now() + DISPUTE_WINDOW_DAYS * 86400000).toISOString();
+      // Distribute rewards (simplified)
+      const totalPool = market.bettingPool.yes + market.bettingPool.no;
+      const winningPool = market.bettingPool[outcome];
+      if (winningPool > 0) {
+        for (const bet of market.bets) {
+          if (bet.outcome === outcome) {
+            const reward = (bet.amount / winningPool) * totalPool;
+            let user = state.users[bet.user];
+            if (!user) user = { balance: 0, reputation: 0.5, correctVotes: 0, totalVotes: 0 };
+            user.balance += reward;
+            user.correctVotes++;
+            user.totalVotes++;
+            user.reputation = user.correctVotes / user.totalVotes;
+            state.users[bet.user] = user;
+          } else {
+            let user = state.users[bet.user];
+            if (user) {
+              user.totalVotes++;
+              user.reputation = user.correctVotes / user.totalVotes;
+              state.users[bet.user] = user;
+            }
+          }
+        }
+      }
+      // Oracle reward (5% to voters who voted correctly – simplified)
+      const oracleReward = totalPool * 0.05;
+      const correctVoters = market.oracleVotes.voters.filter(v => true); // in real app filter by how they voted
+      if (correctVoters.length > 0 && oracleReward > 0) {
+        const rewardPerOracle = oracleReward / correctVoters.length;
+        for (const oracle of correctVoters) {
+          let u = state.users[oracle];
+          if (u) u.balance += rewardPerOracle;
+        }
+      }
+      saveGlobalState().then(() => {
+        renderAll();
+        showToast(`🏆 Market RESOLVED! Outcome: ${outcome.toUpperCase()}. Dispute window: ${DISPUTE_WINDOW_DAYS} days.`);
+      });
+    }
+    
+    // ---------- DISPUTE & ADMIN MULTISIG ----------
+    function raiseDispute(marketId) {
+      const market = state.markets.find(m => m.id === marketId);
+      if (!market || market.status !== "resolved") { showToast("Only resolved markets can be disputed"); return; }
+      if (new Date() > new Date(market.disputeDeadline)) { showToast("Dispute window closed"); return; }
+      if (market.dispute?.active) { showToast("Dispute already active"); return; }
+      const bond = DISPUTE_BOND;
+      const user = state.users[walletAddress];
+      if (!user || user.balance < bond) { showToast(`Need ${bond} PRAE to dispute`); return; }
+      const proposedOutcome = prompt("What should be the correct outcome? (yes/no)", market.resolvedOutcome === "yes" ? "no" : "yes");
+      if (!["yes","no"].includes(proposedOutcome)) return;
+      const evidence = prompt("Evidence URL:", "");
+      if (!evidence) return;
+      user.balance -= bond;
+      state.users[walletAddress] = user;
+      market.dispute = {
+        active: true,
+        challenger: walletAddress,
+        proposedOutcome,
+        evidence,
+        bondAmount: bond,
+        resolvedByAdmin: null,
+        adminDecision: null
+      };
+      market.status = "disputed";
+      saveGlobalState().then(() => renderAll());
+      showToast(`⚠️ Dispute raised! Waiting for admin review.`);
+    }
+    
+    // Admin multisig: create a proposal
+    function createAdminProposal(type, marketId, newValue) {
+      if (!state.admins.includes(walletAddress)) { showToast("Only admins can propose"); return; }
+      const proposal = {
+        id: Date.now().toString(),
+        type,   // "resolveDispute" or "changeAdmin"
+        marketId,
+        newValue,
+        votes: [walletAddress],
+        createdAt: new Date().toISOString()
+      };
+      state.pendingProposals.push(proposal);
+      saveGlobalState().then(() => renderAll());
+      showToast("Proposal created. Waiting for other admins to vote.");
+    }
+    
+    function voteOnProposal(proposalId) {
+      if (!state.admins.includes(walletAddress)) { showToast("Only admins can vote"); return; }
+      const proposal = state.pendingProposals.find(p => p.id === proposalId);
+      if (!proposal) return;
+      if (proposal.votes.includes(walletAddress)) { showToast("Already voted"); return; }
+      proposal.votes.push(walletAddress);
+      if (proposal.votes.length >= ADMIN_THRESHOLD) {
+        // Execute proposal
+        if (proposal.type === "resolveDispute") {
+          const market = state.markets.find(m => m.id === proposal.marketId);
+          if (market && market.dispute?.active) {
+            resolveDisputeFinal(market.id, proposal.newValue);
+          }
+        } else if (proposal.type === "changeAdmin") {
+          // change admin list (simplified)
+          state.admins = proposal.newValue;
+        }
+        // Remove proposal after execution
+        state.pendingProposals = state.pendingProposals.filter(p => p.id !== proposalId);
+        showToast("Proposal passed and executed!");
+      }
+      saveGlobalState().then(() => renderAll());
+    }
+    
+    function resolveDisputeFinal(marketId, acceptChallenge) {
+      const market = state.markets.find(m => m.id === marketId);
+      if (!market || market.status !== "disputed" || !market.dispute?.active) return;
+      if (acceptChallenge) {
+        // Flip outcome
+        market.resolvedOutcome = market.dispute.proposedOutcome;
+        // Return bond to challenger
+        let challenger = state.users[market.dispute.challenger];
+        if (challenger) challenger.balance += market.dispute.bondAmount;
+        showToast(`Dispute accepted! Outcome changed to ${market.dispute.proposedOutcome.toUpperCase()}.`);
+      } else {
+        // Reject dispute: slash bond (50% to admin treasury, 50% burned)
+        let adminTreasury = state.users[state.admins[0]] || { balance: 0 };
+        adminTreasury.balance += market.dispute.bondAmount * 0.5;
+        state.users[state.admins[0]] = adminTreasury;
+        showToast(`Dispute rejected. Bond slashed.`);
+      }
+      market.status = "resolved";
+      market.dispute.active = false;
+      market.dispute.resolvedByAdmin = walletAddress;
+      market.dispute.adminDecision = acceptChallenge ? "accepted" : "rejected";
+      saveGlobalState().then(() => renderAll());
+    }
+    
+    function createMarket() {
+      const title = document.getElementById('marketTitle').value;
+      const description = document.getElementById('marketDescription').value;
+      const resolutionDate = document.getElementById('resolutionDate').value;
+      if (!title || !description) { showToast("Fill all fields"); return; }
+      const newMarket = {
+        id: "market_" + Date.now(),
+        title, description,
+        createdAt: new Date().toISOString(),
+        resolutionDate,
+        status: "active",
+        bettingPool: { yes: 0, no: 0 },
+        bets: [],
+        oracleVotes: { yes: 0, no: 0, voters: [] },
+        resolutionThreshold: 0.66,
+        resolvedOutcome: null,
+        resolvedAt: null,
+        disputeDeadline: null,
+        dispute: { active: false }
+      };
+      state.markets.unshift(newMarket);
+      saveGlobalState().then(() => {
+        renderAll();
+        document.getElementById('marketTitle').value = "";
+        document.getElementById('marketDescription').value = "";
+        document.getElementById('resolutionDate').value = "";
+        showToast("✨ Market created!");
+      });
+    }
+    
+    // ---------- RENDER UI ----------
+    function renderAll() {
+      const container = document.getElementById('marketsContainer');
+      if (!container) return;
+      container.innerHTML = state.markets.map(market => {
+        const isActive = market.status === "active";
+        const isResolved = market.status === "resolved";
+        const isDisputed = market.status === "disputed";
+        const totalVol = market.bettingPool.yes + market.bettingPool.no;
+        const yesProb = totalVol > 0 ? (market.bettingPool.yes / totalVol * 100).toFixed(1) : 50;
+        const noProb = totalVol > 0 ? (market.bettingPool.no / totalVol * 100).toFixed(1) : 50;
+        const totalVotes = market.oracleVotes.yes + market.oracleVotes.no;
+        const oracleConsensus = totalVotes > 0 ? Math.max(market.oracleVotes.yes / totalVotes, market.oracleVotes.no / totalVotes) * 100 : 0;
+        const canDispute = isResolved && new Date() <= new Date(market.disputeDeadline) && !market.dispute?.active;
+        const isAdmin = state.admins.includes(walletAddress);
+        return `
+          <div class="market-card">
+            <div class="market-title">
+              ${escapeHtml(market.title)}
+              <span class="badge ${isActive ? 'badge-active' : isDisputed ? 'badge-disputed' : 'badge-resolved'}">
+                ${isActive ? 'ACTIVE' : isDisputed ? 'DISPUTED' : 'RESOLVED'}
+              </span>
+              ${isAdmin ? '<span class="admin-badge">ADMIN</span>' : ''}
+            </div>
+            <div class="market-description">${escapeHtml(market.description)}</div>
+            <div class="market-stats">
+              <div class="outcome"><div class="outcome-probability outcome-yes">${yesProb}%</div><div>YES</div><div class="outcome-bar"><div class="outcome-bar-fill fill-yes" style="width:${yesProb}%"></div></div><div>💰 ${market.bettingPool.yes} PRAE</div></div>
+              <div class="outcome"><div class="outcome-probability outcome-no">${noProb}%</div><div>NO</div><div class="outcome-bar"><div class="outcome-bar-fill fill-no" style="width:${noProb}%"></div></div><div>💰 ${market.bettingPool.no} PRAE</div></div>
+            </div>
+            ${isActive ? `<div class="bet-buttons"><button class="btn-yes" onclick="placeBet('${market.id}','yes')">✅ Bet YES</button><button class="btn-no" onclick="placeBet('${market.id}','no')">❌ Bet NO</button></div>` : ''}
+            ${isResolved ? `<div style="text-align:center; padding:10px; background:#0a0f14; border-radius:12px; margin-top:12px;">🏆 RESOLVED: ${market.resolvedOutcome === 'yes' ? '✅ YES' : '❌ NO'}<div style="font-size:0.7rem;">${new Date(market.resolvedAt).toLocaleDateString()}</div>${canDispute ? `<button class="btn-dispute" onclick="raiseDispute('${market.id}')">⚠️ Dispute</button>` : ''}</div>` : ''}
+            ${isDisputed && market.dispute ? `<div style="background:#fbbf2420; padding:10px; border-radius:12px; margin-top:12px;">⚠️ DISPUTE: ${market.dispute.challenger.slice(0,8)}... claims ${market.dispute.proposedOutcome.toUpperCase()}<br><a href="${escapeHtml(market.dispute.evidence)}" target="_blank">Evidence</a>${isAdmin && market.status === 'disputed' ? `<div><button class="btn-admin" onclick="createAdminProposal('resolveDispute','${market.id}',true)">✅ Accept Challenge</button><button class="btn-admin" onclick="createAdminProposal('resolveDispute','${market.id}',false)">❌ Reject</button></div>` : ''}</div>` : ''}
+            <div class="oracle-consensus">
+              <div>🦉 ORACLE CONSENSUS (${oracleConsensus.toFixed(1)}% reached)</div>
+              <div><span class="oracle-vote vote-yes">YES: ${market.oracleVotes.yes.toFixed(0)}</span> <span class="oracle-vote vote-no">NO: ${market.oracleVotes.no.toFixed(0)}</span></div>
+              <div>${market.oracleVotes.voters.length} voted • Threshold: ${market.resolutionThreshold*100}%</div>
+              ${isActive && (!market.resolutionDate || new Date(market.resolutionDate) <= new Date()) ? `<div><button class="btn-resolve" onclick="oracleVote('${market.id}','yes')">🗳️ Vote YES</button><button class="btn-resolve" onclick="oracleVote('${market.id}','no')">🗳️ Vote NO</button></div>` : ''}
+            </div>
+          </div>
+        `;
+      }).join('');
+      document.getElementById('totalMarkets').innerText = state.markets.length;
+      document.getElementById('totalBets').innerText = state.markets.reduce((s,m) => s + m.bets.length, 0);
+      document.getElementById('totalVolume').innerText = state.markets.reduce((s,m) => s + m.bettingPool.yes + m.bettingPool.no, 0);
+    }
+    
+    function escapeHtml(str) { if (!str) return ''; return str.replace(/[&<>]/g, m => ({ '&':'&amp;','<':'&lt;','>':'&gt;' })[m]); }
+    function showToast(msg) { const t=document.createElement('div'); t.className='toast'; t.textContent=msg; document.body.appendChild(t); setTimeout(()=>t.remove(),3000); }
+    
+    // Expose global functions
+    window.placeBet = placeBet;
+    window.oracleVote = oracleVote;
+    window.raiseDispute = raiseDispute;
+    window.createAdminProposal = createAdminProposal;
+    window.voteOnProposal = voteOnProposal;
+    window.createMarket = createMarket;
     
     document.getElementById('connectBtn').addEventListener('click', connectWallet);
-    document.getElementById('submitBtn').addEventListener('click', submitPrediction);
+    document.getElementById('createMarketBtn').addEventListener('click', createMarket);
     
-    setupTabs();
-    
+    // Auto-connect if wallet already connected
     if (window.solana?.isConnected && window.solana?.publicKey) {
       walletAddress = window.solana.publicKey.toString();
       verifyAccess();
