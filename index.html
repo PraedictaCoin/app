@@ -3,106 +3,106 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <title>PRAEDICTA • Supabase</title>
+  <title>PRAEDICTA • Final</title>
   <style>
-    /* (same as previous styles) */
+    /* Clean, simple styles – no gradients on eyes, proper light/dark */
+    :root {
+      --bg: #0a0c10;
+      --card: #11151c;
+      --text: #e2e8f0;
+      --text-muted: #8ba3af;
+      --accent: #2dd4bf;
+      --accent-dark: #0f766e;
+      --border: #1f2a30;
+      --button-text: #0a0c10;
+    }
+    body.light {
+      --bg: #f0f4f8;
+      --card: #ffffff;
+      --text: #1e293b;
+      --text-muted: #475569;
+      --accent: #0f766e;
+      --accent-dark: #0d9488;
+      --border: #cbd5e1;
+      --button-text: white;
+    }
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body {
-      background: #0a0c10;
+      background: var(--bg);
+      color: var(--text);
       font-family: system-ui, sans-serif;
-      color: #e2e8f0;
       padding: 16px;
       min-height: 100vh;
+      transition: background 0.2s;
     }
-    .gate { position: fixed; top:0; left:0; right:0; bottom:0; background:#0a0c10; z-index:1000; display:flex; align-items:center; justify-content:center; }
-    .gate-card { background:#11151c; border:2px solid #2dd4bf; border-radius:48px; padding:48px 32px; max-width:480px; width:90%; text-align:center; }
-    .prediction-ball { font-size:4rem; margin-bottom:16px; animation:float 3s ease-in-out infinite; }
-    @keyframes float { 0%,100%{transform:translateY(0);} 50%{transform:translateY(-10px);} }
-    .praedicta-title { font-size:2.8rem; font-weight:700; background:linear-gradient(135deg,#2dd4bf,#14b8a6); -webkit-background-clip:text; background-clip:text; color:transparent; }
-    .subtitle { color:#8ba3af; margin-bottom:32px; }
-    .hold-line { color:#8ba3af; font-size:.9rem; margin-bottom:8px; }
-    .btn-connect { background:#2dd4bf; color:#0a0c10; border:none; padding:14px 28px; border-radius:60px; font-weight:700; cursor:pointer; display:inline-flex; gap:8px; margin-bottom:16px; }
-    .btn-get-prae { background:#1e2a2e; border:1px solid #2dd4bf; color:#2dd4bf; padding:8px 20px; border-radius:40px; text-decoration:none; font-size:.8rem; display:inline-block; margin-top:8px; }
-    .balance-info { margin-top:16px; padding:12px; background:#0a0f14; border-radius:20px; }
-    .balance-ok { color:#2dd4bf; }
-    .balance-insufficient { color:#ef4444; }
-    .main-app { display:none; max-width:1400px; margin:0 auto; }
-    .header { background:#0f171f; display:flex; justify-content:space-between; flex-wrap:wrap; gap:20px; margin-bottom:30px; padding:20px; border-radius:20px; border:1px solid #1f2a30; text-align:center; }
-    .header-text { flex:1; text-align:center; }
-    h1 { background:linear-gradient(135deg,#2dd4bf,#14b8a6); -webkit-background-clip:text; background-clip:text; color:transparent; font-size:2rem; display:inline-block; margin-right:8px; }
-    .header .subhead { color:#8ba3af; font-size:.85rem; margin-top:4px; }
-    .stats-grid { display:flex; gap:20px; flex-wrap:wrap; justify-content:center; }
-    .stat-card { background:#11151c; padding:12px 20px; border-radius:12px; text-align:center; border:1px solid #1f2a30; }
-    .stat-value { font-size:1.8rem; font-weight:700; color:#2dd4bf; }
-    .tabs { display:flex; gap:8px; flex-wrap:wrap; margin-bottom:20px; justify-content:center; }
-    .tab-btn { background:#1a202c; border:1px solid #1f2a30; padding:10px 20px; border-radius:40px; cursor:pointer; color:#8ba3af; transition:.2s; }
-    .tab-btn.active { background:#2dd4bf; color:#0a0c10; }
+    .gate { position: fixed; top:0; left:0; right:0; bottom:0; background:var(--bg); display:flex; align-items:center; justify-content:center; z-index:1000; }
+    .gate-card { background:var(--card); border:2px solid var(--accent); border-radius:48px; padding:40px; max-width:400px; width:90%; text-align:center; }
+    .gate-card .eye { font-size:4rem; margin-bottom:16px; display:block; }
+    .btn-connect { background:var(--accent); color:var(--button-text); border:none; padding:12px 24px; border-radius:40px; font-weight:bold; cursor:pointer; margin-top:16px; }
+    .btn-connect:hover { background:var(--accent-dark); }
+    .main-app { display:none; max-width:1200px; margin:0 auto; }
+    .header { display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:16px; margin-bottom:24px; padding:16px; background:var(--card); border-radius:24px; border:1px solid var(--border); }
+    h1 { font-size:1.8rem; }
+    .stats { display:flex; gap:16px; }
+    .stat { background:var(--bg); padding:8px 16px; border-radius:20px; text-align:center; }
+    .stat-value { font-size:1.5rem; font-weight:bold; color:var(--accent); }
+    .tabs { display:flex; gap:8px; margin-bottom:20px; flex-wrap:wrap; }
+    .tab-btn { background:var(--card); border:1px solid var(--border); padding:8px 16px; border-radius:40px; cursor:pointer; color:var(--text-muted); }
+    .tab-btn.active { background:var(--accent); color:var(--button-text); }
     .tab-content { display: none; }
     .tab-content.active { display: block; }
-    .praedictions-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(380px,1fr)); gap:20px; margin-bottom:30px; }
-    .praediction-card { background:#11151c; border-radius:20px; padding:20px; border:1px solid #1f2a30; transition:transform .2s; }
-    .praediction-card:hover { transform:translateY(-2px); border-color:#2dd4bf; }
-    .praediction-title { font-size:1.1rem; font-weight:600; margin-bottom:12px; color:#2dd4bf; }
-    .badge { display:inline-block; padding:2px 8px; border-radius:20px; font-size:.7rem; margin-left:8px; }
-    .badge-active { background:#0f766e; color:#fff; }
-    .badge-resolved { background:#4a5568; color:#fff; }
-    .badge-disputed { background:#fbbf24; color:#0a0c10; }
-    .admin-badge { background:#ef4444; color:#fff; font-size:.6rem; padding:2px 6px; border-radius:20px; margin-left:8px; }
-    .action-buttons { display:flex; gap:12px; margin-top:16px; flex-wrap:wrap; }
-    .btn-praedict, .btn-vote, .btn-dispute { padding:10px; border:none; border-radius:40px; font-weight:600; cursor:pointer; flex:1; transition:transform .1s; }
-    .btn-praedict { background:#0f766e; color:#fff; }
-    .btn-vote { background:#4a5568; color:#fff; }
-    .btn-dispute { background:#fbbf24; color:#0a0c10; }
-    .oracle-consensus { margin-top:12px; padding:8px; background:#0a0f14; border-radius:8px; font-size:.75rem; }
-    .oracle-vote { display:inline-block; padding:2px 8px; border-radius:20px; margin:2px; font-size:.7rem; }
-    .vote-yes { background:#0f766e40; color:#2dd4bf; }
-    .vote-no { background:#7f1a1a40; color:#ef4444; }
-    .create-praediction { background:#11151c; border-radius:20px; padding:24px; margin-top:20px; border:2px solid #2dd4bf; }
-    .create-praediction button { background:#2dd4bf; color:#0a0c10; font-weight:700; font-size:1.1rem; padding:14px; width:100%; border:none; border-radius:60px; cursor:pointer; transition:.2s; }
-    input, textarea, select { width:100%; padding:12px; margin-bottom:12px; background:#0a0f14; border:1px solid #1f2a30; border-radius:12px; color:#e2e8f0; }
-    .toast { position:fixed; bottom:20px; right:20px; background:#2dd4bf; color:#0a0c10; padding:12px 24px; border-radius:40px; font-weight:700; animation:slideIn .3s; z-index:1000; }
-    @keyframes slideIn { from { transform:translateX(100%); opacity:0; } to { transform:translateX(0); opacity:1; } }
-    .dispute-panel, .faq-panel, .leaderboard-panel, .profile-panel, .support-panel { background:#11151c; border-radius:20px; padding:20px; margin-top:20px; border:1px solid #2dd4bf; }
-    .dispute-item, .leaderboard-item { background:#0a0f14; border-radius:12px; padding:12px; margin-bottom:12px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px; }
-    .share-buttons { display:flex; flex-direction:column; gap:6px; margin-top:12px; align-items:flex-end; }
-    .share-btn { background:#0a0f14; padding:6px 12px; border-radius:40px; font-size:.7rem; cursor:pointer; border:1px solid #2dd4bf; color:#2dd4bf; width:fit-content; }
-    .reload-btn, .theme-toggle { background:#1a202c; color:#e2e8f0; border:1px solid #1f2a30; padding:6px 12px; border-radius:40px; cursor:pointer; font-size:.7rem; }
+    .praedictions-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(350px,1fr)); gap:20px; margin-bottom:30px; }
+    .praediction-card { background:var(--card); border-radius:20px; padding:20px; border:1px solid var(--border); }
+    .praediction-title { font-size:1.2rem; font-weight:600; color:var(--accent); margin-bottom:8px; }
+    .badge { display:inline-block; padding:2px 8px; border-radius:20px; font-size:0.7rem; margin-left:8px; }
+    .badge-active { background:var(--accent-dark); color:white; }
+    .badge-resolved { background:#4a5568; color:white; }
+    .badge-disputed { background:#fbbf24; color:black; }
+    .action-buttons { display:flex; gap:12px; margin-top:16px; }
+    .btn-praedict, .btn-vote, .btn-dispute { padding:8px; border:none; border-radius:40px; font-weight:600; cursor:pointer; flex:1; }
+    .btn-praedict { background:var(--accent-dark); color:white; }
+    .btn-vote { background:#4a5568; color:white; }
+    .btn-dispute { background:#fbbf24; color:black; }
+    .oracle-consensus { margin-top:12px; padding:8px; background:var(--bg); border-radius:12px; font-size:0.75rem; }
+    .create-praediction { background:var(--card); border-radius:20px; padding:20px; margin-top:20px; border:2px solid var(--accent); }
+    .create-praediction input, .create-praediction textarea, .create-praediction select { width:100%; padding:10px; margin-bottom:12px; background:var(--bg); border:1px solid var(--border); border-radius:12px; color:var(--text); }
+    .create-praediction button { background:var(--accent); color:var(--button-text); font-weight:bold; padding:12px; width:100%; border:none; border-radius:40px; cursor:pointer; }
+    .toast { position:fixed; bottom:20px; right:20px; background:var(--accent); color:var(--button-text); padding:12px 24px; border-radius:40px; font-weight:bold; z-index:1000; animation: fadeIn 0.3s; }
+    @keyframes fadeIn { from { opacity:0; transform:translateX(100%); } to { opacity:1; transform:translateX(0); } }
+    .referral-box { background:var(--bg); border-radius:12px; padding:12px; margin-top:16px; }
     .social-links { display:flex; gap:12px; justify-content:center; margin-top:20px; flex-wrap:wrap; }
-    .social-btn { background:#0a0f14; color:#2dd4bf; padding:6px 12px; border-radius:40px; text-decoration:none; font-size:.8rem; display:inline-flex; align-items:center; gap:6px; border:1px solid #2dd4bf; }
+    .social-btn { background:var(--bg); color:var(--accent); padding:6px 12px; border-radius:40px; text-decoration:none; font-size:0.8rem; border:1px solid var(--accent); }
     .flex-between { display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px; margin-bottom:16px; }
-    .faq-question { font-weight:700; color:#2dd4bf; margin:16px 0 8px; }
-    .faq-answer { color:#8ba3af; margin-bottom:16px; padding-left:12px; border-left:2px solid #2dd4bf; }
-    .referral-box { background:#0a0f14; border-radius:12px; padding:12px; margin-top:12px; word-break:break-all; }
-    .profile-stat { margin:8px 0; }
+    .profile-stats { margin-top:16px; }
+    .profile-stats div { margin:8px 0; }
   </style>
 </head>
 <body>
 
+<!-- GATE SCREEN -->
 <div id="gate" class="gate">
   <div class="gate-card">
-    <div class="prediction-ball">👁️</div>
-    <div class="praedicta-title">PRAEDICTA</div>
-    <div class="subtitle">for those who see</div>
+    <span class="eye">👁️</span>
+    <h2>PRAEDICTA</h2>
+    <p style="color:var(--text-muted); margin:8px 0;">for those who see</p>
     <button id="connectBtn" class="btn-connect">👻 Connect Phantom</button>
-    <div class="hold-line">Hold <span class="prae-amount">777 PRAE</span> to access</div>
-    <a id="buyLink" href="#" target="_blank" class="btn-get-prae" style="display:none;">👁️ Get PRAE here →</a>
-    <div id="balanceDisplay" style="display:none;">
-      <div id="balanceText" class="balance-info"></div>
-      <div id="accessStatus"></div>
+    <div id="balanceDisplay" style="margin-top:16px; display:none;">
+      <div id="balanceText"></div>
     </div>
   </div>
 </div>
 
+<!-- MAIN APP -->
 <div id="mainApp" class="main-app">
   <div class="header">
-    <div class="header-text">
+    <div>
       <h1>👁️ PRAEDICTA</h1>
-      <div class="subhead">for those who see</div>
+      <div style="color:var(--text-muted);">for those who see</div>
     </div>
-    <div class="stats-grid">
-      <div class="stat-card"><div class="stat-value" id="totalPraedictions">0</div><div>Active</div></div>
-      <div class="stat-card"><div class="stat-value" id="totalBets">0</div><div>Praedicts</div></div>
-      <div class="stat-card"><div class="stat-value" id="totalVolume">0</div><div>Seerscore</div></div>
+    <div class="stats">
+      <div class="stat"><div class="stat-value" id="totalActive">0</div><div>Active</div></div>
+      <div class="stat"><div class="stat-value" id="totalPraedicts">0</div><div>Praedicts</div></div>
+      <div class="stat"><div class="stat-value" id="totalSeerscore">0</div><div>Seerscore</div></div>
     </div>
   </div>
 
@@ -110,16 +110,13 @@
     <div class="tabs">
       <button class="tab-btn active" data-tab="praedictions">📊 Praedictions</button>
       <button class="tab-btn" data-tab="leaderboard">🏆 Leaderboard</button>
-      <button class="tab-btn" data-tab="profile">👁️ SeerStats</button>
+      <button class="tab-btn" data-tab="profile">👤 SeerStats</button>
       <button class="tab-btn" data-tab="disputes">⚖️ Disputes</button>
       <button class="tab-btn" data-tab="faq">❓ FAQ</button>
-      <button class="tab-btn" data-tab="support">💛 Support</button>
     </div>
     <div style="display:flex; gap:8px;">
-      <button id="reloadStateBtn" class="reload-btn">⟳ Reload</button>
-      <button id="themeToggle" class="theme-toggle">🌓 Theme</button>
-      <a href="#" id="headerGetPraeBtn" class="social-btn" style="display:none;">👁️ Get PRAE</a>
-      <a href="https://t.me/praedictacoin" target="_blank" class="social-btn">📱 Praedicta Community</a>
+      <button id="reloadBtn" class="social-btn">⟳ Reload</button>
+      <button id="themeToggle" class="social-btn">🌓 Theme</button>
     </div>
   </div>
 
@@ -127,10 +124,10 @@
   <div id="tab-praedictions" class="tab-content active">
     <div id="praedictionsContainer" class="praedictions-grid"></div>
     <div class="create-praediction">
-      <h3 style="margin-bottom:16px;color:#2dd4bf;">🏛️ Create New Praediction</h3>
-      <input type="text" id="praedictionTitle" placeholder="Title">
-      <textarea id="praedictionDescription" rows="2" placeholder="Description"></textarea>
-      <select id="categorySelect">
+      <h3 style="margin-bottom:12px;">🏛️ Create New Praediction</h3>
+      <input type="text" id="title" placeholder="Title">
+      <textarea id="description" rows="2" placeholder="Description"></textarea>
+      <select id="category">
         <option value="crypto">💰 Crypto</option>
         <option value="sports">⚽ Sports</option>
         <option value="politics">🏛️ Politics</option>
@@ -138,90 +135,54 @@
         <option value="wildcard">🎲 Wildcard</option>
       </select>
       <input type="datetime-local" id="resolutionDate">
-      <select id="autoSource">
-        <option value="">No auto‑resolve</option>
-        <option value="coingecko_btc">CoinGecko BTC price (USD)</option>
-        <option value="coingecko_eth">CoinGecko ETH price (USD)</option>
-        <option value="coingecko_sol">CoinGecko SOL price (USD)</option>
-        <option value="coingecko_doge">CoinGecko DOGE price (USD)</option>
-        <option value="coingecko_matic">CoinGecko MATIC price (USD)</option>
-        <option value="coingecko_avax">CoinGecko AVAX price (USD)</option>
-        <option value="coingecko_link">CoinGecko LINK price (USD)</option>
-      </select>
-      <input type="text" id="targetValue" placeholder="Target value (e.g., 60000) – for auto‑resolve">
-      <div class="info-tip" style="font-size:0.7rem; color:#2dd4bf; margin-top:4px;">💡 Auto‑resolve: after deadline, system fetches real price. Price ≥ target → YES, else NO.</div>
-      <button id="createPraedictionBtn">✨ Create Praediction</button>
-      <div class="info-center" style="text-align:center; margin-top:16px; font-size:.75rem;">⚡ Anyone can create • PRAE holders vote • 66% consensus • 7‑day dispute window • Oracle resolves disputes</div>
+      <button id="createBtn">✨ Create Praediction</button>
     </div>
   </div>
 
   <!-- Leaderboard Tab -->
   <div id="tab-leaderboard" class="tab-content">
-    <div class="leaderboard-panel"><h3>🏆 Top Praedictors</h3><div id="leaderboardList"></div></div>
+    <div style="background:var(--card); border-radius:20px; padding:20px;">
+      <h3>🏆 Top Praedictors</h3>
+      <div id="leaderboardList"></div>
+    </div>
   </div>
 
-  <!-- Profile / SeerStats Tab -->
+  <!-- Profile Tab -->
   <div id="tab-profile" class="tab-content">
-    <div class="profile-panel">
-      <h3 id="profileHeadline">Welcome Seer: </h3>
-      <div id="profileStats"></div>
-      <div class="referral-box"><strong>🔗 Your Referral Link</strong><br><span id="referralLink"></span><br><button id="copyReferralBtn" class="share-btn" style="margin-top:8px;">📋 Copy Link</button><div style="font-size:.7rem; margin-top:8px;">When a friend uses your link and makes their first praediction, you both get +77 Seerscore!</div></div>
-      <button id="exportDataBtn" class="btn-praedict" style="margin-top:16px;">📥 Export Data (JSON)</button>
+    <div style="background:var(--card); border-radius:20px; padding:20px;">
+      <h3 id="profileHeadline">Welcome Seer</h3>
+      <div id="profileStats" class="profile-stats"></div>
+      <div class="referral-box">
+        <strong>🔗 Your Referral Link</strong><br>
+        <span id="referralLink"></span><br>
+        <button id="copyReferralBtn" class="social-btn" style="margin-top:8px;">📋 Copy Link</button>
+      </div>
       <div class="social-links">
         <a href="https://t.me/praedictacoin" target="_blank" class="social-btn">📱 Telegram Group</a>
-        <a href="https://x.com/PraedictaCoin" target="_blank" class="social-btn">🐦 X (Twitter)</a>
+        <a href="https://x.com/PraedictaCoin" target="_blank" class="social-btn">🐦 X</a>
         <a href="https://dexscreener.com/solana/7C2Y5NebLFG37wMbB85TbMqYERTSkq9tEi58wv28MCzt" target="_blank" class="social-btn">📊 DexScreener</a>
-        <a href="https://praedictacoin.github.io/web/" target="_blank" class="social-btn">🌐 Website</a>
-        <a id="profileGetPraeBtn" href="#" target="_blank" class="social-btn">👁️ Get PRAE</a>
       </div>
     </div>
   </div>
 
   <!-- Disputes Tab -->
   <div id="tab-disputes" class="tab-content">
-    <div class="dispute-panel"><h3>⚖️ Open Disputes</h3><div id="disputesList"></div></div>
+    <div style="background:var(--card); border-radius:20px; padding:20px;">
+      <h3>⚖️ Open Disputes</h3>
+      <div id="disputesList"></div>
+    </div>
   </div>
 
   <!-- FAQ Tab -->
   <div id="tab-faq" class="tab-content">
-    <div class="faq-panel">
-      <h3>❓ Frequently Asked Questions</h3>
-      <div class="faq-question">🔮 What is a Praediction?</div>
-      <div class="faq-answer">A praediction is a statement about a future event. Users simply choose YES or NO. Oracles vote after the deadline, and if 66% consensus is reached, the winning side earns Seerscore points.</div>
-      <div class="faq-question">🦉 Who are the oracles?</div>
-      <div class="faq-answer">Any PRAE holder can vote. Voting power = balance × (0.5 + reputation). Reputation increases with correct votes.</div>
-      <div class="faq-question">⚖️ How do disputes work?</div>
-      <div class="faq-answer">After a praediction resolves, anyone can dispute within 7 days by posting <strong>7 voting rights</strong> and evidence. The oracle then decides – if the dispute is accepted, the outcome flips and the bond is returned; if rejected, the bond is slashed.</div>
-      <div class="faq-question">💎 Do I lose my 777 PRAE?</div>
-      <div class="faq-answer">No – the app only checks your balance. Your tokens stay in your wallet. No money is ever transferred.</div>
-      <div class="faq-question">📈 How does auto‑resolve work?</div>
-      <div class="faq-answer">If you select a price feed (e.g., CoinGecko BTC) and a target value, after the deadline the system automatically fetches the real price. If the price ≥ target, outcome YES; else NO. Supported coins: BTC, ETH, SOL, DOGE, MATIC, AVAX, LINK.</div>
-      <div class="faq-question">👁️ Where can I get PRAE tokens?</div>
-      <div class="faq-answer">PRAE is a community token used for gatekeeping against bots and scammers. You can get it on <a href="https://dexscreener.com/solana/7C2Y5NebLFG37wMbB85TbMqYERTSkq9tEi58wv28MCzt" target="_blank" style="color:#2dd4bf;">DexScreener</a>.</div>
-      <div class="faq-question">👥 Is there a community I can join?</div>
-      <div class="faq-answer">Yes! Join our Telegram group: <a href="https://t.me/praedictacoin" target="_blank" style="color:#2dd4bf;">t.me/praedictacoin</a> or follow us on X: <a href="https://x.com/PraedictaCoin" target="_blank" style="color:#2dd4bf;">@PraedictaCoin</a>.</div>
-      <div class="faq-question">💛 How can I support the project?</div>
-      <div class="faq-answer">Check the <strong>“Support” tab</strong> – you can donate to help with server costs and add liquidity to the PRAE token.</div>
-      <div class="faq-question">⚖️ Legal disclaimer</div>
-      <div class="faq-answer">This is a free game for entertainment purposes only. No real money is involved – points have no cash value. You are not gambling or trading. Participation is at your own risk and must comply with your local laws.</div>
-    </div>
-  </div>
-
-  <!-- Support Tab -->
-  <div id="tab-support" class="tab-content">
-    <div class="support-panel">
-      <h3>💛 Support PRAEDICTA</h3>
-      <p>Your support keeps the servers running, helps add new features, and provides liquidity for the PRAE token. Thank you!</p>
-      <div class="ad-placeholder" style="background:#0a0f14; border:1px dashed #2dd4bf; border-radius:12px; padding:16px; text-align:center; margin:16px 0;">📢 <strong>Advertisement</strong><br><img src="https://via.placeholder.com/300x100?text=Your+Ad+Here" style="max-width:100%; border-radius:8px; margin-top:8px;"><br><span style="font-size:0.7rem;">Replace with your own ad code (e.g., Google AdSense)</span></div>
-      <button id="donateBtn" class="donate-btn" style="background:#ff813f; color:white; border:none; padding:12px 24px; border-radius:40px; font-weight:bold; cursor:pointer; margin:8px 0;">☕ Buy me a coffee / Add liquidity</button>
-      <div class="resources">
-        <h4 style="margin:16px 0 8px;">📚 Resources & Affiliates</h4>
-        <a href="https://phantom.app/" target="_blank" class="resource-link" style="display:block; margin:8px 0; color:#2dd4bf;">👻 Phantom Wallet – Secure Solana wallet</a>
-        <a href="https://jup.ag/" target="_blank" class="resource-link" style="display:block; margin:8px 0; color:#2dd4bf;">🔄 Jupiter Aggregator – Best swap rates</a>
-        <a href="https://dexscreener.com/" target="_blank" class="resource-link" style="display:block; margin:8px 0; color:#2dd4bf;">📊 DexScreener – Track PRAE price</a>
-        <a href="https://ko-fi.com/" target="_blank" class="resource-link" style="display:block; margin:8px 0; color:#2dd4bf;">☕ Ko‑fi – Support the project directly</a>
-        <p style="margin-top:16px; font-size:0.8rem;">These affiliate links help us earn a small commission at no extra cost to you.</p>
-      </div>
+    <div style="background:var(--card); border-radius:20px; padding:20px;">
+      <h3>❓ FAQ</h3>
+      <p><strong>🔮 What is a Praediction?</strong><br>Guess future events. Choose YES or NO.</p>
+      <p><strong>🦉 Who are the oracles?</strong><br>Any PRAE holder can vote after deadline. Majority decides.</p>
+      <p><strong>⚖️ Disputes</strong><br>Within 7 days after resolution, anyone can dispute with 7 voting rights.</p>
+      <p><strong>💎 Do I lose my 777 PRAE?</strong><br>No – we only check your balance.</p>
+      <p><strong>👁️ Get PRAE</strong><br><a href="https://dexscreener.com/solana/7C2Y5NebLFG37wMbB85TbMqYERTSkq9tEi58wv28MCzt" target="_blank">DexScreener</a></p>
+      <p><strong>⚖️ Disclaimer</strong><br>This is a free game. Points have no cash value. Not gambling.</p>
     </div>
   </div>
 </div>
@@ -229,83 +190,78 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
 // ============================================================
-// PRAEDICTA - SUPABASE VERSION (FIXED CONNECTION)
+// PRAEDICTA - SIMPLE, WORKING, SUPABASE VERSION
 // ============================================================
 const SUPABASE_URL = "https://klgwyaeqnklydlqatzys.supabase.co";
 const SUPABASE_ANON_KEY = "sb_publishable_OL32s1-muu_5d5ACQ_4kVQ_yEEeyJl1";
+const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-let supabaseClient = null;
 let walletAddress = null;
-let hasAccess = false;
-let actionCooldown = false;
 let currentPredictions = [];
 
-// Helper: daily UTC day key
+// ---------- Helper ----------
 function getUTCDayKey() { return new Date().toISOString().slice(0,10); }
+function showToast(msg) {
+  const t = document.createElement('div');
+  t.className = 'toast';
+  t.textContent = msg;
+  document.body.appendChild(t);
+  setTimeout(() => t.remove(), 3000);
+}
+function escapeHtml(str) { if (!str) return ''; return str.replace(/[&<>]/g, m => ({ '&':'&amp;','<':'&lt;','>':'&gt;' })[m]); }
 
-// ---------- Supabase helpers ----------
+// ---------- Supabase Functions ----------
+async function loadUser(address) {
+  const { data, error } = await supabase.from('users').select('*').eq('address', address).maybeSingle();
+  if (error && error.code !== 'PGRST116') console.error(error);
+  return data;
+}
+async function upsertUser(user) {
+  const { error } = await supabase.from('users').upsert(user, { onConflict: 'address' });
+  if (error) console.error(error);
+}
 async function loadPredictions() {
-  const { data, error } = await supabaseClient
-    .from('predictions')
-    .select('*')
-    .order('created_at', { ascending: false });
+  const { data, error } = await supabase.from('predictions').select('*').order('created_at', { ascending: false });
   if (error) { console.error(error); showToast("Failed to load predictions"); return []; }
   return data;
 }
-
-async function loadUser(address) {
-  const { data, error } = await supabaseClient
-    .from('users')
-    .select('*')
-    .eq('address', address)
-    .maybeSingle();
-  if (error && error.code !== 'PGRST116') { console.error(error); return null; }
-  return data;
-}
-
-async function upsertUser(user) {
-  const { error } = await supabaseClient
-    .from('users')
-    .upsert(user, { onConflict: 'address' });
+async function updatePrediction(id, updates) {
+  const { error } = await supabase.from('predictions').update(updates).eq('id', id);
   if (error) console.error(error);
 }
 
-async function updatePrediction(prediction) {
-  const { error } = await supabaseClient
-    .from('predictions')
-    .update(prediction)
-    .eq('id', prediction.id);
-  if (error) console.error(error);
-}
-
-// ---------- Render UI ----------
+// ---------- Render ----------
 async function renderAll() {
   currentPredictions = await loadPredictions();
   renderPraedictions();
-  await renderLeaderboard();
-  await renderProfile();
-  renderDisputesDashboard();
-  document.getElementById('totalPraedictions').innerText = currentPredictions.filter(p => p.status === 'active').length;
-  const totalBets = currentPredictions.reduce((sum, p) => sum + (p.bets?.length || 0), 0);
-  document.getElementById('totalBets').innerText = totalBets;
+  renderLeaderboard();
+  renderProfile();
+  renderDisputes();
+  const activeCount = currentPredictions.filter(p => p.status === 'active').length;
+  const totalBets = currentPredictions.reduce((s,p) => s + (p.bets?.length || 0), 0);
+  document.getElementById('totalActive').innerText = activeCount;
+  document.getElementById('totalPraedicts').innerText = totalBets;
   const user = await loadUser(walletAddress);
-  document.getElementById('totalVolume').innerText = user?.seerscore || 0;
+  document.getElementById('totalSeerscore').innerText = user?.seerscore || 0;
 }
 
 function renderPraedictions() {
   const container = document.getElementById('praedictionsContainer');
   if (!container) return;
+  if (currentPredictions.length === 0) {
+    container.innerHTML = '<div style="text-align:center; padding:40px;">No praedictions yet. Create one!</div>';
+    return;
+  }
   container.innerHTML = currentPredictions.map(p => {
     const isActive = p.status === 'active';
     const isResolved = p.status === 'resolved';
     const isDisputed = p.status === 'disputed';
     const totalVol = (p.betting_pool_yes || 0) + (p.betting_pool_no || 0);
-    const yesProb = totalVol > 0 ? ((p.betting_pool_yes || 0) / totalVol * 100).toFixed(1) : 50;
-    const noProb = totalVol > 0 ? ((p.betting_pool_no || 0) / totalVol * 100).toFixed(1) : 50;
-    const totalVotes = (p.oracle_votes_yes || 0) + (p.oracle_votes_no || 0);
-    const oracleConsensus = totalVotes > 0 ? Math.max((p.oracle_votes_yes || 0) / totalVotes, (p.oracle_votes_no || 0) / totalVotes) * 100 : 0;
+    const yesProb = totalVol > 0 ? ((p.betting_pool_yes||0)/totalVol*100).toFixed(0) : 50;
+    const noProb = totalVol > 0 ? ((p.betting_pool_no||0)/totalVol*100).toFixed(0) : 50;
+    const totalVotes = (p.oracle_votes_yes||0) + (p.oracle_votes_no||0);
+    const oracleConsensus = totalVotes > 0 ? Math.max((p.oracle_votes_yes||0)/totalVotes, (p.oracle_votes_no||0)/totalVotes)*100 : 0;
     const canDispute = isResolved && new Date() <= new Date(p.dispute_deadline) && !p.dispute?.active;
-    const isAdmin = (walletAddress === '7C2Y5NebLFG37wMbB85TbMqYERTSkq9tEi58wv28MCzt');
     const deadline = p.resolution_date ? new Date(p.resolution_date).toLocaleString() : 'No deadline';
     return `
       <div class="praediction-card">
@@ -314,18 +270,12 @@ function renderPraedictions() {
           <span class="badge ${isActive ? 'badge-active' : isDisputed ? 'badge-disputed' : 'badge-resolved'}">
             ${isActive ? 'ACTIVE' : isDisputed ? 'DISPUTED' : 'RESOLVED'}
           </span>
-          ${isAdmin ? '<span class="admin-badge">ADMIN</span>' : ''}
         </div>
         <div>${escapeHtml(p.description)}</div>
-        <div style="font-size:0.7rem; margin:4px 0;">📂 ${escapeHtml(p.category)}</div>
-        <div style="font-size:0.7rem; margin:4px 0;">⏰ ${deadline}</div>
-        <div class="share-buttons">
-          <button class="share-btn" onclick="shareOnTwitter(${JSON.stringify(p)})">🐦 Share</button>
-          <button class="share-btn" onclick="shareOnTelegram(${JSON.stringify(p)})">📱 Share</button>
-        </div>
+        <div style="font-size:0.7rem; margin:4px 0;">📂 ${escapeHtml(p.category)} • ⏰ ${deadline}</div>
         <div style="display:flex; justify-content:space-between; margin:12px 0;">
-          <div><span class="outcome-yes">YES</span> ${yesProb}%<br>👁️ ${p.betting_pool_yes || 0}</div>
-          <div><span class="outcome-no">NO</span> ${noProb}%<br>👁️ ${p.betting_pool_no || 0}</div>
+          <div>YES ${yesProb}% <br> 👁️ ${p.betting_pool_yes||0}</div>
+          <div>NO ${noProb}% <br> 👁️ ${p.betting_pool_no||0}</div>
         </div>
         ${isActive ? `
           <div class="action-buttons">
@@ -333,21 +283,20 @@ function renderPraedictions() {
             <button class="btn-praedict" onclick="praedict('${p.id}','no')">👁️ Praedict NO</button>
           </div>
         ` : ''}
-        ${isResolved ? (p.resolved_outcome === 'expired' ?
-          `<div style="background:#4a5568;padding:10px;border-radius:12px;margin-top:12px;text-align:center;">🕒 EXPIRED</div>` :
-          `<div style="background:var(--bg-primary);padding:10px;border-radius:12px;margin-top:12px;text-align:center;">
+        ${isResolved ? `
+          <div style="background:var(--bg); padding:10px; border-radius:12px; margin-top:12px; text-align:center;">
             🏆 RESOLVED: ${p.resolved_outcome === 'yes' ? '✅ YES' : '❌ NO'}
             <div>${new Date(p.resolved_at).toLocaleDateString()}</div>
             ${canDispute ? `<button class="btn-dispute" onclick="raiseDispute('${p.id}')">⚠️ Dispute (7 voting rights)</button>` : ''}
-          </div>`
-        ) : ''}
-        ${isDisputed && p.dispute ? `<div style="background:#fbbf2420;padding:10px;border-radius:12px;margin-top:12px;text-align:center;">⚠️ DISPUTE ACTIVE – Awaiting oracle decision</div>` : ''}
+          </div>
+        ` : ''}
+        ${isDisputed ? `<div style="background:#fbbf2420; padding:10px; border-radius:12px; margin-top:12px; text-align:center;">⚠️ DISPUTE ACTIVE – Awaiting admin</div>` : ''}
         <div class="oracle-consensus">
-          <div>🦉 ORACLE CONSENSUS (${oracleConsensus.toFixed(1)}% reached)</div>
-          <div><span class="oracle-vote vote-yes">YES: ${p.oracle_votes_yes || 0}</span> <span class="oracle-vote vote-no">NO: ${p.oracle_votes_no || 0}</span></div>
-          <div>${p.oracle_voters?.length || 0} voted • Threshold: ${(p.resolution_threshold || 0.66)*100}%</div>
+          <div>🦉 ORACLE CONSENSUS (${oracleConsensus.toFixed(0)}%)</div>
+          <div>YES: ${p.oracle_votes_yes||0} • NO: ${p.oracle_votes_no||0}</div>
+          <div>${p.oracle_voters?.length || 0} oracles voted • Threshold: ${(p.resolution_threshold||0.66)*100}%</div>
           ${isActive && (!p.resolution_date || new Date(p.resolution_date) <= new Date()) ?
-            `<div><button class="btn-vote" onclick="oracleVote('${p.id}','yes')">🗳️ Vote YES</button><button class="btn-vote" onclick="oracleVote('${p.id}','no')">🗳️ Vote NO</button></div>` : ''
+            `<div><button class="btn-vote" onclick="oracleVote('${p.id}','yes')">🗳️ Vote YES</button> <button class="btn-vote" onclick="oracleVote('${p.id}','no')">🗳️ Vote NO</button></div>` : ''
           }
         </div>
       </div>
@@ -358,17 +307,13 @@ function renderPraedictions() {
 async function renderLeaderboard() {
   const container = document.getElementById('leaderboardList');
   if (!container) return;
-  const { data, error } = await supabaseClient
-    .from('users')
-    .select('address, seerscore, correct_votes, total_votes')
-    .order('seerscore', { ascending: false })
-    .limit(20);
+  const { data, error } = await supabase.from('users').select('address, seerscore, correct_votes, total_votes').order('seerscore', { ascending: false }).limit(20);
   if (error) { container.innerHTML = '<div>Error loading leaderboard</div>'; return; }
   if (!data.length) { container.innerHTML = '<div>No users yet</div>'; return; }
   container.innerHTML = data.map((u, i) => `
-    <div class="leaderboard-item">
+    <div style="display:flex; justify-content:space-between; padding:8px; border-bottom:1px solid var(--border);">
       <div>${i+1}. ${u.address.slice(0,6)}...${u.address.slice(-4)}</div>
-      <div>${u.seerscore > 0 ? '⭐ ' + u.seerscore : '👁️ ' + u.seerscore} pts</div>
+      <div>${u.seerscore} pts</div>
       <div>🎯 ${((u.correct_votes||0)/(u.total_votes||1)*100).toFixed(0)}%</div>
     </div>
   `).join('');
@@ -377,299 +322,215 @@ async function renderLeaderboard() {
 async function renderProfile() {
   const container = document.getElementById('profileStats');
   const headline = document.getElementById('profileHeadline');
-  if (headline && walletAddress) headline.innerText = `Welcome Seer: ${walletAddress.slice(0,8)}...${walletAddress.slice(-6)}`;
   if (!container) return;
   const user = await loadUser(walletAddress);
-  if (!user) return;
-  const votesLeft = user.votes_left !== undefined ? user.votes_left : 7;
+  if (!user) { container.innerHTML = '<div>Loading...</div>'; return; }
+  if (headline) headline.innerText = `Welcome Seer: ${walletAddress.slice(0,8)}...${walletAddress.slice(-6)}`;
   const today = getUTCDayKey();
   const creationsUsed = (user.last_create_day === today) ? (user.creations_today || 0) : 0;
   const creationsLeft = 7 - creationsUsed;
   container.innerHTML = `
-    <div class="profile-stat">🦉 Reputation: ${(user.reputation||0.5).toFixed(3)}</div>
-    <div class="profile-stat">✨ Creations left today: ${creationsLeft}/7</div>
-    <div class="profile-stat">🗳️ Votes left today: ${votesLeft}/7</div>
-    <div class="profile-stat">📝 Praedictions made: ${user.total_votes || 0}</div>
-    <div class="profile-stat">🎯 Accuracy: ${((user.correct_votes||0)/(user.total_votes||1)*100).toFixed(0)}%</div>
-    <div class="profile-stat">👁️ Total Seerscore: ${user.seerscore || 0}</div>
+    <div>🦉 Reputation: ${(user.reputation||0.5).toFixed(3)}</div>
+    <div>✨ Creations left today: ${creationsLeft}/7</div>
+    <div>🗳️ Votes left today: ${user.votes_left}/7</div>
+    <div>📝 Praedictions made: ${user.total_votes || 0}</div>
+    <div>🎯 Accuracy: ${((user.correct_votes||0)/(user.total_votes||1)*100).toFixed(0)}%</div>
+    <div>👁️ Total Seerscore: ${user.seerscore || 0}</div>
   `;
+  const referralLinkElem = document.getElementById('referralLink');
+  if (referralLinkElem) referralLinkElem.textContent = `${window.location.origin}${window.location.pathname}?ref=${walletAddress}`;
 }
 
-function renderDisputesDashboard() {
+function renderDisputes() {
   const container = document.getElementById('disputesList');
   if (!container) return;
   const disputed = currentPredictions.filter(p => p.status === 'disputed' && p.dispute?.active);
   if (disputed.length === 0) { container.innerHTML = '<div>No open disputes.</div>'; return; }
   container.innerHTML = disputed.map(p => `
-    <div class="dispute-item">
+    <div style="background:var(--bg); border-radius:12px; padding:12px; margin-bottom:12px;">
       <div><strong>${escapeHtml(p.title)}</strong></div>
       <div>Challenger: ${p.dispute.challenger.slice(0,8)}...</div>
       <div>Claims: ${p.dispute.proposed_outcome.toUpperCase()}</div>
       <div>Evidence: <a href="${escapeHtml(p.dispute.evidence)}" target="_blank">View</a></div>
       <div>Bond: ${p.dispute.bond_amount} voting rights</div>
       ${walletAddress === '7C2Y5NebLFG37wMbB85TbMqYERTSkq9tEi58wv28MCzt' ?
-        `<div><button class="btn-praedict" onclick="adminResolveDispute('${p.id}', true)">✅ Accept</button> <button class="btn-praedict" onclick="adminResolveDispute('${p.id}', false)">❌ Reject</button></div>` :
-        '<div>⏳ Waiting for oracle</div>'
+        `<div style="margin-top:8px;"><button class="social-btn" onclick="adminResolve('${p.id}', true)">✅ Accept</button> <button class="social-btn" onclick="adminResolve('${p.id}', false)">❌ Reject</button></div>` :
+        '<div>⏳ Waiting for admin</div>'
       }
     </div>
   `).join('');
 }
 
 // ---------- Actions ----------
-async function praedict(predictionId, outcome) {
-  if (actionCooldown) { showToast("Please wait before another action"); return; }
-  actionCooldown = true;
-  try {
-    let user = await loadUser(walletAddress);
-    if (!user) { showToast("User not found"); return; }
-    const prediction = currentPredictions.find(p => p.id === predictionId);
-    if (!prediction || prediction.status !== 'active') { showToast("Praediction not active"); return; }
-    if (prediction.bets?.some(b => b.user === walletAddress)) { showToast("You already praedicted on this market!"); return; }
-    const today = getUTCDayKey();
-    if (user.last_vote_day !== today) {
-      user.votes_left = 7;
-      user.last_vote_day = today;
-      user.daily_votes_used = 0;
-    }
-    if (user.votes_left <= 0) { showToast("No votes left today! Come back tomorrow."); return; }
-    user.votes_left--;
-    user.daily_votes_used++;
-    await upsertUser(user);
-    // Update prediction
-    const bets = prediction.bets || [];
-    bets.push({ user: walletAddress, outcome, amount: 1, timestamp: new Date().toISOString() });
-    const bettingPoolYes = (prediction.betting_pool_yes || 0) + (outcome === 'yes' ? 1 : 0);
-    const bettingPoolNo = (prediction.betting_pool_no || 0) + (outcome === 'no' ? 1 : 0);
-    await supabaseClient
-      .from('predictions')
-      .update({ bets, betting_pool_yes: bettingPoolYes, betting_pool_no: bettingPoolNo })
-      .eq('id', predictionId);
-    await renderAll();
-    showToast(`👁️ Praedicted ${outcome.toUpperCase()}! (1 vote used)`);
-  } catch(e) { console.error(e); showToast("Error"); }
-  setTimeout(() => { actionCooldown = false; }, 3000);
+async function praedict(id, outcome) {
+  const market = currentPredictions.find(p => p.id === id);
+  if (!market || market.status !== 'active') { showToast("Not active"); return; }
+  if (market.bets?.some(b => b.user === walletAddress)) { showToast("Already praedicted"); return; }
+  let user = await loadUser(walletAddress);
+  if (!user) { showToast("User error"); return; }
+  const today = getUTCDayKey();
+  if (user.last_vote_day !== today) {
+    user.votes_left = 7;
+    user.last_vote_day = today;
+  }
+  if (user.votes_left <= 0) { showToast("No votes left today"); return; }
+  user.votes_left--;
+  await upsertUser(user);
+  const bets = market.bets || [];
+  bets.push({ user: walletAddress, outcome, amount: 1, timestamp: new Date().toISOString() });
+  const bettingPoolYes = (market.betting_pool_yes || 0) + (outcome === 'yes' ? 1 : 0);
+  const bettingPoolNo = (market.betting_pool_no || 0) + (outcome === 'no' ? 1 : 0);
+  await updatePrediction(id, { bets, betting_pool_yes: bettingPoolYes, betting_pool_no: bettingPoolNo });
+  await renderAll();
+  showToast(`👁️ Praedicted ${outcome.toUpperCase()} (1 vote used)`);
 }
 
-async function oracleVote(predictionId, outcome) {
-  if (actionCooldown) { showToast("Please wait before another action"); return; }
-  actionCooldown = true;
-  try {
-    let user = await loadUser(walletAddress);
-    if (!user) { showToast("User not found"); return; }
-    const prediction = currentPredictions.find(p => p.id === predictionId);
-    if (!prediction || prediction.status !== 'active') { showToast("Praediction not active"); return; }
-    if (prediction.resolution_date && new Date(prediction.resolution_date) > new Date()) { showToast("Not yet resolvable"); return; }
-    if (prediction.oracle_voters?.includes(walletAddress)) { showToast("Already voted as oracle"); return; }
-    const votingPower = (user.balance || 1000) * (0.5 + (user.reputation || 0.5));
-    const oracleVotesYes = (prediction.oracle_votes_yes || 0) + (outcome === 'yes' ? votingPower : 0);
-    const oracleVotesNo = (prediction.oracle_votes_no || 0) + (outcome === 'no' ? votingPower : 0);
-    const oracleVoters = [...(prediction.oracle_voters || []), walletAddress];
-    await supabaseClient
-      .from('predictions')
-      .update({ oracle_votes_yes: oracleVotesYes, oracle_votes_no: oracleVotesNo, oracle_voters: oracleVoters })
-      .eq('id', predictionId);
-    await renderAll();
-    showToast(`🗳️ Voted ${outcome} with ${votingPower.toFixed(2)} power`);
-    // Check consensus
-    const total = oracleVotesYes + oracleVotesNo;
-    if (total > 0) {
-      const yesRatio = oracleVotesYes / total;
-      const noRatio = oracleVotesNo / total;
-      const threshold = prediction.resolution_threshold || 0.66;
-      if (yesRatio >= threshold) resolveMarket(predictionId, 'yes');
-      else if (noRatio >= threshold) resolveMarket(predictionId, 'no');
-    }
-  } catch(e) { console.error(e); showToast("Error"); }
-  setTimeout(() => { actionCooldown = false; }, 3000);
+async function oracleVote(id, outcome) {
+  const market = currentPredictions.find(p => p.id === id);
+  if (!market || market.status !== 'active') { showToast("Not active"); return; }
+  if (market.resolution_date && new Date(market.resolution_date) > new Date()) { showToast("Not yet resolvable"); return; }
+  if (market.oracle_voters?.includes(walletAddress)) { showToast("Already voted"); return; }
+  let user = await loadUser(walletAddress);
+  if (!user) user = { balance: 1000, reputation: 0.5 };
+  const votingPower = (user.balance || 1000) * (0.5 + (user.reputation || 0.5));
+  const oracleVotesYes = (market.oracle_votes_yes || 0) + (outcome === 'yes' ? votingPower : 0);
+  const oracleVotesNo = (market.oracle_votes_no || 0) + (outcome === 'no' ? votingPower : 0);
+  const oracleVoters = [...(market.oracle_voters || []), walletAddress];
+  await updatePrediction(id, { oracle_votes_yes: oracleVotesYes, oracle_votes_no: oracleVotesNo, oracle_voters: oracleVoters });
+  await renderAll();
+  showToast(`🗳️ Voted ${outcome} with ${votingPower.toFixed(2)} power`);
+  // Check consensus
+  const total = oracleVotesYes + oracleVotesNo;
+  if (total > 0) {
+    const yesRatio = oracleVotesYes / total;
+    const noRatio = oracleVotesNo / total;
+    const threshold = market.resolution_threshold || 0.66;
+    if (yesRatio >= threshold) resolveMarket(id, 'yes');
+    else if (noRatio >= threshold) resolveMarket(id, 'no');
+  }
 }
 
-async function resolveMarket(predictionId, outcome) {
-  try {
-    const prediction = currentPredictions.find(p => p.id === predictionId);
-    if (!prediction || prediction.status !== 'active') return;
-    if (prediction.bets) {
-      for (const bet of prediction.bets) {
-        if (bet.outcome === outcome) {
-          let user = await loadUser(bet.user);
-          if (user) {
-            user.seerscore = (user.seerscore || 0) + 7;
-            user.correct_votes = (user.correct_votes || 0) + 1;
-            user.total_votes = (user.total_votes || 0) + 1;
-            user.reputation = user.correct_votes / user.total_votes;
-            await upsertUser(user);
-          }
-        } else {
-          let user = await loadUser(bet.user);
-          if (user) {
-            user.total_votes = (user.total_votes || 0) + 1;
-            user.reputation = (user.correct_votes || 0) / user.total_votes;
-            await upsertUser(user);
-          }
+async function resolveMarket(id, outcome) {
+  const market = currentPredictions.find(p => p.id === id);
+  if (!market || market.status !== 'active') return;
+  // Award points to winners
+  const totalPool = (market.betting_pool_yes || 0) + (market.betting_pool_no || 0);
+  const winningPool = outcome === 'yes' ? (market.betting_pool_yes || 0) : (market.betting_pool_no || 0);
+  if (winningPool > 0 && market.bets) {
+    for (const bet of market.bets) {
+      if (bet.outcome === outcome) {
+        let u = await loadUser(bet.user);
+        if (u) {
+          u.seerscore = (u.seerscore || 0) + 7;
+          u.correct_votes = (u.correct_votes || 0) + 1;
+          u.total_votes = (u.total_votes || 0) + 1;
+          u.reputation = u.correct_votes / u.total_votes;
+          await upsertUser(u);
+        }
+      } else {
+        let u = await loadUser(bet.user);
+        if (u) {
+          u.total_votes = (u.total_votes || 0) + 1;
+          u.reputation = (u.correct_votes || 0) / u.total_votes;
+          await upsertUser(u);
         }
       }
     }
-    await supabaseClient
-      .from('predictions')
-      .update({ status: 'resolved', resolved_outcome: outcome, resolved_at: new Date().toISOString(), dispute_deadline: new Date(Date.now() + 7*86400000).toISOString() })
-      .eq('id', predictionId);
-    await renderAll();
-    showToast(`🏆 Resolved! Outcome: ${outcome.toUpperCase()}`);
-  } catch(e) { console.error(e); }
+  }
+  await updatePrediction(id, { status: 'resolved', resolved_outcome: outcome, resolved_at: new Date().toISOString(), dispute_deadline: new Date(Date.now() + 7*86400000).toISOString() });
+  await renderAll();
+  showToast(`🏆 Resolved! Outcome: ${outcome.toUpperCase()}`);
 }
 
-async function raiseDispute(predictionId) {
-  const prediction = currentPredictions.find(p => p.id === predictionId);
-  if (!prediction || prediction.status !== 'resolved') { showToast("Only resolved praedictions can be disputed"); return; }
-  if (new Date() > new Date(prediction.dispute_deadline)) { showToast("Dispute window closed"); return; }
-  if (prediction.dispute?.active) { showToast("Dispute already active"); return; }
-  const user = await loadUser(walletAddress);
+async function raiseDispute(id) {
+  const market = currentPredictions.find(p => p.id === id);
+  if (!market || market.status !== 'resolved') { showToast("Only resolved can be disputed"); return; }
+  if (new Date() > new Date(market.dispute_deadline)) { showToast("Dispute window closed"); return; }
+  if (market.dispute?.active) { showToast("Already disputed"); return; }
+  let user = await loadUser(walletAddress);
   if (!user || user.balance < 7) { showToast("Need 7 voting rights to dispute"); return; }
-  const proposedOutcome = prompt("Correct outcome? (yes/no)", prediction.resolved_outcome === 'yes' ? 'no' : 'yes');
-  if (!['yes','no'].includes(proposedOutcome)) return;
+  const proposed = prompt("Correct outcome? (yes/no)", market.resolved_outcome === 'yes' ? 'no' : 'yes');
+  if (!['yes','no'].includes(proposed)) return;
   const evidence = prompt("Evidence URL:", "");
   if (!evidence) return;
   user.balance -= 7;
   await upsertUser(user);
-  const dispute = {
-    active: true,
-    challenger: walletAddress,
-    proposed_outcome: proposedOutcome,
-    evidence,
-    bond_amount: 7,
-    resolved_by_admin: null,
-    admin_decision: null
-  };
-  await supabaseClient
-    .from('predictions')
-    .update({ status: 'disputed', dispute })
-    .eq('id', predictionId);
+  const dispute = { active: true, challenger: walletAddress, proposed_outcome: proposed, evidence, bond_amount: 7 };
+  await updatePrediction(id, { status: 'disputed', dispute });
   await renderAll();
-  showToast("⚠️ Dispute raised! Oracle will review.");
+  showToast("⚠️ Dispute raised! Admin will review.");
 }
 
-async function adminResolveDispute(predictionId, acceptChallenge) {
-  if (walletAddress !== '7C2Y5NebLFG37wMbB85TbMqYERTSkq9tEi58wv28MCzt') { showToast("Only oracle can resolve disputes"); return; }
-  const prediction = currentPredictions.find(p => p.id === predictionId);
-  if (!prediction || prediction.status !== 'disputed' || !prediction.dispute?.active) return;
-  const dispute = prediction.dispute;
-  if (acceptChallenge) {
-    const newOutcome = dispute.proposed_outcome;
-    const challenger = await loadUser(dispute.challenger);
+async function adminResolve(id, accept) {
+  if (walletAddress !== '7C2Y5NebLFG37wMbB85TbMqYERTSkq9tEi58wv28MCzt') { showToast("Only admin"); return; }
+  const market = currentPredictions.find(p => p.id === id);
+  if (!market || market.status !== 'disputed' || !market.dispute?.active) return;
+  if (accept) {
+    const newOutcome = market.dispute.proposed_outcome;
+    const challenger = await loadUser(market.dispute.challenger);
     if (challenger) challenger.balance = (challenger.balance || 0) + 7;
     await upsertUser(challenger);
-    await supabaseClient
-      .from('predictions')
-      .update({ resolved_outcome: newOutcome, status: 'resolved', dispute: { ...dispute, active: false, resolved_by_admin: walletAddress, admin_decision: 'accepted' } })
-      .eq('id', predictionId);
-    showToast(`✅ Dispute accepted! Outcome changed to ${newOutcome.toUpperCase()}.`);
+    await updatePrediction(id, { resolved_outcome: newOutcome, status: 'resolved', dispute: { ...market.dispute, active: false, resolved_by_admin: walletAddress, admin_decision: 'accepted' } });
+    showToast(`✅ Dispute accepted! Outcome changed to ${newOutcome.toUpperCase()}`);
   } else {
     const adminTreasury = await loadUser(walletAddress);
     if (adminTreasury) adminTreasury.balance = (adminTreasury.balance || 0) + 3.5;
     await upsertUser(adminTreasury);
-    await supabaseClient
-      .from('predictions')
-      .update({ status: 'resolved', dispute: { ...dispute, active: false, resolved_by_admin: walletAddress, admin_decision: 'rejected' } })
-      .eq('id', predictionId);
-    showToast("❌ Dispute rejected. Bond slashed.");
+    await updatePrediction(id, { status: 'resolved', dispute: { ...market.dispute, active: false, resolved_by_admin: walletAddress, admin_decision: 'rejected' } });
+    showToast("❌ Dispute rejected");
   }
   await renderAll();
 }
 
 async function createPraediction() {
-  const title = document.getElementById('praedictionTitle').value.trim();
-  const description = document.getElementById('praedictionDescription').value.trim();
-  const category = document.getElementById('categorySelect').value;
+  const title = document.getElementById('title').value.trim();
+  const description = document.getElementById('description').value.trim();
+  const category = document.getElementById('category').value;
   const resolutionDate = document.getElementById('resolutionDate').value;
-  const autoSource = document.getElementById('autoSource').value;
-  const targetValue = document.getElementById('targetValue').value.trim();
   if (!title || !description || !resolutionDate) { showToast("Fill all fields"); return; }
   let user = await loadUser(walletAddress);
   const today = getUTCDayKey();
   if (!user) {
-    user = { address: walletAddress, creations_today: 0, last_create_day: today };
+    user = { address: walletAddress, creations_today: 0, last_create_day: today, votes_left: 7, last_vote_day: today };
   }
   if (user.last_create_day !== today) {
     user.creations_today = 0;
     user.last_create_day = today;
   }
-  if (user.creations_today >= 7) { showToast("You can only create 7 praedictions per day."); return; }
+  if (user.creations_today >= 7) { showToast("Max 7 creations per day"); return; }
   const activeCount = currentPredictions.filter(p => p.creator === walletAddress && p.status === 'active').length;
   if (activeCount >= 5) { showToast("Max 5 active praedictions"); return; }
   const existingTitles = currentPredictions.filter(p => p.status === 'active').map(p => p.title.toLowerCase());
-  if (existingTitles.includes(title.toLowerCase())) { showToast("❌ Identical active praediction exists"); return; }
+  if (existingTitles.includes(title.toLowerCase())) { showToast("Identical active praediction exists"); return; }
   const minDate = new Date(); minDate.setHours(minDate.getHours() + 24);
-  const selectedDate = new Date(resolutionDate);
-  if (selectedDate < minDate) { showToast("Resolution date must be at least 24h from now"); return; }
+  const selected = new Date(resolutionDate);
+  if (selected < minDate) { showToast("Resolution date must be 24h+ from now"); return; }
   user.creations_today++;
   await upsertUser(user);
   const newPrediction = {
     id: "praed_" + Date.now(),
-    title, description, category,
-    creator: walletAddress,
+    title, description, category, creator: walletAddress,
     created_at: new Date().toISOString(),
     resolution_date: resolutionDate,
     status: 'active',
-    betting_pool_yes: 0,
-    betting_pool_no: 0,
-    bets: [],
-    oracle_votes_yes: 0,
-    oracle_votes_no: 0,
-    oracle_voters: [],
+    betting_pool_yes: 0, betting_pool_no: 0,
+    bets: [], oracle_votes_yes: 0, oracle_votes_no: 0, oracle_voters: [],
     resolution_threshold: 0.66,
-    resolved_outcome: null,
-    resolved_at: null,
-    dispute_deadline: null,
+    resolved_outcome: null, resolved_at: null, dispute_deadline: null,
     dispute: { active: false },
-    auto_resolve_date: new Date(selectedDate.getTime() + 7*86400000).toISOString(),
-    auto_source: autoSource || null,
-    target_value: targetValue || null
+    auto_resolve_date: new Date(selected.getTime() + 7*86400000).toISOString()
   };
-  await supabaseClient.from('predictions').insert(newPrediction);
+  const { error } = await supabase.from('predictions').insert(newPrediction);
+  if (error) { showToast("Error creating: " + error.message); return; }
   await renderAll();
-  document.getElementById('praedictionTitle').value = "";
-  document.getElementById('praedictionDescription').value = "";
+  document.getElementById('title').value = "";
+  document.getElementById('description').value = "";
   document.getElementById('resolutionDate').value = "";
-  document.getElementById('autoSource').value = "";
-  document.getElementById('targetValue').value = "";
   showToast("✨ Praediction created!");
 }
 
-// ---------- Wallet & Access ----------
-async function verifyAccess() {
-  if (!walletAddress) return false;
-  // For demo, skip balance check
-  const hasEnough = true;
-  const balanceDiv = document.getElementById('balanceDisplay');
-  const balanceText = document.getElementById('balanceText');
-  const accessStatus = document.getElementById('accessStatus');
-  const buyLink = document.getElementById('buyLink');
-  balanceDiv.style.display = 'block';
-  if (hasEnough) {
-    balanceText.innerHTML = `<span class="balance-ok">✅ Your PRAE: ∞ (test mode)</span>`;
-    accessStatus.innerHTML = '<span style="color:#2dd4bf;">✓ Access granted!</span>';
-    buyLink.style.display = 'none';
-    hasAccess = true;
-    await renderAll();
-    setTimeout(() => {
-      document.getElementById('gate').style.display = 'none';
-      document.getElementById('mainApp').style.display = 'block';
-      document.getElementById('profileGetPraeBtn').href = "https://dexscreener.com/solana/7C2Y5NebLFG37wMbB85TbMqYERTSkq9tEi58wv28MCzt";
-      document.getElementById('headerGetPraeBtn').style.display = 'inline-flex';
-      document.getElementById('headerGetPraeBtn').href = "https://dexscreener.com/solana/7C2Y5NebLFG37wMbB85TbMqYERTSkq9tEi58wv28MCzt";
-      updateReferralLink();
-    }, 800);
-  } else {
-    balanceText.innerHTML = `<span class="balance-insufficient">❌ Your PRAE: 0 (need 777)</span>`;
-    accessStatus.innerHTML = '';
-    buyLink.style.display = 'inline-block';
-    buyLink.href = "https://dexscreener.com/solana/7C2Y5NebLFG37wMbB85TbMqYERTSkq9tEi58wv28MCzt";
-    hasAccess = false;
-  }
-  return hasEnough;
-}
-
+// ---------- Wallet Connection ----------
 async function connectWallet() {
-  console.log("connectWallet called");
   if (!window.solana || !window.solana.isPhantom) {
     alert("Install Phantom Wallet");
     window.open('https://phantom.app/', '_blank');
@@ -678,10 +539,9 @@ async function connectWallet() {
   try {
     const resp = await window.solana.connect();
     walletAddress = resp.publicKey.toString();
-    console.log("Connected wallet:", walletAddress);
-    // Ensure user exists in Supabase
-    const existing = await loadUser(walletAddress);
-    if (!existing) {
+    // Ensure user exists
+    let user = await loadUser(walletAddress);
+    if (!user) {
       await upsertUser({
         address: walletAddress,
         balance: 1000,
@@ -699,74 +559,60 @@ async function connectWallet() {
         last_create_day: getUTCDayKey()
       });
     }
-    await verifyAccess();
-  } catch(e) { alert("Connection failed: " + e.message); }
+    document.getElementById('gate').style.display = 'none';
+    document.getElementById('mainApp').style.display = 'block';
+    await renderAll();
+    showToast(`Connected: ${walletAddress.slice(0,6)}...`);
+  } catch(e) { alert("Connection failed"); }
 }
 
-function updateReferralLink() {
-  const elem = document.getElementById('referralLink');
-  if (elem && walletAddress) elem.textContent = `${window.location.origin}${window.location.pathname}?ref=${walletAddress}`;
+// ---------- Theme Toggle ----------
+function initTheme() {
+  const saved = localStorage.getItem('theme');
+  if (saved === 'light') document.body.classList.add('light');
+  else document.body.classList.remove('light');
 }
-function copyReferralLink() {
-  const elem = document.getElementById('referralLink');
-  if (elem) { navigator.clipboard.writeText(elem.textContent); showToast("📋 Referral link copied!"); }
+function toggleTheme() {
+  document.body.classList.toggle('light');
+  localStorage.setItem('theme', document.body.classList.contains('light') ? 'light' : 'dark');
 }
 
-// ---------- Helpers ----------
-function escapeHtml(str) { if (!str) return ''; return str.replace(/[&<>]/g, m => ({ '&':'&amp;','<':'&lt;','>':'&gt;' })[m]); }
-function showToast(msg) { const t=document.createElement('div'); t.className='toast'; t.textContent=msg; document.body.appendChild(t); setTimeout(()=>t.remove(),3000); }
-function shareOnTwitter(p) { const text=`🔮 Praediction: "${p.title}" on PRAEDICTA. Join me!`; const url=`https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(window.location.href)}`; const w=window.open(url,'_blank','noopener,noreferrer'); if(!w||w.closed||typeof w.closed==='undefined'){ showToast("Pop-up blocked. Please allow pop-ups or share manually."); alert(`Share this link:\n${url}`); } }
-function shareOnTelegram(p) { const text=`🔮 Praediction: "${p.title}" on PRAEDICTA. Join me! ${window.location.href}`; const url=`https://t.me/share/url?url=${encodeURIComponent(window.location.href)}&text=${encodeURIComponent(text)}`; const w=window.open(url,'_blank','noopener,noreferrer'); if(!w||w.closed||typeof w.closed==='undefined'){ showToast("Pop-up blocked. Please allow pop-ups or share manually."); alert(`Share this link:\n${url}`); } }
-function exportData() { showToast("Export not implemented in Supabase version"); }
-function initTheme() { const saved=localStorage.getItem('praedicta_theme'); if(saved==='light') document.body.classList.add('light'); else document.body.classList.remove('light'); }
-function toggleTheme() { document.body.classList.toggle('light'); localStorage.setItem('praedicta_theme',document.body.classList.contains('light')?'light':'dark'); }
-function openDonation() { window.open('https://ko-fi.com/yourusername','_blank'); }
-
-// ---------- Initialize Supabase ----------
-supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-
-// ---------- Event listeners (wait for DOM) ----------
+// ---------- Event Listeners ----------
 document.addEventListener('DOMContentLoaded', () => {
-  const connectBtn = document.getElementById('connectBtn');
-  if (connectBtn) {
-    connectBtn.addEventListener('click', connectWallet);
-    console.log("Connect button listener attached");
-  } else {
-    console.error("Connect button not found");
-  }
+  document.getElementById('connectBtn').addEventListener('click', connectWallet);
+  document.getElementById('themeToggle').addEventListener('click', toggleTheme);
+  document.getElementById('reloadBtn').addEventListener('click', async () => { await renderAll(); showToast("Reloaded"); });
+  document.getElementById('createBtn').addEventListener('click', createPraediction);
+  document.getElementById('copyReferralBtn').addEventListener('click', () => {
+    const link = document.getElementById('referralLink').textContent;
+    if (link) { navigator.clipboard.writeText(link); showToast("Link copied!"); }
+  });
+  // Tab switching
   document.querySelectorAll('.tab-btn').forEach(btn => {
     btn.addEventListener('click', () => {
-      const tabId = btn.getAttribute('data-tab');
+      const tab = btn.dataset.tab;
       document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
       btn.classList.add('active');
       document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
-      document.getElementById(`tab-${tabId}`).classList.add('active');
-      if (tabId === 'leaderboard') renderLeaderboard();
-      if (tabId === 'profile') { renderProfile(); updateReferralLink(); }
-      if (tabId === 'disputes') renderDisputesDashboard();
+      document.getElementById(`tab-${tab}`).classList.add('active');
+      if (tab === 'profile') renderProfile();
+      if (tab === 'leaderboard') renderLeaderboard();
+      if (tab === 'disputes') renderDisputes();
     });
   });
-  document.getElementById('themeToggle')?.addEventListener('click', toggleTheme);
   initTheme();
-  document.getElementById('reloadStateBtn')?.addEventListener('click', async () => { await renderAll(); showToast("Reloaded"); });
-  document.getElementById('createPraedictionBtn')?.addEventListener('click', createPraediction);
-  document.getElementById('exportDataBtn')?.addEventListener('click', exportData);
-  document.getElementById('copyReferralBtn')?.addEventListener('click', copyReferralLink);
-  document.getElementById('donateBtn')?.addEventListener('click', openDonation);
+  // Auto-connect if already connected
+  if (window.solana?.isConnected && window.solana?.publicKey) {
+    walletAddress = window.solana.publicKey.toString();
+    connectWallet();
+  }
 });
 
+// Expose global functions for inline onclick
 window.praedict = praedict;
 window.oracleVote = oracleVote;
 window.raiseDispute = raiseDispute;
-window.adminResolveDispute = adminResolveDispute;
-window.shareOnTwitter = shareOnTwitter;
-window.shareOnTelegram = shareOnTelegram;
-
-// Auto connect if already connected
-if (window.solana?.isConnected && window.solana?.publicKey) {
-  walletAddress = window.solana.publicKey.toString();
-  verifyAccess();
-}
+window.adminResolve = adminResolve;
 </script>
 </body>
 </html>
