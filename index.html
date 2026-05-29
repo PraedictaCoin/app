@@ -27,6 +27,7 @@
             --accent-dark: #0f766e;
             --border: #1f2a30;
             --button-text: #0a0c10;
+            --violet: #8b5cf6;
         }
         body.light {
             --bg: #f0f4f8;
@@ -37,6 +38,7 @@
             --accent-dark: #0d9488;
             --border: #cbd5e1;
             --button-text: white;
+            --violet: #6d28d9;
         }
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
@@ -70,6 +72,8 @@
             text-align: center;
         }
         .gate-card .eye { font-size: 4rem; display: block; margin-bottom: 16px; }
+        .gate-card h2 { background: linear-gradient(135deg,var(--accent),#14b8a6); -webkit-background-clip:text; background-clip:text; color:transparent; }
+        .gate-card .tagline { color: var(--text-muted); margin-top: 4px; font-size: 0.9rem; }
         .btn {
             background: var(--accent);
             color: var(--button-text);
@@ -96,7 +100,7 @@
         }
         .header-left { text-align: left; }
         .header-left h1 { font-size: 2rem; background: linear-gradient(135deg,var(--accent),#14b8a6); -webkit-background-clip:text; background-clip:text; color:transparent; display: inline-block; margin-right: 8px; }
-        .header-left .tagline { color: var(--accent); font-size: 0.85rem; margin-top: 4px; font-style: italic; }
+        .header-left .tagline { color: var(--text-muted); font-size: 0.85rem; margin-top: 4px; }
         .stats { display: flex; gap: 20px; flex-wrap: wrap; }
         .stat { background: var(--bg); padding: 8px 16px; border-radius: 20px; text-align: center; }
         .stat-value { font-size: 1.8rem; font-weight: bold; color: var(--accent); }
@@ -153,10 +157,11 @@
         }
         .badge-active { background: var(--accent-dark); color: white; }
         .badge-resolved { background: #4a5568; color: white; }
+        .oracle-badge { background: #fbbf24; color: black; }
         .action-buttons { display: flex; gap: 12px; margin-top: 16px; flex-wrap: wrap; }
         .btn-praedict, .btn-suggest { background: var(--accent-dark); color: white; padding: 8px; border: none; border-radius: 40px; font-weight: 600; cursor: pointer; flex: 1; }
         .btn-suggest { background: #fbbf24; color: black; }
-        .admin-resolve { background: #fbbf24; color: black; padding: 8px; border: none; border-radius: 40px; font-weight: 600; cursor: pointer; margin-top: 8px; width: 100%; }
+        .oracle-resolve { background: #fbbf24; color: black; padding: 8px; border: none; border-radius: 40px; font-weight: 600; cursor: pointer; margin-top: 8px; width: 100%; }
         .suggestions-list { margin-top: 12px; border-top: 1px solid var(--border); padding-top: 8px; font-size: 0.8rem; }
         .suggestion-item { background: var(--bg); border-radius: 12px; padding: 8px; margin-bottom: 8px; }
         .filter-bar { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 20px; }
@@ -212,9 +217,12 @@
             text-align: center;
             border: 2px solid var(--accent);
         }
+        .tutorial-card p { margin: 12px 0; line-height: 1.6; }
         .tutorial-card button { margin-top: 20px; }
         .welcome-turquoise { color: var(--accent); font-weight: bold; }
         .profile-headline { color: var(--accent); margin-bottom: 16px; }
+        .violet-btn { background: var(--violet); color: white; }
+        .violet-btn:hover { background: #7c3aed; }
     </style>
 </head>
 <body>
@@ -222,9 +230,9 @@
 <!-- TUTORIAL OVERLAY (shown only once) -->
 <div id="tutorialOverlay" class="tutorial-overlay" style="display: none;">
     <div class="tutorial-card">
-        <span class="eye" style="font-size: 3rem;">👁️</span>
+        <span class="eye" style="font-size: 3rem;">🦉</span>
         <h2>Welcome to PRAEDICTA</h2>
-        <p style="margin: 16px 0;">✨ Create praedictions<br>🗳️ Use your daily votes (7 per day)<br>👑 Admin resolves after deadline<br>📢 Suggest outcomes with evidence</p>
+        <p style="margin: 16px 0;">✨ Create praedictions<br>🗳️ Use your daily votes (7 per day)<br>🦉 The Oracle resolves after deadline<br>📢 Seers can send suggestions with evidence</p>
         <button id="closeTutorialBtn" class="btn">Let's go!</button>
     </div>
 </div>
@@ -234,7 +242,7 @@
     <div class="gate-card">
         <span class="eye">👁️</span>
         <h2>PRAEDICTA</h2>
-        <p style="color: var(--text-muted);">for those who see</p>
+        <div class="tagline">for those who see</div>
         <button id="connectBtn" class="btn">👻 Connect Phantom</button>
         <div id="gateMessage" style="margin-top: 16px; color: var(--text-muted);"></div>
     </div>
@@ -302,7 +310,7 @@
             </select>
             <input type="datetime-local" id="resolutionDate">
             <select id="autoSource">
-                <option value="">No auto‑resolve (admin resolves)</option>
+                <option value="">No auto‑resolve (Oracle resolves)</option>
                 <option value="coingecko_btc">CoinGecko BTC (USD)</option>
                 <option value="coingecko_eth">CoinGecko ETH (USD)</option>
                 <option value="coingecko_sol">CoinGecko SOL (USD)</option>
@@ -318,7 +326,7 @@
 
     <!-- LEADERBOARD TAB -->
     <div id="tab-leaderboard" class="tab-content">
-        <div class="card"><h3>🏆 Top Praedictors</h3><div id="leaderboardList"></div></div>
+        <div class="card"><h3>🏆 Top Seers</h3><div id="leaderboardList"></div></div>
     </div>
 
     <!-- PROFILE TAB -->
@@ -331,14 +339,13 @@
                 <span id="referralLink"></span><br>
                 <button id="copyReferralBtn" class="social-btn" style="margin-top:8px;">📋 Copy Link</button>
             </div>
-            <!-- "My Praedictions" filter -->
             <div style="margin-top: 20px;">
                 <button id="showMyPraedictionsBtn" class="btn" style="width:100%; background: var(--accent-dark);">📋 Show My Praedictions</button>
                 <div id="myPraedictionsList" style="margin-top: 12px;"></div>
             </div>
             <div class="ad-banner">
                 🧠 PRAEDICTA – Predict the future, earn Seerscore!<br>
-                <a href="#" style="color:white;">Learn more</a>
+                <a href="https://dexscreener.com/solana/7C2Y5NebLFG37wMbB85TbMqYERTSkq9tEi58wv28MCzt" target="_blank" style="color:white;">Get PRAE on DexScreener →</a>
             </div>
             <button id="exportDataBtn" class="btn" style="margin-top:16px; width:100%;">📥 Export Data (JSON)</button>
         </div>
@@ -348,13 +355,13 @@
     <div id="tab-support" class="tab-content">
         <div class="card">
             <h3>💛 Support PRAEDICTA</h3>
-            <p>Your support helps keep the servers running and improve the game.</p>
+            <p style="margin-bottom: 12px;">Your support keeps the PRAEDICTA in the Game.</p>
             <div class="social-links" style="margin: 16px 0;">
                 <a href="https://t.me/praedictacoin" target="_blank" class="social-btn">📱 Telegram Group</a>
                 <a href="https://x.com/PraedictaCoin" target="_blank" class="social-btn">🐦 X (Twitter)</a>
                 <a href="https://dexscreener.com/solana/7C2Y5NebLFG37wMbB85TbMqYERTSkq9tEi58wv28MCzt" target="_blank" class="social-btn">📊 DexScreener</a>
             </div>
-            <button id="donateBtn" class="btn" style="background:#ff813f; color:white;">☕ Buy me a coffee / Add liquidity</button>
+            <button id="donateBtn" class="btn violet-btn" style="width:100%;">☕ Buy me a coffee / Add liquidity</button>
             <div class="ad-banner" style="margin-top: 20px;">
                 🌟 Use these affiliate links to support us at no extra cost:
                 <div style="margin-top: 8px;">
@@ -362,19 +369,23 @@
                     <a href="https://jup.ag/" target="_blank" style="color: var(--accent);">Jupiter Aggregator</a>
                 </div>
             </div>
+            <div class="ad-banner" style="margin-top: 16px; background: var(--accent);">
+                🔮 PRAEDICTA – The premier prediction oracle<br>
+                <a href="https://dexscreener.com/solana/7C2Y5NebLFG37wMbB85TbMqYERTSkq9tEi58wv28MCzt" target="_blank" style="color:white;">Trade PRAE here →</a>
+            </div>
         </div>
     </div>
 
     <!-- FAQ TAB -->
     <div id="tab-faq" class="tab-content">
         <div class="card">
-            <h3>❓ FAQ</h3>
+            <h3>❓ Frequently Asked Questions</h3>
             <div class="faq-question">🔮 What is a Praediction?</div>
-            <div class="faq-answer">Users guess YES or NO on future events. After the deadline, the admin (or auto‑resolve) determines the outcome.</div>
+            <div class="faq-answer">Users guess YES or NO on future events. After the deadline, the Oracle (admin) resolves.</div>
             <div class="faq-question">🗳️ How can I help resolve a market?</div>
-            <div class="faq-answer">After the deadline, click "Suggest Outcome" and provide a YES/NO verdict with a verifiable source URL. The admin will review.</div>
-            <div class="faq-question">👑 Who resolves markets?</div>
-            <div class="faq-answer">The admin (project owner) manually resolves each market, optionally using user suggestions. Crypto price markets auto‑resolve.</div>
+            <div class="faq-answer">After the deadline, click "Suggest Outcome" and provide a YES/NO verdict with a verifiable source URL. The Oracle will review.</div>
+            <div class="faq-question">🦉 Who is the Oracle?</div>
+            <div class="faq-answer">The project owner (wallet) resolves each praediction using user suggestions and real‑world evidence. Crypto markets auto‑resolve.</div>
             <div class="faq-question">💎 Do I lose my 777 PRAE?</div>
             <div class="faq-answer">No – the app only checks your balance. No money is transferred.</div>
             <div class="faq-question">🔔 How do I enable push notifications?</div>
@@ -388,34 +399,23 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
 // ============================================================
-// PRAEDICTA - COMPLETE FINAL VERSION
-// Includes: evidence URL validation, admin confirm, PWA, search/filter, my praedictions, tutorial, ad banner, support tab, etc.
+// PRAEDICTA - FINAL VERSION (Oracle resolves, owl logo, etc.)
 // ============================================================
 const SUPABASE_URL = "https://klgwyaeqnklydlqatzys.supabase.co";
 const SUPABASE_ANON_KEY = "sb_publishable_OL32s1-muu_5d5ACQ_4kVQ_yEEeyJl1";
 const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-const ADMIN_WALLET = "7C2Y5NebLFG37wMbB85TbMqYERTSkq9tEi58wv28MCzt";
+const ORACLE_WALLET = "7C2Y5NebLFG37wMbB85TbMqYERTSkq9tEi58wv28MCzt";
 
 let walletAddress = null;
 let currentPredictions = [];
 let actionCooldown = false;
 let currentFilter = { category: 'all', status: 'all', search: '' };
 
-// ---------- Helper functions ----------
 function getUTCDayKey() { return new Date().toISOString().slice(0,10); }
 function escapeHtml(str) { if (!str) return ''; return str.replace(/[&<>]/g, m => ({ '&':'&amp;','<':'&lt;','>':'&gt;' })[m]); }
-function isValidUrl(url) {
-    try { const u = new URL(url); return ['http:', 'https:'].includes(u.protocol); } catch(e) { return false; }
-}
-function showToast(msg) {
-    const t = document.createElement('div');
-    t.className = 'toast';
-    t.textContent = msg;
-    document.body.appendChild(t);
-    setTimeout(() => t.remove(), 3000);
-}
+function isValidUrl(url) { try { const u = new URL(url); return ['http:', 'https:'].includes(u.protocol); } catch(e) { return false; } }
+function showToast(msg) { const t = document.createElement('div'); t.className = 'toast'; t.textContent = msg; document.body.appendChild(t); setTimeout(() => t.remove(), 3000); }
 
-// ---------- Supabase helpers ----------
 async function loadPredictions() {
     const { data, error } = await supabaseClient.from('predictions').select('*').order('created_at', { ascending: false });
     if (error) { console.error(error); showToast("Error loading predictions"); return []; }
@@ -434,18 +434,11 @@ async function updatePrediction(id, updates) {
     const { error } = await supabaseClient.from('predictions').update(updates).eq('id', id);
     if (error) console.error(error);
 }
-// Ensure suggestions column exists (run once in Supabase, but we'll ignore error)
-async function ensureSuggestionsColumn() {}
 
-// ---------- Filtering ----------
 function getFilteredPredictions() {
     let filtered = [...currentPredictions];
-    if (currentFilter.category !== 'all') {
-        filtered = filtered.filter(p => p.category === currentFilter.category);
-    }
-    if (currentFilter.status !== 'all') {
-        filtered = filtered.filter(p => p.status === currentFilter.status);
-    }
+    if (currentFilter.category !== 'all') filtered = filtered.filter(p => p.category === currentFilter.category);
+    if (currentFilter.status !== 'all') filtered = filtered.filter(p => p.status === currentFilter.status);
     if (currentFilter.search) {
         const s = currentFilter.search.toLowerCase();
         filtered = filtered.filter(p => p.title.toLowerCase().includes(s));
@@ -453,7 +446,6 @@ function getFilteredPredictions() {
     return filtered;
 }
 
-// ---------- Render all UI ----------
 async function renderAll() {
     currentPredictions = await loadPredictions();
     renderPraedictions();
@@ -472,10 +464,7 @@ function renderPraedictions() {
     const container = document.getElementById('praedictionsContainer');
     if (!container) return;
     const filtered = getFilteredPredictions();
-    if (filtered.length === 0) {
-        container.innerHTML = '<div style="text-align:center; padding:40px;">No praedictions match filters.</div>';
-        return;
-    }
+    if (filtered.length === 0) { container.innerHTML = '<div style="text-align:center; padding:40px;">No praedictions match filters.</div>'; return; }
     container.innerHTML = filtered.map(p => {
         const isActive = p.status === 'active';
         const isResolved = p.status === 'resolved';
@@ -483,8 +472,8 @@ function renderPraedictions() {
         const yesProb = totalVol > 0 ? ((p.betting_pool_yes||0)/totalVol*100).toFixed(0) : 50;
         const noProb = totalVol > 0 ? ((p.betting_pool_no||0)/totalVol*100).toFixed(0) : 50;
         const deadline = p.resolution_date ? new Date(p.resolution_date).toLocaleString() : 'No deadline';
-        const isAdmin = (walletAddress === ADMIN_WALLET);
-        const canResolve = isActive && isAdmin && (!p.auto_source || new Date(p.resolution_date) <= new Date());
+        const isOracle = (walletAddress === ORACLE_WALLET);
+        const canResolve = isActive && isOracle && (!p.auto_source || new Date(p.resolution_date) <= new Date());
         const canSuggest = isActive && walletAddress && (new Date(p.resolution_date) <= new Date());
         const suggestions = p.suggestions || [];
         const hasUserSuggested = suggestions.some(s => s.user === walletAddress);
@@ -495,7 +484,7 @@ function renderPraedictions() {
                     <span class="badge ${isActive ? 'badge-active' : 'badge-resolved'}">
                         ${isActive ? 'ACTIVE' : 'RESOLVED'}
                     </span>
-                    ${isAdmin ? '<span class="badge" style="background:#ef4444;">ADMIN</span>' : ''}
+                    ${isOracle ? '<span class="badge oracle-badge">🦉 ORACLE</span>' : ''}
                 </div>
                 <div>${escapeHtml(p.description)}</div>
                 <div style="font-size:0.7rem; margin:4px 0;">📂 ${escapeHtml(p.category)} • ⏰ ${deadline}</div>
@@ -511,41 +500,32 @@ function renderPraedictions() {
                         ${canSuggest ? `<button class="btn-suggest" data-id="${p.id}" data-hassuggested="${hasUserSuggested}" ${hasUserSuggested ? 'disabled style="opacity:0.5;"' : ''}>🗳️ Suggest Outcome</button>` : ''}
                     </div>
                 ` : `<div style="text-align:center; margin-top:12px;">🏆 RESOLVED: ${p.resolved_outcome === 'yes' ? '✅ YES' : p.resolved_outcome === 'no' ? '❌ NO' : '🕒 EXPIRED'}</div>`}
-                ${suggestions.length > 0 && isAdmin ? `
+                ${suggestions.length > 0 && isOracle ? `
                     <div class="suggestions-list">
-                        <strong>📢 User Suggestions:</strong>
+                        <strong>📢 Seer Suggestions:</strong>
                         ${suggestions.map(s => `
                             <div class="suggestion-item">
                                 <div>${s.user.slice(0,6)}... suggests <strong>${s.outcome.toUpperCase()}</strong></div>
                                 <div>Evidence: <a href="${escapeHtml(s.evidence)}" target="_blank" rel="noopener noreferrer">link</a></div>
-                                <button class="admin-resolve" data-id="${p.id}" data-outcome="${s.outcome}" data-suggestion-id="${s.timestamp}" style="background:#2dd4bf; margin-top:4px;">✅ Approve this suggestion</button>
+                                <button class="oracle-resolve" data-id="${p.id}" data-outcome="${s.outcome}" data-suggestion-id="${s.timestamp}" style="background:#2dd4bf; margin-top:4px;">✅ Approve this suggestion</button>
                             </div>
                         `).join('')}
                     </div>
                 ` : ''}
                 ${canResolve ? `
                     <div style="margin-top:12px;">
-                        <button class="admin-resolve" data-id="${p.id}" data-outcome="yes">✅ Admin Resolve YES</button>
-                        <button class="admin-resolve" data-id="${p.id}" data-outcome="no">❌ Admin Resolve NO</button>
-                        <button class="admin-resolve" data-id="${p.id}" data-outcome="expired">🕒 Expire (refund)</button>
+                        <button class="oracle-resolve" data-id="${p.id}" data-outcome="yes">✅ Oracle Resolve YES</button>
+                        <button class="oracle-resolve" data-id="${p.id}" data-outcome="no">❌ Oracle Resolve NO</button>
+                        <button class="oracle-resolve" data-id="${p.id}" data-outcome="expired">🕒 Expire (refund)</button>
                     </div>
                 ` : ''}
             </div>
         `;
     }).join('');
-    // Attach event listeners
-    document.querySelectorAll('.btn-praedict').forEach(btn => {
-        btn.removeEventListener('click', praedictHandler);
-        btn.addEventListener('click', praedictHandler);
-    });
-    document.querySelectorAll('.btn-suggest').forEach(btn => {
-        btn.removeEventListener('click', suggestHandler);
-        btn.addEventListener('click', suggestHandler);
-    });
-    document.querySelectorAll('.admin-resolve').forEach(btn => {
-        btn.removeEventListener('click', adminResolveHandler);
-        btn.addEventListener('click', adminResolveHandler);
-    });
+    // Attach listeners
+    document.querySelectorAll('.btn-praedict').forEach(btn => { btn.removeEventListener('click', praedictHandler); btn.addEventListener('click', praedictHandler); });
+    document.querySelectorAll('.btn-suggest').forEach(btn => { btn.removeEventListener('click', suggestHandler); btn.addEventListener('click', suggestHandler); });
+    document.querySelectorAll('.oracle-resolve').forEach(btn => { btn.removeEventListener('click', oracleResolveHandler); btn.addEventListener('click', oracleResolveHandler); });
 }
 function praedictHandler(e) { praedict(e.currentTarget.dataset.id, e.currentTarget.dataset.outcome); }
 async function suggestHandler(e) {
@@ -564,14 +544,14 @@ async function suggestHandler(e) {
     if (suggestions.some(s => s.user === walletAddress)) { showToast("You already suggested"); return; }
     suggestions.push({ user: walletAddress, outcome, evidence, timestamp: Date.now() });
     await updatePrediction(id, { suggestions });
-    showToast("✅ Suggestion submitted! Admin will review.");
+    showToast("✅ Suggestion submitted! Oracle will review.");
     await renderAll();
 }
-async function adminResolveHandler(e) {
+async function oracleResolveHandler(e) {
     const id = e.currentTarget.dataset.id;
     const outcome = e.currentTarget.dataset.outcome;
-    if (walletAddress !== ADMIN_WALLET) { showToast("Only admin can resolve"); return; }
-    if (!confirm(`⚠️ Resolve market to ${outcome.toUpperCase()}? This cannot be undone.`)) return;
+    if (walletAddress !== ORACLE_WALLET) { showToast("Only the Oracle can resolve"); return; }
+    if (!confirm(`⚠️ Resolve praediction to ${outcome.toUpperCase()}? This cannot be undone.`)) return;
     await resolveMarket(id, outcome);
 }
 
@@ -580,7 +560,7 @@ async function renderLeaderboard() {
     if (error) { console.error(error); return; }
     const container = document.getElementById('leaderboardList');
     if (!container) return;
-    if (!data.length) { container.innerHTML = '<div>No users yet</div>'; return; }
+    if (!data.length) { container.innerHTML = '<div>No seers yet</div>'; return; }
     container.innerHTML = data.map((u, i) => `
         <div style="display:flex; justify-content:space-between; padding:8px; border-bottom:1px solid var(--border);">
             <div>${i+1}. ${u.address.slice(0,6)}...${u.address.slice(-4)}</div>
@@ -623,7 +603,6 @@ async function renderMyPraedictions() {
     `).join('');
 }
 
-// ---------- Core Actions ----------
 async function praedict(id, outcome) {
     if (actionCooldown) { showToast("Please wait"); return; }
     actionCooldown = true;
@@ -659,7 +638,7 @@ async function resolveMarket(id, outcome) {
             await upsertUser(u);
         }
         await updatePrediction(id, { status: 'resolved', resolved_outcome: 'expired', resolved_at: new Date().toISOString() });
-        showToast(`🕒 Market expired. All votes refunded.`);
+        showToast(`🕒 Praediction expired. All votes refunded.`);
         await renderAll();
         return;
     }
@@ -687,7 +666,6 @@ async function resolveMarket(id, outcome) {
     await renderAll();
 }
 
-// ---------- Create Prediction ----------
 async function createNewPrediction() {
     if (!walletAddress) { showToast("Connect wallet first"); return; }
     const title = document.getElementById('title').value.trim();
@@ -737,7 +715,6 @@ async function createNewPrediction() {
     await renderAll();
 }
 
-// ---------- Auto-resolve (crypto) ----------
 async function autoResolveMarkets() {
     const now = new Date();
     for (const p of currentPredictions) {
@@ -770,7 +747,6 @@ async function autoResolveMarkets() {
     await renderAll();
 }
 
-// ---------- Wallet Connection ----------
 async function connectWallet() {
     const gateMessage = document.getElementById('gateMessage');
     gateMessage.innerText = "Connecting...";
@@ -791,7 +767,6 @@ async function connectWallet() {
                 correct_votes: 0, total_votes: 0, last_active: new Date().toISOString()
             });
         }
-        // Show Get PRAE button
         document.getElementById('headerGetPraeBtn').style.display = 'inline-flex';
         document.getElementById('headerGetPraeBtn').href = "https://dexscreener.com/solana/7C2Y5NebLFG37wMbB85TbMqYERTSkq9tEi58wv28MCzt";
         document.getElementById('gate').style.display = 'none';
@@ -799,7 +774,6 @@ async function connectWallet() {
         await renderAll();
         setInterval(autoResolveMarkets, 3600000);
         autoResolveMarkets();
-        // Show tutorial if first time
         if (!localStorage.getItem('tutorialShown')) {
             document.getElementById('tutorialOverlay').style.display = 'flex';
             localStorage.setItem('tutorialShown', 'true');
@@ -812,35 +786,26 @@ document.getElementById('closeTutorialBtn')?.addEventListener('click', () => {
     document.getElementById('tutorialOverlay').style.display = 'none';
 });
 
-// ---------- Theme ----------
 function initTheme() { const saved = localStorage.getItem('theme'); if (saved === 'light') document.body.classList.add('light'); }
 function toggleTheme() { document.body.classList.toggle('light'); localStorage.setItem('theme', document.body.classList.contains('light') ? 'light' : 'dark'); }
-
-// ---------- Referral & Export ----------
-function copyReferralLink() {
-    const link = document.getElementById('referralLink')?.textContent;
-    if (link) { navigator.clipboard.writeText(link); showToast("Link copied!"); }
-}
+function copyReferralLink() { const link = document.getElementById('referralLink')?.textContent; if (link) { navigator.clipboard.writeText(link); showToast("Link copied!"); } }
 function exportData() {
     const dataStr = JSON.stringify(currentPredictions, null, 2);
     const blob = new Blob([dataStr], {type: "application/json"});
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
-    a.href = url;
-    a.download = `praedicta_export_${Date.now()}.json`;
-    a.click();
-    URL.revokeObjectURL(url);
-    showToast("📥 Data exported");
+    a.href = url; a.download = `praedicta_export_${Date.now()}.json`;
+    a.click(); URL.revokeObjectURL(url); showToast("📥 Data exported");
 }
 function openDonation() { window.open('https://ko-fi.com/yourusername', '_blank'); }
 
-// ---------- Filter event listeners ----------
+// Filter listeners
 document.getElementById('filterCategory').addEventListener('change', (e) => { currentFilter.category = e.target.value; renderPraedictions(); });
 document.getElementById('filterStatus').addEventListener('change', (e) => { currentFilter.status = e.target.value; renderPraedictions(); });
 document.getElementById('filterSearch').addEventListener('input', (e) => { currentFilter.search = e.target.value; renderPraedictions(); });
 document.getElementById('showMyPraedictionsBtn').addEventListener('click', () => { renderMyPraedictions(); });
 
-// ---------- Event Listeners ----------
+// Event listeners
 document.getElementById('connectBtn').addEventListener('click', connectWallet);
 document.getElementById('createBtn').addEventListener('click', createNewPrediction);
 document.getElementById('reloadBtn').addEventListener('click', async () => { await renderAll(); showToast("Reloaded"); });
@@ -863,15 +828,10 @@ document.querySelectorAll('.tab-btn').forEach(btn => {
     });
 });
 
-// Auto-connect if already connected
-if (window.solana?.isConnected && window.solana?.publicKey) {
-    connectWallet();
-}
+if (window.solana?.isConnected && window.solana?.publicKey) { connectWallet(); }
 
-// Register service worker for PWA
-if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('/sw.js').catch(console.error);
-}
+// Service worker for PWA
+if ('serviceWorker' in navigator) { navigator.serviceWorker.register('/sw.js').catch(console.error); }
 </script>
 </body>
 </html>
