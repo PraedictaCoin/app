@@ -3,8 +3,9 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <title>PRAEDICTA • Final</title>
+  <title>PRAEDICTA • For those who see</title>
   <style>
+    /* Same base styles, but eye symbol will not have forced turquoise */
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body {
       background: #0a0c10;
@@ -91,6 +92,7 @@
     .faq-answer { color: #8ba3af; margin-bottom: 16px; padding-left: 12px; border-left: 2px solid #2dd4bf; }
     .referral-box { background: #0a0f14; border-radius: 12px; padding: 12px; margin-top: 12px; word-break: break-all; }
     .profile-stat { margin: 8px 0; }
+    .eye-icon { filter: none; } /* remove any forced color */
   </style>
 </head>
 <body>
@@ -100,9 +102,9 @@
     <div class="prediction-ball">👁️</div>
     <div class="praedicta-title">PRAEDICTA</div>
     <div class="subtitle">for those who see</div>
-    <button id="connectBtn" class="btn-connect">👻 Connect Phantom</button>
+    <button id="connectBtn" class="btn-connect">Connect 👻 Phantom</button>
     <div class="hold-line">Hold <span class="prae-amount">777 PRAE</span> to access</div>
-    <a id="buyLink" href="#" target="_blank" class="btn-get-prae" style="display:none;">👁️ Get PRAE here →</a>
+    <a id="buyLink" href="https://dexscreener.com/solana/7C2Y5NebLFG37wMbB85TbMqYERTSkq9tEi58wv28MCzt" target="_blank" class="btn-get-prae" style="display:none;">👁️ Get PRAE here →</a>
     <div id="balanceDisplay" style="display:none;">
       <div id="balanceText" class="balance-info"></div>
       <div id="accessStatus"></div>
@@ -127,7 +129,7 @@
     <div class="tabs">
       <button class="tab-btn active" data-tab="praedictions">📊 Praedictions</button>
       <button class="tab-btn" data-tab="leaderboard">🏆 Leaderboard</button>
-      <button class="tab-btn" data-tab="profile">👤 Profile</button>
+      <button class="tab-btn" data-tab="profile">👤 Seer Stats</button>
       <button class="tab-btn" data-tab="disputes">⚖️ Disputes</button>
       <button class="tab-btn" data-tab="faq">❓ FAQ</button>
       <button class="tab-btn" data-tab="support">💛 Support</button>
@@ -177,16 +179,16 @@
 
   <div id="tab-profile" class="tab-content">
     <div class="profile-panel">
-      <h3>Profile</h3>
+      <h3>👤 Seer Stats: <span id="displayWalletAddress">Not connected</span></h3>
       <div id="profileStats"></div>
       <div class="referral-box"><strong>🔗 Your Referral Link</strong><br><span id="referralLink"></span><br><button id="copyReferralBtn" class="share-btn" style="margin-top:8px;">📋 Copy Link</button><div style="font-size:.7rem; margin-top:8px;">When a friend uses your link and makes their first praediction, you both get bonus Seerscore!</div></div>
       <button id="exportDataBtn" class="btn-praedict" style="margin-top:16px;">📥 Export Data (JSON)</button>
       <div class="social-links">
-        <a href="https://t.me/praedictacoin" target="_blank" class="social-btn">📱 Telegram Group</a>
+        <a href="https://t.me/praedictacoin" target="_blank" class="social-btn">📱 Seer Group</a>
         <a href="https://x.com/PraedictaCoin" target="_blank" class="social-btn">🐦 X (Twitter)</a>
         <a href="https://dexscreener.com/solana/7C2Y5NebLFG37wMbB85TbMqYERTSkq9tEi58wv28MCzt" target="_blank" class="social-btn">📊 DexScreener</a>
         <a href="https://praedictacoin.github.io/web/" target="_blank" class="social-btn">🌐 Website</a>
-        <a id="profileGetPraeBtn" href="#" target="_blank" class="social-btn">👁️ Get PRAE</a>
+        <a id="profileGetPraeBtn" href="https://dexscreener.com/solana/7C2Y5NebLFG37wMbB85TbMqYERTSkq9tEi58wv28MCzt" target="_blank" class="social-btn">👁️ Get PRAE</a>
       </div>
     </div>
   </div>
@@ -199,9 +201,9 @@
     <div class="faq-panel">
       <h3>❓ Frequently Asked Questions</h3>
       <div class="faq-question">🔮 What is a Praediction?</div>
-      <div class="faq-answer">A praediction is a statement about a future event. Users simply choose YES or NO (costs 1 Vote). Oracles vote after the deadline, and if 66% consensus is reached, the winning side earns Seerscore points.</div>
+      <div class="faq-answer">A praediction is a statement about a future event. The Community can vote YES or NO. After the deadline, and if 66% consensus is reached, the winning side earns Seerscore points.</div>
       <div class="faq-question">🦉 Who are the oracles?</div>
-      <div class="faq-answer">Any PRAE holder can vote. Voting power = balance × (0.5 + reputation). Reputation increases with correct votes.</div>
+      <div class="faq-answer">Everybody can vote. Voting power = balance × (0.5 + reputation). Reputation increases with correct votes.</div>
       <div class="faq-question">⚖️ How do disputes work?</div>
       <div class="faq-answer">After a praediction resolves, anyone can dispute within 7 days by posting <strong>7 voting rights</strong> and evidence. The oracle then decides – if the dispute is accepted, the outcome flips and the bond is returned; if rejected, the bond is slashed.</div>
       <div class="faq-question">👁️ Do I lose my 777 PRAE?</div>
@@ -209,7 +211,7 @@
       <div class="faq-question">📈 How does auto‑resolve work?</div>
       <div class="faq-answer">If you select a price feed (e.g., CoinGecko BTC) and a target value, after the deadline the system automatically fetches the real price. If the price ≥ target, outcome YES; else NO. Supported coins: BTC, ETH, SOL, DOGE, MATIC, AVAX, LINK.</div>
       <div class="faq-question">💎 Where can I get PRAE tokens?</div>
-      <div class="faq-answer">PRAE is a utility token used only for voting power and to access the platform. You can get it on DexScreener (link in profile).</div>
+      <div class="faq-answer">PRAE is a community token used only to protect the platform from bots and scammers. You can get it on DexScreener (link in profile).</div>
       <div class="faq-question">👥 Is there a community I can join?</div>
       <div class="faq-answer">Yes! Join our Telegram group: <a href="https://t.me/praedictacoin" target="_blank" style="color:#2dd4bf;">t.me/praedictacoin</a> or follow us on X: <a href="https://x.com/PraedictaCoin" target="_blank" style="color:#2dd4bf;">@PraedictaCoin</a>.</div>
       <div class="faq-question">💛 How can I support the project?</div>
@@ -239,27 +241,32 @@
 
 <script>
 // ============================================================
-// PRAEDICTA - FINAL WORKING VERSION
-// Fixed: tabs, voting, Gist persistence, one vote per user per market
+// PRAEDICTA - FINAL WITH ALL FIXES
+// - Gist never overwritten unless valid non-empty data
+// - Max 7 praedictions created per user per day
+// - Show deadline and category on cards
+// - Leaderboard shows 👁️ instead of 0
+// - Profile shows wallet address, two counters, created today left
+// - Eye without turquoise overlay
 // ============================================================
 (function() {
-  // ---------- CONFIG ----------
-  const WORKER_URL = "https://praedicta-backend.predicta.workers.dev";
+  const WORKER_URL = "https://praedicta-backend.predicta.workers.dev"; // CHANGE TO YOUR WORKER URL
   const ADMIN_ADDRESS = "7C2Y5NebLFG37wMbB85TbMqYERTSkq9tEi58wv28MCzt";
-  const ADMIN_ADDRESSES = [ADMIN_ADDRESS];
+  const ADMIN_ADDRESSES = [7C2Y5NebLFG37wMbB85TbMqYERTSkq9tEi58wv28MCzt];
   const REQUIRED_PRAE = 0;   // set to 777 for production
   const BUY_LINK = "https://dexscreener.com/solana/7C2Y5NebLFG37wMbB85TbMqYERTSkq9tEi58wv28MCzt";
   const DISPUTE_WINDOW_DAYS = 7;
   const DISPUTE_BOND = 7;
   const REPUTATION_DECAY_FACTOR = 0.95;
   const MAX_ACTIVE_PRAEDICTIONS_PER_USER = 5;
+  const MAX_CREATIONS_PER_DAY = 7;
 
   let state = { markets: [], users: {}, admins: ADMIN_ADDRESSES, pendingProposals: [] };
   let walletAddress = null;
   let hasAccess = false;
   let actionCooldown = false;
 
-  // Daily votes (7 per UTC day)
+  // ---------- Daily limits ----------
   function getUTCDayKey() { return new Date().toISOString().slice(0,10); }
   function refreshDailyVotes(addr) {
     const u = state.users[addr];
@@ -282,6 +289,29 @@
     return true;
   }
 
+  // Creation limit per day
+  function refreshDailyCreations(addr) {
+    const u = state.users[addr];
+    if (!u) return;
+    const today = getUTCDayKey();
+    if (u.lastCreationDay !== today) {
+      u.creationsLeft = MAX_CREATIONS_PER_DAY;
+      u.lastCreationDay = today;
+      u.dailyCreationsUsed = 0;
+    } else if (u.creationsLeft === undefined) u.creationsLeft = MAX_CREATIONS_PER_DAY;
+  }
+  function canCreate(addr) { const u = state.users[addr]; if (!u) return false; refreshDailyCreations(addr); return u.creationsLeft > 0; }
+  function consumeCreation(addr) {
+    const u = state.users[addr];
+    if (!u) return false;
+    refreshDailyCreations(addr);
+    if (u.creationsLeft <= 0) return false;
+    u.creationsLeft--;
+    u.dailyCreationsUsed++;
+    return true;
+  }
+
+  // Similar title check
   function isSimilarTitle(newTitle, existingTitles, threshold = 0.6) {
     const normalize = (s) => s.toLowerCase().replace(/[^\w\s]/g, '');
     const newWords = new Set(normalize(newTitle).split(/\s+/));
@@ -308,11 +338,13 @@
     }
   }
 
+  // ---------- GIST PERSISTENCE (never overwrite with empty) ----------
   async function loadGlobalState() {
     try {
       const res = await fetchWithRetry(WORKER_URL, {}, 3, 500);
       const data = await res.json();
       console.log("[DEBUG] Gist content:", data);
+      // Only replace state if we have valid markets AND (data has markets or local state is empty)
       if (data && data.markets && Array.isArray(data.markets)) {
         if (data.markets.length > 0 || state.markets.length === 0) {
           state = data;
@@ -321,6 +353,7 @@
           showToast("⚠️ Gist returned empty array – keeping existing data");
         }
       } else {
+        // If invalid data, keep existing state
         showToast("⚠️ Gist returned invalid – keeping existing state");
       }
     } catch (err) {
@@ -329,6 +362,7 @@
       const backup = localStorage.getItem("praedicta_backup");
       if (backup) try { state = JSON.parse(backup); } catch(e) {}
     }
+    // Apply reputation decay and refresh votes/creations
     const now = Date.now();
     for (let addr in state.users) {
       const u = state.users[addr];
@@ -337,11 +371,17 @@
       if (weeks > 0 && u.reputation) u.reputation = Math.max(0.1, u.reputation * Math.pow(REPUTATION_DECAY_FACTOR, weeks));
       u.lastActive = new Date().toISOString();
       refreshDailyVotes(addr);
+      refreshDailyCreations(addr);
     }
     renderAll();
   }
 
   async function saveGlobalState() {
+    // Prevent saving empty state when there's no data (e.g., first load)
+    if (state.markets.length === 0 && Object.keys(state.users).length === 0) {
+      console.log("[DEBUG] Skipping save because state is empty");
+      return;
+    }
     try {
       await fetchWithRetry(WORKER_URL, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(state) }, 3, 500);
       localStorage.setItem("praedicta_backup", JSON.stringify(state));
@@ -375,6 +415,7 @@
         document.getElementById('headerGetPraeBtn').style.display = 'inline-flex';
         document.getElementById('headerGetPraeBtn').href = BUY_LINK;
         updateReferralLink();
+        document.getElementById('displayWalletAddress').innerText = walletAddress.slice(0,6)+'...'+walletAddress.slice(-4);
       }, 800);
     } else {
       balanceText.innerHTML = `<span class="balance-insufficient">❌ Your PRAE: ${balance.toLocaleString()} (need ${REQUIRED_PRAE})</span>`;
@@ -400,10 +441,12 @@
           balance: 1000, reputation: 0.5, correctVotes: 0, totalVotes: 0,
           lastActive: new Date().toISOString(), seerscore: 0,
           referredBy: null, referralBonusClaimed: false,
-          votesLeft: 7, lastVoteDay: getUTCDayKey(), dailyVotesUsed: 0
+          votesLeft: 7, lastVoteDay: getUTCDayKey(), dailyVotesUsed: 0,
+          creationsLeft: MAX_CREATIONS_PER_DAY, lastCreationDay: getUTCDayKey(), dailyCreationsUsed: 0
         };
       }
       refreshDailyVotes(walletAddress);
+      refreshDailyCreations(walletAddress);
       await saveGlobalState();
       await verifyAccess();
     } catch(e) { alert("Connection failed: " + e.message); }
@@ -438,7 +481,7 @@
     setTimeout(() => { actionCooldown = false; }, 3000);
   }
 
-  // ---------- PRAEDICT (one per user per market) ----------
+  // ---------- PRAEDICT ----------
   function praedict(praedictionId, outcome) {
     withCooldown(async () => {
       const market = state.markets.find(m => m.id === praedictionId);
@@ -455,7 +498,7 @@
     }, "Please wait before another action");
   }
 
-  // ---------- ORACLE VOTE (once per market per user) ----------
+  // ---------- ORACLE VOTE ----------
   function oracleVote(praedictionId, outcome) {
     withCooldown(async () => {
       const market = state.markets.find(m => m.id === praedictionId);
@@ -603,6 +646,8 @@
     const autoSource = document.getElementById('autoSource').value;
     const targetValue = document.getElementById('targetValue').value.trim();
     if (!title || !description || !resolutionDate) { showToast("Fill all fields"); return; }
+    // Check daily creation limit
+    if (!canCreate(walletAddress)) { showToast(`You can only create ${MAX_CREATIONS_PER_DAY} praedictions per day.`); return; }
     const userActiveCount = state.markets.filter(m => m.creator === walletAddress && m.status === "active").length;
     if (userActiveCount >= MAX_ACTIVE_PRAEDICTIONS_PER_USER) { showToast(`Max ${MAX_ACTIVE_PRAEDICTIONS_PER_USER} active praedictions`); return; }
     const activeTitles = state.markets.filter(m => m.status === "active").map(m => m.title);
@@ -611,6 +656,7 @@
     const minDate = new Date(); minDate.setHours(minDate.getHours() + 24);
     const selectedDate = new Date(resolutionDate);
     if (selectedDate < minDate) { showToast("Resolution date must be at least 24h from now"); return; }
+    consumeCreation(walletAddress);
     const newMarket = {
       id: "praed_" + Date.now(),
       title, description, category, creator: walletAddress,
@@ -652,16 +698,25 @@
     if (!container) return;
     const sorted = Object.entries(state.users).map(([a,u]) => ({ addr:a, seerscore: u.seerscore||0, correct: u.correctVotes||0, total: u.totalVotes||0 })).sort((a,b) => b.seerscore - a.seerscore).slice(0,20);
     if (sorted.length === 0) { container.innerHTML = '<div>No users yet</div>'; return; }
-    container.innerHTML = sorted.map((u,i) => `<div class="leaderboard-item"><div>${i+1}. ${u.addr.slice(0,6)}...${u.addr.slice(-4)}</div><div>⭐ ${u.seerscore} pts</div><div>🎯 ${((u.correct/(u.total||1))*100).toFixed(0)}%</div></div>`).join('');
+    container.innerHTML = sorted.map((u,i) => `<div class="leaderboard-item"><div>${i+1}. ${u.addr.slice(0,6)}...${u.addr.slice(-4)}</div><div>${u.seerscore === 0 ? '👁️' : '⭐ '+u.seerscore}</div><div>🎯 ${((u.correct/(u.total||1))*100).toFixed(0)}%</div></div>`).join('');
   }
 
   function renderProfile() {
     const container = document.getElementById('profileStats');
     if (!container) return;
-    const u = state.users[walletAddress] || { balance:0, reputation:0, correctVotes:0, totalVotes:0, seerscore:0, votesLeft:7 };
+    const u = state.users[walletAddress] || { balance:0, reputation:0, correctVotes:0, totalVotes:0, seerscore:0, votesLeft:7, creationsLeft: MAX_CREATIONS_PER_DAY };
     refreshDailyVotes(walletAddress);
+    refreshDailyCreations(walletAddress);
     const votesLeft = u.votesLeft !== undefined ? u.votesLeft : 0;
-    container.innerHTML = `<div class="profile-stat">🗳️ Votes left today: ${votesLeft}/7</div><div class="profile-stat">⭐ Total Seerscore: ${u.seerscore||0}</div><div class="profile-stat">🎯 Accuracy: ${((u.correctVotes||0)/(u.totalVotes||1)*100).toFixed(0)}%</div><div class="profile-stat">🦉 Reputation: ${(u.reputation||0.5).toFixed(3)}</div><div class="profile-stat">📊 Praedictions made: ${u.totalVotes||0}</div>`;
+    const creationsLeft = u.creationsLeft !== undefined ? u.creationsLeft : MAX_CREATIONS_PER_DAY;
+    container.innerHTML = `
+      <div class="profile-stat">🗳️ Votes left today: ${votesLeft}/7</div>
+      <div class="profile-stat">📝 Creations left today: ${creationsLeft}/${MAX_CREATIONS_PER_DAY}</div>
+      <div class="profile-stat">⭐ Total Seerscore: ${u.seerscore||0}</div>
+      <div class="profile-stat">🎯 Accuracy: ${((u.correctVotes||0)/(u.totalVotes||1)*100).toFixed(0)}%</div>
+      <div class="profile-stat">🦉 Reputation: ${(u.reputation||0.5).toFixed(3)}</div>
+      <div class="profile-stat">📊 Praedictions made (votes): ${u.totalVotes||0}</div>
+    `;
   }
 
   function renderPraedictions() {
@@ -678,16 +733,20 @@
       const oracleConsensus = totalVotes > 0 ? Math.max(m.oracleVotes.yes / totalVotes, m.oracleVotes.no / totalVotes) * 100 : 0;
       const canDispute = isResolved && new Date() <= new Date(m.disputeDeadline) && !m.dispute?.active;
       const isAdmin = ADMIN_ADDRESSES.includes(walletAddress);
+      const deadlineDate = new Date(m.resolutionDate);
+      const deadlineStr = isNaN(deadlineDate) ? 'No deadline' : deadlineDate.toLocaleString();
+      const categoryDisplay = `<span style="background:#0f766e; padding:2px 6px; border-radius:12px; font-size:0.7rem; margin-right:8px;">${m.category}</span>`;
       return `
         <div class="praediction-card">
           <div class="praediction-title">
-            ${escapeHtml(m.title)}
+            ${categoryDisplay}${escapeHtml(m.title)}
             <span class="badge ${isActive ? 'badge-active' : isDisputed ? 'badge-disputed' : 'badge-resolved'}">
               ${isActive ? 'ACTIVE' : isDisputed ? 'DISPUTED' : 'RESOLVED'}
             </span>
             ${isAdmin ? '<span class="admin-badge">ADMIN</span>' : ''}
           </div>
           <div>${escapeHtml(m.description)}</div>
+          <div style="font-size:0.7rem; color:#8ba3af; margin:4px 0;">⏰ Deadline: ${deadlineStr}</div>
           <div class="share-buttons">
             <button class="share-btn" onclick="shareOnTwitter(${JSON.stringify(m)})">🐦 Share</button>
             <button class="share-btn" onclick="shareOnTelegram(${JSON.stringify(m)})">📱 Share</button>
@@ -785,7 +844,7 @@
   window.shareOnTwitter = shareOnTwitter;
   window.shareOnTelegram = shareOnTelegram;
 
-  setInterval(() => { autoResolveAllMarkets(); autoResolveExpired(); for(let u in state.users) refreshDailyVotes(u); saveGlobalState(); renderProfile(); }, 3600000);
+  setInterval(() => { autoResolveAllMarkets(); autoResolveExpired(); for(let u in state.users) { refreshDailyVotes(u); refreshDailyCreations(u); } saveGlobalState(); renderProfile(); }, 3600000);
 
   if (window.solana?.isConnected && window.solana?.publicKey) {
     walletAddress = window.solana.publicKey.toString();
