@@ -13,7 +13,7 @@
       padding: 20px;
       min-height: 100vh;
     }
-    /* Gate styles (same as before) */
+    /* Gate screen */
     .gate { position: fixed; top:0; left:0; right:0; bottom:0; background:#0a0c10; z-index:1000; display:flex; align-items:center; justify-content:center; }
     .gate-card { background: linear-gradient(135deg,#11151c,#0a0c10); border:2px solid #2dd4bf; border-radius:48px; padding:48px 32px; max-width:480px; width:90%; text-align:center; }
     .prediction-ball { font-size:4rem; margin-bottom:16px; animation:float 3s ease-in-out infinite; }
@@ -28,7 +28,7 @@
     .balance-ok { color:#2dd4bf; }
     .balance-insufficient { color:#ef4444; }
     
-    /* Main app styles */
+    /* Main app */
     .main-app { display:none; max-width:1400px; margin:0 auto; }
     .header { display:flex; justify-content:space-between; flex-wrap:wrap; gap:20px; margin-bottom:30px; padding:20px; background:rgba(17,21,28,0.8); backdrop-filter:blur(10px); border-radius:20px; border:1px solid #2dd4bf30; }
     h1 { background:linear-gradient(135deg,#2dd4bf,#14b8a6); -webkit-background-clip:text; background-clip:text; color:transparent; font-size:2rem; }
@@ -39,16 +39,11 @@
     .market-card { background:#11151c; border-radius:20px; padding:20px; border:1px solid #1f2a30; transition:transform 0.2s; }
     .market-card:hover { transform:translateY(-2px); border-color:#2dd4bf; }
     .market-title { font-size:1.1rem; font-weight:600; margin-bottom:12px; color:#2dd4bf; }
-    .market-description { margin-bottom:16px; line-height:1.4; }
-    .market-stats { display:flex; justify-content:space-between; margin-bottom:16px; padding:12px; background:#0a0f14; border-radius:12px; }
-    .outcome { text-align:center; flex:1; }
-    .outcome-probability { font-size:1.5rem; font-weight:bold; }
-    .outcome-yes { color:#2dd4bf; }
-    .outcome-no { color:#ef4444; }
-    .outcome-bar { height:4px; background:#1f2a30; border-radius:2px; margin-top:8px; overflow:hidden; }
-    .outcome-bar-fill { height:100%; transition:width 0.3s; }
-    .fill-yes { background:#2dd4bf; }
-    .fill-no { background:#ef4444; }
+    .badge { display:inline-block; padding:2px 8px; border-radius:20px; font-size:0.7rem; margin-left:8px; }
+    .badge-active { background:#0f766e; }
+    .badge-resolved { background:#4a5568; }
+    .badge-disputed { background:#fbbf24; color:#0a0c10; }
+    .admin-badge { background:#ef4444; color:white; font-size:0.6rem; padding:2px 6px; border-radius:20px; margin-left:8px; }
     .bet-buttons { display:flex; gap:12px; margin-top:16px; }
     .btn-yes, .btn-no, .btn-resolve, .btn-dispute, .btn-admin { flex:1; padding:10px; border:none; border-radius:40px; font-weight:600; cursor:pointer; }
     .btn-yes { background:#0f766e; color:white; }
@@ -62,18 +57,14 @@
     .vote-no { background:#7f1a1a40; color:#ef4444; }
     .create-market { background:#11151c; border-radius:20px; padding:20px; margin-top:20px; border:2px dashed #2dd4bf; }
     input, textarea { width:100%; padding:12px; margin-bottom:12px; background:#0a0f14; border:1px solid #1f2a30; border-radius:12px; color:white; }
-    button { background:#2dd4bf; color:#0a0c10; font-weight:bold; cursor:pointer; }
     .toast { position:fixed; bottom:20px; right:20px; background:#2dd4bf; color:#0a0c10; padding:12px 24px; border-radius:40px; font-weight:bold; animation:slideIn 0.3s; z-index:1000; }
     @keyframes slideIn { from { transform:translateX(100%); opacity:0; } to { transform:translateX(0); opacity:1; } }
-    .badge { display:inline-block; padding:2px 8px; border-radius:20px; font-size:0.7rem; margin-left:8px; }
-    .badge-active { background:#0f766e; }
-    .badge-resolved { background:#4a5568; }
-    .badge-disputed { background:#fbbf24; color:#0a0c10; }
-    .admin-badge { background:#ef4444; color:white; font-size:0.6rem; padding:2px 6px; border-radius:20px; margin-left:8px; }
+    .dispute-panel { background:#11151c; border-radius:20px; padding:20px; margin-top:20px; border:1px solid #fbbf24; }
+    .dispute-item { background:#0a0f14; border-radius:12px; padding:12px; margin-bottom:12px; }
   </style>
 </head>
 <body>
-  <!-- GATE SCREEN (same as before) -->
+  <!-- GATE SCREEN -->
   <div id="gate" class="gate">
     <div class="gate-card">
       <div class="prediction-ball">🔮</div>
@@ -94,27 +85,42 @@
   <!-- MAIN APP -->
   <div id="mainApp" class="main-app">
     <div class="header">
-      <div><h1>🦉 PRAEDICTA</h1><p style="color:#8ba3af;">Decentralized oracle market • 3-of-5 admin multisig • Reputation decay</p></div>
+      <div><h1>🦉 PRAEDICTA</h1><p style="color:#8ba3af;">Decentralized oracle market • Single admin • Dispute dashboard</p></div>
       <div class="stats-grid">
         <div class="stat-card"><div class="stat-value" id="totalMarkets">0</div><div>Active Markets</div></div>
         <div class="stat-card"><div class="stat-value" id="totalBets">0</div><div>Total Bets</div></div>
         <div class="stat-card"><div class="stat-value" id="totalVolume">0</div><div>Volume (PRAE)</div></div>
       </div>
     </div>
-    <div id="marketsContainer" class="markets-grid"></div>
-    <div class="create-market">
-      <h3 style="margin-bottom:16px; color:#2dd4bf;">🏛️ Create New Market</h3>
-      <input type="text" id="marketTitle" placeholder="Title (e.g., Will SOL flip ETH?)">
-      <textarea id="marketDescription" rows="2" placeholder="Description..."></textarea>
-      <input type="datetime-local" id="resolutionDate">
-      <button id="createMarketBtn">✨ Create Prediction Market</button>
-      <div style="margin-top:12px; font-size:0.75rem; color:#8ba3af;">⚡ Anyone can create markets • PRAE holders vote • 66% consensus • 7‑day dispute window • 3/5 admin multisig</div>
+    
+    <div class="tabs" style="display:flex; gap:12px; margin-bottom:20px;">
+      <button id="tabMarketsBtn" class="btn-resolve" style="background:#2dd4bf; color:#0a0c10;">📊 Markets</button>
+      <button id="tabDisputesBtn" class="btn-resolve">⚖️ Disputes</button>
+    </div>
+    
+    <div id="marketsView">
+      <div id="marketsContainer" class="markets-grid"></div>
+      <div class="create-market">
+        <h3 style="margin-bottom:16px; color:#2dd4bf;">🏛️ Create New Market</h3>
+        <input type="text" id="marketTitle" placeholder="Title (e.g., Will SOL flip ETH?)">
+        <textarea id="marketDescription" rows="2" placeholder="Description..."></textarea>
+        <input type="datetime-local" id="resolutionDate">
+        <button id="createMarketBtn">✨ Create Prediction Market</button>
+        <div style="margin-top:12px; font-size:0.75rem; color:#8ba3af;">⚡ Anyone can create • PRAE holders vote • 66% consensus • 7‑day dispute window • Admin resolves disputes</div>
+      </div>
+    </div>
+    
+    <div id="disputesView" style="display:none;">
+      <div class="dispute-panel">
+        <h3>⚖️ Open Disputes</h3>
+        <div id="disputesList">No open disputes.</div>
+      </div>
     </div>
   </div>
 
   <script>
-       // ============================================================
-    // PRAEDICTA - Shared global state via Cloudflare Worker
+    // ============================================================
+    // PRAEDICTA - with single admin dispute resolution
     // ============================================================
     
     // ---------- CONFIGURATION ----------
@@ -126,20 +132,21 @@
     const DISPUTE_WINDOW_DAYS = 7;
     const DISPUTE_BOND = 500;
     const REPUTATION_DECAY_FACTOR = 0.95;
-    const ADMIN_THRESHOLD = 3;
     
-    // Global state
+    // ADMIN_ADDRESSES: only this wallet can resolve disputes (single admin)
+    const ADMIN_ADDRESSES = ["0xYourAdminWalletHere"];  // ← Replace with your wallet address!
+    
     let state = {
       markets: [],
       users: {},
-      admins: [],
-      pendingProposals: []
+      admins: ADMIN_ADDRESSES,
+      pendingProposals: []   // kept for compatibility but not used in single-admin mode
     };
     
     let walletAddress = null;
     let hasAccess = false;
     
-    // Helper: fetch with retry
+    // ---------- FETCH WITH RETRY ----------
     async function fetchWithRetry(url, options = {}, retries = 3, delay = 500) {
       for (let i = 0; i < retries; i++) {
         try {
@@ -160,17 +167,9 @@
         if (data && data.markets) {
           state = data;
         } else {
-          state = {
-            markets: [],
-            users: {},
-            admins: [],
-            pendingProposals: []
-          };
+          state = { markets: [], users: {}, admins: ADMIN_ADDRESSES, pendingProposals: [] };
         }
-        // Ensure admins exist
-        if (state.admins.length === 0) {
-          state.admins = ["0xAdmin1", "0xAdmin2", "0xAdmin3", "0xAdmin4", "0xAdmin5"];
-        }
+        if (!state.admins || state.admins.length === 0) state.admins = ADMIN_ADDRESSES;
         applyReputationDecay();
       } catch(e) {
         console.error("Failed to load from worker:", e);
@@ -179,12 +178,7 @@
         if (saved) {
           state = JSON.parse(saved);
         } else {
-          state = {
-            markets: [],
-            users: {},
-            admins: [],
-            pendingProposals: []
-          };
+          state = { markets: [], users: {}, admins: ADMIN_ADDRESSES, pendingProposals: [] };
         }
       }
     }
@@ -203,7 +197,6 @@
       }
     }
     
-    // Reputation decay
     function applyReputationDecay() {
       const now = Date.now();
       for (let addr in state.users) {
@@ -287,7 +280,7 @@
       } catch(e) { alert("Connection failed"); }
     }
     
-    // ---------- CORE MARKET LOGIC ----------
+    // ---------- MARKET LOGIC ----------
     function placeBet(marketId, outcome) {
       const market = state.markets.find(m => m.id === marketId);
       if (!market || market.status !== "active") { showToast("Market not active"); return; }
@@ -379,7 +372,7 @@
       });
     }
     
-    // ---------- DISPUTE & ADMIN ----------
+    // ---------- DISPUTE (single admin resolution) ----------
     function raiseDispute(marketId) {
       const market = state.markets.find(m => m.id === marketId);
       if (!market || market.status !== "resolved") { showToast("Only resolved markets can be disputed"); return; }
@@ -405,64 +398,59 @@
       };
       market.status = "disputed";
       saveGlobalState().then(() => renderAll());
-      showToast(`⚠️ Dispute raised! Waiting for admin review.`);
+      showToast(`⚠️ Dispute raised! Admin will review.`);
     }
     
-    function createAdminProposal(type, marketId, newValue) {
-      if (!state.admins.includes(walletAddress)) { showToast("Only admins can propose"); return; }
-      const proposal = {
-        id: Date.now().toString(),
-        type,
-        marketId,
-        newValue,
-        votes: [walletAddress],
-        createdAt: new Date().toISOString()
-      };
-      state.pendingProposals.push(proposal);
-      saveGlobalState().then(() => renderAll());
-      showToast("Proposal created. Waiting for other admins to vote.");
-    }
-    
-    function voteOnProposal(proposalId) {
-      if (!state.admins.includes(walletAddress)) { showToast("Only admins can vote"); return; }
-      const proposal = state.pendingProposals.find(p => p.id === proposalId);
-      if (!proposal) return;
-      if (proposal.votes.includes(walletAddress)) { showToast("Already voted"); return; }
-      proposal.votes.push(walletAddress);
-      if (proposal.votes.length >= ADMIN_THRESHOLD) {
-        if (proposal.type === "resolveDispute") {
-          const market = state.markets.find(m => m.id === proposal.marketId);
-          if (market && market.dispute?.active) {
-            resolveDisputeFinal(market.id, proposal.newValue);
-          }
-        } else if (proposal.type === "changeAdmin") {
-          state.admins = proposal.newValue;
-        }
-        state.pendingProposals = state.pendingProposals.filter(p => p.id !== proposalId);
-        showToast("Proposal passed and executed!");
-      }
-      saveGlobalState().then(() => renderAll());
-    }
-    
-    function resolveDisputeFinal(marketId, acceptChallenge) {
+    // Single admin resolves dispute – called from the dispute dashboard
+    async function adminResolveDispute(marketId, acceptChallenge) {
+      if (!ADMIN_ADDRESSES.includes(walletAddress)) { showToast("Only admin can resolve disputes"); return; }
       const market = state.markets.find(m => m.id === marketId);
       if (!market || market.status !== "disputed" || !market.dispute?.active) return;
       if (acceptChallenge) {
         market.resolvedOutcome = market.dispute.proposedOutcome;
         let challenger = state.users[market.dispute.challenger];
         if (challenger) challenger.balance += market.dispute.bondAmount;
-        showToast(`Dispute accepted! Outcome changed to ${market.dispute.proposedOutcome.toUpperCase()}.`);
+        showToast(`✅ Dispute accepted! Outcome changed to ${market.dispute.proposedOutcome.toUpperCase()}.`);
       } else {
-        let adminTreasury = state.users[state.admins[0]] || { balance: 0 };
+        let adminTreasury = state.users[ADMIN_ADDRESSES[0]] || { balance: 0 };
         adminTreasury.balance += market.dispute.bondAmount * 0.5;
-        state.users[state.admins[0]] = adminTreasury;
-        showToast(`Dispute rejected. Bond slashed.`);
+        state.users[ADMIN_ADDRESSES[0]] = adminTreasury;
+        showToast(`❌ Dispute rejected. Bond slashed.`);
       }
       market.status = "resolved";
       market.dispute.active = false;
       market.dispute.resolvedByAdmin = walletAddress;
       market.dispute.adminDecision = acceptChallenge ? "accepted" : "rejected";
-      saveGlobalState().then(() => renderAll());
+      await saveGlobalState();
+      renderAll();
+    }
+    
+    // Auto-resolve markets that expired without consensus
+    function autoResolveExpiredMarkets() {
+      const now = new Date();
+      let changed = false;
+      for (const market of state.markets) {
+        if (market.status !== "active") continue;
+        if (!market.autoResolveDate) continue;
+        if (new Date(market.autoResolveDate) <= now) {
+          for (const bet of market.bets) {
+            let user = state.users[bet.user];
+            if (user) {
+              user.balance += bet.amount;
+              showToast(`⚠️ Market "${market.title}" expired. Refunded ${bet.amount} PRAE to ${bet.user.slice(0,6)}...`);
+            }
+          }
+          market.status = "resolved";
+          market.resolvedOutcome = "expired";
+          market.resolvedAt = new Date().toISOString();
+          changed = true;
+          showToast(`🕒 Market "${market.title}" auto-resolved as EXPIRED. All bets refunded.`);
+        }
+      }
+      if (changed) {
+        saveGlobalState();
+        renderAll();
+      }
     }
     
     function createMarket() {
@@ -470,6 +458,13 @@
       const description = document.getElementById('marketDescription').value;
       const resolutionDate = document.getElementById('resolutionDate').value;
       if (!title || !description) { showToast("Fill all fields"); return; }
+      const minDate = new Date();
+      minDate.setHours(minDate.getHours() + 24);
+      const selectedDate = new Date(resolutionDate);
+      if (selectedDate < minDate) {
+        showToast("Resolution date must be at least 24 hours from now");
+        return;
+      }
       const newMarket = {
         id: "market_" + Date.now(),
         title, description,
@@ -483,7 +478,8 @@
         resolvedOutcome: null,
         resolvedAt: null,
         disputeDeadline: null,
-        dispute: { active: false }
+        dispute: { active: false },
+        autoResolveDate: new Date(selectedDate.getTime() + 7 * 86400000).toISOString()
       };
       state.markets.unshift(newMarket);
       saveGlobalState().then(() => {
@@ -491,12 +487,20 @@
         document.getElementById('marketTitle').value = "";
         document.getElementById('marketDescription').value = "";
         document.getElementById('resolutionDate').value = "";
-        showToast("✨ Market created!");
+        showToast("✨ Market created! Min resolution time: 24h, auto-resolve after 7 days.");
       });
     }
     
     // ---------- RENDER UI ----------
     function renderAll() {
+      renderMarkets();
+      renderDisputesDashboard();
+      document.getElementById('totalMarkets').innerText = state.markets.length;
+      document.getElementById('totalBets').innerText = state.markets.reduce((s,m) => s + m.bets.length, 0);
+      document.getElementById('totalVolume').innerText = state.markets.reduce((s,m) => s + m.bettingPool.yes + m.bettingPool.no, 0);
+    }
+    
+    function renderMarkets() {
       const container = document.getElementById('marketsContainer');
       if (!container) return;
       container.innerHTML = state.markets.map(market => {
@@ -509,7 +513,7 @@
         const totalVotes = market.oracleVotes.yes + market.oracleVotes.no;
         const oracleConsensus = totalVotes > 0 ? Math.max(market.oracleVotes.yes / totalVotes, market.oracleVotes.no / totalVotes) * 100 : 0;
         const canDispute = isResolved && new Date() <= new Date(market.disputeDeadline) && !market.dispute?.active;
-        const isAdmin = state.admins.includes(walletAddress);
+        const isAdmin = ADMIN_ADDRESSES.includes(walletAddress);
         return `
           <div class="market-card">
             <div class="market-title">
@@ -525,8 +529,11 @@
               <div class="outcome"><div class="outcome-probability outcome-no">${noProb}%</div><div>NO</div><div class="outcome-bar"><div class="outcome-bar-fill fill-no" style="width:${noProb}%"></div></div><div>💰 ${market.bettingPool.no} PRAE</div></div>
             </div>
             ${isActive ? `<div class="bet-buttons"><button class="btn-yes" onclick="placeBet('${market.id}','yes')">✅ Bet YES</button><button class="btn-no" onclick="placeBet('${market.id}','no')">❌ Bet NO</button></div>` : ''}
-            ${isResolved ? `<div style="text-align:center; padding:10px; background:#0a0f14; border-radius:12px; margin-top:12px;">🏆 RESOLVED: ${market.resolvedOutcome === 'yes' ? '✅ YES' : '❌ NO'}<div style="font-size:0.7rem;">${new Date(market.resolvedAt).toLocaleDateString()}</div>${canDispute ? `<button class="btn-dispute" onclick="raiseDispute('${market.id}')">⚠️ Dispute</button>` : ''}</div>` : ''}
-            ${isDisputed && market.dispute ? `<div style="background:#fbbf2420; padding:10px; border-radius:12px; margin-top:12px;">⚠️ DISPUTE: ${market.dispute.challenger.slice(0,8)}... claims ${market.dispute.proposedOutcome.toUpperCase()}<br><a href="${escapeHtml(market.dispute.evidence)}" target="_blank">Evidence</a>${isAdmin && market.status === 'disputed' ? `<div><button class="btn-admin" onclick="createAdminProposal('resolveDispute','${market.id}',true)">✅ Accept Challenge</button><button class="btn-admin" onclick="createAdminProposal('resolveDispute','${market.id}',false)">❌ Reject</button></div>` : ''}</div>` : ''}
+            ${isResolved ? (market.resolvedOutcome === 'expired' ? 
+              `<div style="text-align:center; padding:10px; background:#4a5568; border-radius:12px; margin-top:12px;">🕒 EXPIRED – All bets refunded</div>` :
+              `<div style="text-align:center; padding:10px; background:#0a0f14; border-radius:12px; margin-top:12px;">🏆 RESOLVED: ${market.resolvedOutcome === 'yes' ? '✅ YES' : '❌ NO'}<div style="font-size:0.7rem;">${new Date(market.resolvedAt).toLocaleDateString()}</div>${canDispute ? `<button class="btn-dispute" onclick="raiseDispute('${market.id}')">⚠️ Dispute</button>` : ''}</div>`
+            ) : ''}
+            ${isDisputed && market.dispute ? `<div style="background:#fbbf2420; padding:10px; border-radius:12px; margin-top:12px;">⚠️ DISPUTE ACTIVE – Awaiting admin decision</div>` : ''}
             <div class="oracle-consensus">
               <div>🦉 ORACLE CONSENSUS (${oracleConsensus.toFixed(1)}% reached)</div>
               <div><span class="oracle-vote vote-yes">YES: ${market.oracleVotes.yes.toFixed(0)}</span> <span class="oracle-vote vote-no">NO: ${market.oracleVotes.no.toFixed(0)}</span></div>
@@ -536,27 +543,68 @@
           </div>
         `;
       }).join('');
-      document.getElementById('totalMarkets').innerText = state.markets.length;
-      document.getElementById('totalBets').innerText = state.markets.reduce((s,m) => s + m.bets.length, 0);
-      document.getElementById('totalVolume').innerText = state.markets.reduce((s,m) => s + m.bettingPool.yes + m.bettingPool.no, 0);
+    }
+    
+    function renderDisputesDashboard() {
+      const container = document.getElementById('disputesList');
+      if (!container) return;
+      const disputedMarkets = state.markets.filter(m => m.status === 'disputed' && m.dispute?.active);
+      if (disputedMarkets.length === 0) {
+        container.innerHTML = '<div class="dispute-item">No open disputes.</div>';
+        return;
+      }
+      container.innerHTML = disputedMarkets.map(market => `
+        <div class="dispute-item">
+          <div><strong>${escapeHtml(market.title)}</strong></div>
+          <div>Challenger: ${market.dispute.challenger.slice(0,8)}...</div>
+          <div>Claims outcome should be: <strong>${market.dispute.proposedOutcome.toUpperCase()}</strong></div>
+          <div>Evidence: <a href="${escapeHtml(market.dispute.evidence)}" target="_blank" style="color:#2dd4bf;">View</a></div>
+          <div>Bond: ${market.dispute.bondAmount} PRAE</div>
+          ${ADMIN_ADDRESSES.includes(walletAddress) ? `
+            <div style="margin-top:12px; display:flex; gap:12px;">
+              <button class="btn-yes" onclick="adminResolveDispute('${market.id}', true)">✅ Accept Challenge</button>
+              <button class="btn-no" onclick="adminResolveDispute('${market.id}', false)">❌ Reject Challenge</button>
+            </div>
+          ` : '<div>⏳ Waiting for admin resolution</div>'}
+        </div>
+      `).join('');
     }
     
     function escapeHtml(str) { if (!str) return ''; return str.replace(/[&<>]/g, m => ({ '&':'&amp;','<':'&lt;','>':'&gt;' })[m]); }
     function showToast(msg) { const t=document.createElement('div'); t.className='toast'; t.textContent=msg; document.body.appendChild(t); setTimeout(()=>t.remove(),3000); }
     
-    // Expose global functions
+    // ---------- TAB SWITCHING ----------
+    document.getElementById('tabMarketsBtn').addEventListener('click', () => {
+      document.getElementById('marketsView').style.display = 'block';
+      document.getElementById('disputesView').style.display = 'none';
+      document.getElementById('tabMarketsBtn').style.background = '#2dd4bf';
+      document.getElementById('tabMarketsBtn').style.color = '#0a0c10';
+      document.getElementById('tabDisputesBtn').style.background = '#4a5568';
+      document.getElementById('tabDisputesBtn').style.color = 'white';
+    });
+    document.getElementById('tabDisputesBtn').addEventListener('click', () => {
+      document.getElementById('marketsView').style.display = 'none';
+      document.getElementById('disputesView').style.display = 'block';
+      document.getElementById('tabDisputesBtn').style.background = '#2dd4bf';
+      document.getElementById('tabDisputesBtn').style.color = '#0a0c10';
+      document.getElementById('tabMarketsBtn').style.background = '#4a5568';
+      document.getElementById('tabMarketsBtn').style.color = 'white';
+      renderDisputesDashboard();
+    });
+    
+    // Expose functions globally for onclick handlers
     window.placeBet = placeBet;
     window.oracleVote = oracleVote;
     window.raiseDispute = raiseDispute;
-    window.createAdminProposal = createAdminProposal;
-    window.voteOnProposal = voteOnProposal;
+    window.adminResolveDispute = adminResolveDispute;
     window.createMarket = createMarket;
     
-    // Event listeners
     document.getElementById('connectBtn').addEventListener('click', connectWallet);
     document.getElementById('createMarketBtn').addEventListener('click', createMarket);
     
-    // Auto-connect if wallet already connected
+    // Auto-resolve every hour
+    setInterval(autoResolveExpiredMarkets, 3600000);
+    
     if (window.solana?.isConnected && window.solana?.publicKey) {
       walletAddress = window.solana.publicKey.toString();
       verifyAccess();
