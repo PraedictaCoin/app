@@ -1,10 +1,22 @@
 {
+  "background_color": "#ffffff",
+  "dir": "ltr",
+  "display": "standalone",
   "name": "PRAEDICTA",
+  "orientation": "any",
+  "scope": "/",
   "short_name": "PRAE",
   "start_url": ".",
-  "display": "standalone",
-  "background_color": "#0a0c10",
-  "theme_color": "#2dd4bf",
+  "theme_color": "#00F0FF",
+  "lang": "en",
+  "categories": [
+    "education",
+    "entertainment",
+    "games",
+    "lifestyle",
+    "social"
+  ],
+  "description": "PRAEDICTA - For those who see"
   "icons": [
     {
       "src": "icon-192.png",
@@ -18,3 +30,4 @@
     }
   ]
 }
+
