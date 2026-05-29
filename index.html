@@ -160,28 +160,35 @@
       }
     }
     
-    async function loadGlobalState() {
-      try {
-        const res = await fetchWithRetry(WORKER_URL, {}, 3, 500);
-        const data = await res.json();
-        if (data && data.markets) {
-          state = data;
-        } else {
-          state = { markets: [], users: {}, admins: ADMIN_ADDRESSES, pendingProposals: [] };
-        }
-        if (!state.admins || state.admins.length === 0) state.admins = ADMIN_ADDRESSES;
-        applyReputationDecay();
-      } catch(e) {
-        console.error("Failed to load from worker:", e);
-        showToast("⚠️ Could not connect to backend. Using local fallback.");
-        const saved = localStorage.getItem('praedicta_fallback');
-        if (saved) {
-          state = JSON.parse(saved);
-        } else {
-          state = { markets: [], users: {}, admins: ADMIN_ADDRESSES, pendingProposals: [] };
-        }
-      }
+   async function loadGlobalState() {
+  try {
+    const res = await fetchWithRetry(WORKER_URL, {}, 3, 500);
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const data = await res.json();
+    console.log("Loaded from worker:", data); // Debug log
+    
+    if (data && data.markets) {
+      // Merge existing state with loaded data to preserve any local changes? Actually we want full replace.
+      state = data;
+    } else {
+      console.warn("Worker returned invalid data, using default state");
+      state = { markets: [], users: {}, admins: ADMIN_ADDRESSES, pendingProposals: [] };
     }
+    // Ensure admins are set
+    if (!state.admins || state.admins.length === 0) state.admins = ADMIN_ADDRESSES;
+    applyReputationDecay();
+  } catch(e) {
+    console.error("Failed to load from worker:", e);
+    showToast("⚠️ Could not connect to backend. Using local fallback.");
+    const saved = localStorage.getItem('praedicta_fallback');
+    if (saved) {
+      state = JSON.parse(saved);
+      console.log("Loaded fallback from localStorage:", state);
+    } else {
+      state = { markets: [], users: {}, admins: ADMIN_ADDRESSES, pendingProposals: [] };
+    }
+  }
+}
     
     async function saveGlobalState() {
       try {
