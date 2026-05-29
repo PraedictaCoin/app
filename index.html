@@ -48,12 +48,14 @@
     .header { background: #0f171f; display: flex; justify-content: space-between; flex-wrap: wrap; gap: 20px; margin-bottom: 30px; padding: 20px; border-radius: 20px; border: 1px solid #1f2a30; text-align: center; }
     .header-text { flex: 1; text-align: center; }
     h1 { background: linear-gradient(135deg,#2dd4bf,#14b8a6); -webkit-background-clip: text; background-clip: text; color: transparent; font-size: 2rem; display: inline-block; }
-    .stats-grid { display: flex; gap: 20px; flex-wrap: wrap; }
+    .stats-grid { display: flex; gap: 20px; flex-wrap: wrap; justify-content: center; }
     .stat-card { background: #11151c; padding: 12px 20px; border-radius: 12px; text-align: center; border: 1px solid #1f2a30; }
     .stat-value { font-size: 1.8rem; font-weight: 700; color: #2dd4bf; }
-    .tabs { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 20px; }
+    .tabs { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 20px; justify-content: center; }
     .tab-btn { background: #1a202c; border: 1px solid #1f2a30; padding: 10px 20px; border-radius: 40px; cursor: pointer; color: #8ba3af; transition: .2s; }
     .tab-btn.active { background: #2dd4bf; color: #0a0c10; }
+    .tab-content { display: none; }
+    .tab-content.active { display: block; }
     .praedictions-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(380px,1fr)); gap: 20px; margin-bottom: 30px; }
     .praediction-card { background: #11151c; border-radius: 20px; padding: 20px; border: 1px solid #1f2a30; transition: transform .2s; }
     .praediction-card:hover { transform: translateY(-2px); border-color: #2dd4bf; }
@@ -93,7 +95,6 @@
 </head>
 <body>
 
-<!-- GATE SCREEN -->
 <div id="gate" class="gate">
   <div class="gate-card">
     <div class="prediction-ball">👁️</div>
@@ -109,7 +110,6 @@
   </div>
 </div>
 
-<!-- MAIN APP (will be shown after token check) -->
 <div id="mainApp" class="main-app">
   <div class="header">
     <div class="header-text">
@@ -140,8 +140,7 @@
     </div>
   </div>
 
-  <!-- Praedictions Tab -->
-  <div id="tab-praedictions" class="tab-content">
+  <div id="tab-praedictions" class="tab-content active">
     <div id="praedictionsContainer" class="praedictions-grid"></div>
     <div class="create-praediction">
       <h3 style="margin-bottom:16px;color:#2dd4bf;">🏛️ Create New Praediction</h3>
@@ -172,22 +171,15 @@
     </div>
   </div>
 
-  <!-- Leaderboard Tab -->
-  <div id="tab-leaderboard" class="tab-content" style="display:none;">
+  <div id="tab-leaderboard" class="tab-content">
     <div class="leaderboard-panel"><h3>🏆 Top Praedictors</h3><div id="leaderboardList"></div></div>
   </div>
 
-  <!-- Profile Tab -->
-  <div id="tab-profile" class="tab-content" style="display:none;">
+  <div id="tab-profile" class="tab-content">
     <div class="profile-panel">
       <h3>Profile</h3>
       <div id="profileStats"></div>
-      <div class="referral-box">
-        <strong>🔗 Your Referral Link</strong><br>
-        <span id="referralLink"></span><br>
-        <button id="copyReferralBtn" class="share-btn" style="margin-top:8px;">📋 Copy Link</button>
-        <div style="font-size:.7rem; margin-top:8px;">When a friend uses your link and makes their first praediction, you both get bonus Seerscore!</div>
-      </div>
+      <div class="referral-box"><strong>🔗 Your Referral Link</strong><br><span id="referralLink"></span><br><button id="copyReferralBtn" class="share-btn" style="margin-top:8px;">📋 Copy Link</button><div style="font-size:.7rem; margin-top:8px;">When a friend uses your link and makes their first praediction, you both get bonus Seerscore!</div></div>
       <button id="exportDataBtn" class="btn-praedict" style="margin-top:16px;">📥 Export Data (JSON)</button>
       <div class="social-links">
         <a href="https://t.me/praedictacoin" target="_blank" class="social-btn">📱 Telegram Group</a>
@@ -199,13 +191,11 @@
     </div>
   </div>
 
-  <!-- Disputes Tab -->
-  <div id="tab-disputes" class="tab-content" style="display:none;">
+  <div id="tab-disputes" class="tab-content">
     <div class="dispute-panel"><h3>⚖️ Open Disputes</h3><div id="disputesList"></div></div>
   </div>
 
-  <!-- FAQ Tab -->
-  <div id="tab-faq" class="tab-content" style="display:none;">
+  <div id="tab-faq" class="tab-content">
     <div class="faq-panel">
       <h3>❓ Frequently Asked Questions</h3>
       <div class="faq-question">🔮 What is a Praediction?</div>
@@ -229,8 +219,7 @@
     </div>
   </div>
 
-  <!-- Support Tab -->
-  <div id="tab-support" class="tab-content" style="display:none;">
+  <div id="tab-support" class="tab-content">
     <div class="support-panel">
       <h3>💛 Support PRAEDICTA</h3>
       <p>Your support keeps the servers running, helps add new features, and provides liquidity for the PRAE token. Thank you!</p>
@@ -251,11 +240,10 @@
 <script>
 // ============================================================
 // PRAEDICTA - FINAL WORKING VERSION
-// Fixed: connection, Gist persistence, one vote per user per market, eye symbol
+// Fixed: tabs, voting, Gist persistence, one vote per user per market
 // ============================================================
-
 (function() {
-  // ---------- CONFIGURATION ----------
+  // ---------- CONFIG ----------
   const WORKER_URL = "https://praedicta-backend.predicta.workers.dev";
   const ADMIN_ADDRESS = "7C2Y5NebLFG37wMbB85TbMqYERTSkq9tEi58wv28MCzt";
   const ADMIN_ADDRESSES = [ADMIN_ADDRESS];
@@ -266,41 +254,34 @@
   const REPUTATION_DECAY_FACTOR = 0.95;
   const MAX_ACTIVE_PRAEDICTIONS_PER_USER = 5;
 
-  // ---------- GLOBAL STATE ----------
   let state = { markets: [], users: {}, admins: ADMIN_ADDRESSES, pendingProposals: [] };
   let walletAddress = null;
   let hasAccess = false;
   let actionCooldown = false;
 
-  // ---------- DAILY VOTES (7 per user per UTC day) ----------
+  // Daily votes (7 per UTC day)
   function getUTCDayKey() { return new Date().toISOString().slice(0,10); }
-  function refreshDailyVotes(userAddr) {
-    const user = state.users[userAddr];
-    if (!user) return;
+  function refreshDailyVotes(addr) {
+    const u = state.users[addr];
+    if (!u) return;
     const today = getUTCDayKey();
-    if (user.lastVoteDay !== today) {
-      user.votesLeft = 7;
-      user.lastVoteDay = today;
-      user.dailyVotesUsed = 0;
-    } else if (user.votesLeft === undefined) user.votesLeft = 7;
+    if (u.lastVoteDay !== today) {
+      u.votesLeft = 7;
+      u.lastVoteDay = today;
+      u.dailyVotesUsed = 0;
+    } else if (u.votesLeft === undefined) u.votesLeft = 7;
   }
-  function canPraedict(userAddr) {
-    const user = state.users[userAddr];
-    if (!user) return false;
-    refreshDailyVotes(userAddr);
-    return user.votesLeft > 0;
-  }
-  function consumeVote(userAddr) {
-    const user = state.users[userAddr];
-    if (!user) return false;
-    refreshDailyVotes(userAddr);
-    if (user.votesLeft <= 0) return false;
-    user.votesLeft--;
-    user.dailyVotesUsed++;
+  function canPraedict(addr) { const u = state.users[addr]; if (!u) return false; refreshDailyVotes(addr); return u.votesLeft > 0; }
+  function consumeVote(addr) {
+    const u = state.users[addr];
+    if (!u) return false;
+    refreshDailyVotes(addr);
+    if (u.votesLeft <= 0) return false;
+    u.votesLeft--;
+    u.dailyVotesUsed++;
     return true;
   }
 
-  // ---------- SIMILAR TITLE CHECK ----------
   function isSimilarTitle(newTitle, existingTitles, threshold = 0.6) {
     const normalize = (s) => s.toLowerCase().replace(/[^\w\s]/g, '');
     const newWords = new Set(normalize(newTitle).split(/\s+/));
@@ -314,7 +295,6 @@
     return false;
   }
 
-  // ---------- FETCH WITH RETRY ----------
   async function fetchWithRetry(url, options = {}, retries = 3, delay = 500) {
     for (let i = 0; i < retries; i++) {
       try {
@@ -328,7 +308,6 @@
     }
   }
 
-  // ---------- LOAD GLOBAL STATE (NEVER OVERWRITE WITH EMPTY) ----------
   async function loadGlobalState() {
     try {
       const res = await fetchWithRetry(WORKER_URL, {}, 3, 500);
@@ -345,55 +324,38 @@
         showToast("⚠️ Gist returned invalid – keeping existing state");
       }
     } catch (err) {
-      console.error("[ERROR] Worker fetch failed:", err);
-      showToast("⚠️ Could not connect to backend. Using local fallback.");
+      console.error(err);
+      showToast("⚠️ Backend error – using local fallback");
       const backup = localStorage.getItem("praedicta_backup");
-      if (backup) {
-        try { state = JSON.parse(backup); } catch(e) {}
-      }
+      if (backup) try { state = JSON.parse(backup); } catch(e) {}
     }
-    // Apply reputation decay and refresh votes
     const now = Date.now();
     for (let addr in state.users) {
-      const user = state.users[addr];
-      const lastActive = user.lastActive ? new Date(user.lastActive).getTime() : now;
-      const weeksPassed = (now - lastActive) / (7 * 86400000);
-      if (weeksPassed > 0 && user.reputation) {
-        user.reputation = Math.max(0.1, user.reputation * Math.pow(REPUTATION_DECAY_FACTOR, weeksPassed));
-      }
-      user.lastActive = new Date().toISOString();
+      const u = state.users[addr];
+      const lastActive = u.lastActive ? new Date(u.lastActive).getTime() : now;
+      const weeks = (now - lastActive) / (7 * 86400000);
+      if (weeks > 0 && u.reputation) u.reputation = Math.max(0.1, u.reputation * Math.pow(REPUTATION_DECAY_FACTOR, weeks));
+      u.lastActive = new Date().toISOString();
       refreshDailyVotes(addr);
     }
     renderAll();
   }
 
-  // ---------- SAVE GLOBAL STATE ----------
   async function saveGlobalState() {
     try {
-      await fetchWithRetry(WORKER_URL, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(state)
-      }, 3, 500);
+      await fetchWithRetry(WORKER_URL, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(state) }, 3, 500);
       localStorage.setItem("praedicta_backup", JSON.stringify(state));
-      console.log("[DEBUG] State saved to Gist");
     } catch (err) {
-      console.error("[ERROR] Failed to save to Gist:", err);
+      console.error(err);
       localStorage.setItem("praedicta_backup", JSON.stringify(state));
     }
   }
 
-  // ---------- TOKEN CHECK (REAL ON-CHAIN, SIMULATED FOR TESTING) ----------
-  async function checkPRAEBalance(address) {
-    if (REQUIRED_PRAE === 0) return 999999; // test mode
-    // In production, query Solana RPC with the actual PRAE mint
-    return 999999;
-  }
+  async function checkPRAEBalance() { return REQUIRED_PRAE === 0 ? 999999 : 999999; } // test mode
 
-  // ---------- ACCESS GATE ----------
   async function verifyAccess() {
     if (!walletAddress) return false;
-    const balance = await checkPRAEBalance(walletAddress);
+    const balance = await checkPRAEBalance();
     const hasEnough = balance >= REQUIRED_PRAE;
     const balanceDiv = document.getElementById('balanceDisplay');
     const balanceText = document.getElementById('balanceText');
@@ -424,7 +386,6 @@
     return hasEnough;
   }
 
-  // ---------- WALLET CONNECTION ----------
   async function connectWallet() {
     if (!window.solana || !window.solana.isPhantom) {
       alert("Install Phantom Wallet");
@@ -448,19 +409,13 @@
     } catch(e) { alert("Connection failed: " + e.message); }
   }
 
-  // ---------- REFERRAL ----------
   function updateReferralLink() {
     const elem = document.getElementById('referralLink');
-    if (elem && walletAddress) {
-      elem.textContent = `${window.location.origin}${window.location.pathname}?ref=${walletAddress}`;
-    }
+    if (elem && walletAddress) elem.textContent = `${window.location.origin}${window.location.pathname}?ref=${walletAddress}`;
   }
   function copyReferralLink() {
     const elem = document.getElementById('referralLink');
-    if (elem) {
-      navigator.clipboard.writeText(elem.textContent);
-      showToast("📋 Referral link copied!");
-    }
+    if (elem) { navigator.clipboard.writeText(elem.textContent); showToast("📋 Referral link copied!"); }
   }
   async function awardReferralBonus(newUserAddr) {
     const newUser = state.users[newUserAddr];
@@ -476,24 +431,20 @@
     }
   }
 
-  // ---------- PRAEDICT (BET) – ONE PER USER PER MARKET ----------
+  function withCooldown(action, msg) {
+    if (actionCooldown) { showToast(msg); return; }
+    actionCooldown = true;
+    action();
+    setTimeout(() => { actionCooldown = false; }, 3000);
+  }
+
+  // ---------- PRAEDICT (one per user per market) ----------
   function praedict(praedictionId, outcome) {
     withCooldown(async () => {
       const market = state.markets.find(m => m.id === praedictionId);
-      if (!market || market.status !== "active") {
-        showToast("Praediction not active");
-        return;
-      }
-      // Check if user already praedicted on this market
-      const existingBet = market.bets.find(b => b.user === walletAddress);
-      if (existingBet) {
-        showToast("You already praedicted on this market!");
-        return;
-      }
-      if (!canPraedict(walletAddress)) {
-        showToast("No votes left today! Come back tomorrow.");
-        return;
-      }
+      if (!market || market.status !== "active") { showToast("Praediction not active"); return; }
+      if (market.bets.find(b => b.user === walletAddress)) { showToast("You already praedicted on this market!"); return; }
+      if (!canPraedict(walletAddress)) { showToast("No votes left today! Come back tomorrow."); return; }
       consumeVote(walletAddress);
       market.bets.push({ user: walletAddress, outcome, amount: 1, timestamp: new Date().toISOString() });
       market.bettingPool[outcome] += 1;
@@ -504,29 +455,20 @@
     }, "Please wait before another action");
   }
 
-  // ---------- ORACLE VOTE (ONCE PER MARKET PER USER) ----------
+  // ---------- ORACLE VOTE (once per market per user) ----------
   function oracleVote(praedictionId, outcome) {
     withCooldown(async () => {
       const market = state.markets.find(m => m.id === praedictionId);
-      if (!market || market.status !== "active") {
-        showToast("Praediction not active");
-        return;
-      }
-      if (market.resolutionDate && new Date(market.resolutionDate) > new Date()) {
-        showToast("Not yet resolvable");
-        return;
-      }
-      if (market.oracleVotes.voters.includes(walletAddress)) {
-        showToast("Already voted as oracle");
-        return;
-      }
+      if (!market || market.status !== "active") { showToast("Praediction not active"); return; }
+      if (market.resolutionDate && new Date(market.resolutionDate) > new Date()) { showToast("Not yet resolvable"); return; }
+      if (market.oracleVotes.voters.includes(walletAddress)) { showToast("Already voted as oracle"); return; }
       const user = state.users[walletAddress] || { balance: 1000, reputation: 0.5 };
-      const votingPower = user.balance * (0.5 + (user.reputation || 0.5));
-      market.oracleVotes[outcome] += votingPower;
+      const power = user.balance * (0.5 + (user.reputation || 0.5));
+      market.oracleVotes[outcome] += power;
       market.oracleVotes.voters.push(walletAddress);
       await saveGlobalState();
       renderAll();
-      showToast(`🗳️ Voted ${outcome} with ${votingPower.toFixed(2)} power`);
+      showToast(`🗳️ Voted ${outcome} with ${power.toFixed(2)} power`);
       checkAndResolveMarket(praedictionId);
     }, "Please wait before voting again");
   }
@@ -563,11 +505,7 @@
           awardReferralBonus(bet.user);
         } else {
           let user = state.users[bet.user];
-          if (user) {
-            user.totalVotes++;
-            user.reputation = user.correctVotes / user.totalVotes;
-            state.users[bet.user] = user;
-          }
+          if (user) { user.totalVotes++; user.reputation = user.correctVotes / user.totalVotes; state.users[bet.user] = user; }
         }
       }
     }
@@ -577,55 +515,30 @@
   // ---------- DISPUTE ----------
   function raiseDispute(praedictionId) {
     const market = state.markets.find(m => m.id === praedictionId);
-    if (!market || market.status !== "resolved") {
-      showToast("Only resolved praedictions can be disputed");
-      return;
-    }
-    if (new Date() > new Date(market.disputeDeadline)) {
-      showToast("Dispute window closed");
-      return;
-    }
-    if (market.dispute?.active) {
-      showToast("Dispute already active");
-      return;
-    }
+    if (!market || market.status !== "resolved") { showToast("Only resolved praedictions can be disputed"); return; }
+    if (new Date() > new Date(market.disputeDeadline)) { showToast("Dispute window closed"); return; }
+    if (market.dispute?.active) { showToast("Dispute already active"); return; }
     const user = state.users[walletAddress];
-    if (!user || user.balance < DISPUTE_BOND) {
-      showToast(`Need ${DISPUTE_BOND} voting rights to dispute`);
-      return;
-    }
+    if (!user || user.balance < DISPUTE_BOND) { showToast(`Need ${DISPUTE_BOND} voting rights to dispute`); return; }
     const proposedOutcome = prompt("Correct outcome? (yes/no)", market.resolvedOutcome === "yes" ? "no" : "yes");
     if (!["yes","no"].includes(proposedOutcome)) return;
     const evidence = prompt("Evidence URL:", "");
     if (!evidence) return;
     user.balance -= DISPUTE_BOND;
     state.users[walletAddress] = user;
-    market.dispute = {
-      active: true,
-      challenger: walletAddress,
-      proposedOutcome,
-      evidence,
-      bondAmount: DISPUTE_BOND,
-      resolvedByAdmin: null,
-      adminDecision: null
-    };
+    market.dispute = { active: true, challenger: walletAddress, proposedOutcome, evidence, bondAmount: DISPUTE_BOND, resolvedByAdmin: null, adminDecision: null };
     market.status = "disputed";
     saveGlobalState().then(() => renderAll());
     showToast("⚠️ Dispute raised! Oracle will review.");
   }
 
   async function adminResolveDispute(praedictionId, acceptChallenge) {
-    if (!ADMIN_ADDRESSES.includes(walletAddress)) {
-      showToast("Only oracle can resolve disputes");
-      return;
-    }
+    if (!ADMIN_ADDRESSES.includes(walletAddress)) { showToast("Only oracle can resolve disputes"); return; }
     const market = state.markets.find(m => m.id === praedictionId);
     if (!market || market.status !== "disputed" || !market.dispute?.active) return;
     if (acceptChallenge) {
       market.resolvedOutcome = market.dispute.proposedOutcome;
-      if (state.users[market.dispute.challenger]) {
-        state.users[market.dispute.challenger].balance += market.dispute.bondAmount;
-      }
+      if (state.users[market.dispute.challenger]) state.users[market.dispute.challenger].balance += market.dispute.bondAmount;
       showToast(`✅ Dispute accepted! Outcome changed to ${market.dispute.proposedOutcome.toUpperCase()}.`);
     } else {
       let adminTreasury = state.users[ADMIN_ADDRESSES[0]] || { balance: 0 };
@@ -647,15 +560,7 @@
     if (new Date() <= new Date(market.resolutionDate)) return false;
     let price = null;
     try {
-      const idMap = {
-        coingecko_btc: "bitcoin",
-        coingecko_eth: "ethereum",
-        coingecko_sol: "solana",
-        coingecko_doge: "dogecoin",
-        coingecko_matic: "polygon-pos",
-        coingecko_avax: "avalanche-2",
-        coingecko_link: "chainlink"
-      };
+      const idMap = { coingecko_btc:"bitcoin", coingecko_eth:"ethereum", coingecko_sol:"solana", coingecko_doge:"dogecoin", coingecko_matic:"polygon-pos", coingecko_avax:"avalanche-2", coingecko_link:"chainlink" };
       const coinId = idMap[market.autoSource];
       if (coinId) {
         const resp = await fetch(`https://api.coingecko.com/api/v3/simple/price?ids=${coinId}&vs_currencies=usd`);
@@ -672,24 +577,18 @@
     return true;
   }
 
-  async function autoResolveAllMarkets() {
-    for (const market of state.markets) {
-      if (market.status === "active" && market.autoSource) await tryAutoResolve(market);
-    }
-  }
-
+  async function autoResolveAllMarkets() { for (const m of state.markets) if (m.status === "active" && m.autoSource) await tryAutoResolve(m); }
   function autoResolveExpired() {
     const now = new Date();
     let changed = false;
-    for (const market of state.markets) {
-      if (market.status !== "active") continue;
-      if (!market.autoResolveDate) continue;
-      if (new Date(market.autoResolveDate) <= now) {
-        market.status = "resolved";
-        market.resolvedOutcome = "expired";
-        market.resolvedAt = new Date().toISOString();
+    for (const m of state.markets) {
+      if (m.status !== "active" || !m.autoResolveDate) continue;
+      if (new Date(m.autoResolveDate) <= now) {
+        m.status = "resolved";
+        m.resolvedOutcome = "expired";
+        m.resolvedAt = new Date().toISOString();
         changed = true;
-        showToast(`🕒 "${market.title}" auto-resolved EXPIRED.`);
+        showToast(`🕒 "${m.title}" auto-resolved EXPIRED.`);
       }
     }
     if (changed) { saveGlobalState(); renderAll(); }
@@ -703,30 +602,15 @@
     const resolutionDate = document.getElementById('resolutionDate').value;
     const autoSource = document.getElementById('autoSource').value;
     const targetValue = document.getElementById('targetValue').value.trim();
-    if (!title || !description || !resolutionDate) {
-      showToast("Fill all fields");
-      return;
-    }
+    if (!title || !description || !resolutionDate) { showToast("Fill all fields"); return; }
     const userActiveCount = state.markets.filter(m => m.creator === walletAddress && m.status === "active").length;
-    if (userActiveCount >= MAX_ACTIVE_PRAEDICTIONS_PER_USER) {
-      showToast(`Max ${MAX_ACTIVE_PRAEDICTIONS_PER_USER} active praedictions`);
-      return;
-    }
+    if (userActiveCount >= MAX_ACTIVE_PRAEDICTIONS_PER_USER) { showToast(`Max ${MAX_ACTIVE_PRAEDICTIONS_PER_USER} active praedictions`); return; }
     const activeTitles = state.markets.filter(m => m.status === "active").map(m => m.title);
-    if (activeTitles.some(t => t.toLowerCase() === title.toLowerCase())) {
-      showToast("❌ Identical active praediction exists");
-      return;
-    }
-    if (isSimilarTitle(title, activeTitles, 0.6) && !confirm("⚠️ Similar active praediction exists. Still create?")) {
-      return;
-    }
-    const minDate = new Date();
-    minDate.setHours(minDate.getHours() + 24);
+    if (activeTitles.some(t => t.toLowerCase() === title.toLowerCase())) { showToast("❌ Identical active praediction exists"); return; }
+    if (isSimilarTitle(title, activeTitles, 0.6) && !confirm("⚠️ Similar active praediction exists. Still create?")) return;
+    const minDate = new Date(); minDate.setHours(minDate.getHours() + 24);
     const selectedDate = new Date(resolutionDate);
-    if (selectedDate < minDate) {
-      showToast("Resolution date must be at least 24h from now");
-      return;
-    }
+    if (selectedDate < minDate) { showToast("Resolution date must be at least 24h from now"); return; }
     const newMarket = {
       id: "praed_" + Date.now(),
       title, description, category, creator: walletAddress,
@@ -752,47 +636,32 @@
     });
   }
 
-  // ---------- RENDER FUNCTIONS ----------
+  // ---------- RENDER ----------
   function renderAll() {
     renderPraedictions();
     renderLeaderboard();
     renderProfile();
     renderDisputesDashboard();
     document.getElementById('totalPraedictions').innerText = state.markets.filter(m => m.status === "active").length;
-    document.getElementById('totalBets').innerText = state.markets.reduce((sum, m) => sum + m.bets.length, 0);
+    document.getElementById('totalBets').innerText = state.markets.reduce((s,m) => s + m.bets.length, 0);
     document.getElementById('totalVolume').innerText = state.users[walletAddress]?.seerscore || 0;
   }
 
   function renderLeaderboard() {
     const container = document.getElementById('leaderboardList');
     if (!container) return;
-    const sorted = Object.entries(state.users)
-      .map(([addr, u]) => ({ addr, seerscore: u.seerscore || 0, correct: u.correctVotes || 0, total: u.totalVotes || 0 }))
-      .sort((a,b) => b.seerscore - a.seerscore)
-      .slice(0, 20);
+    const sorted = Object.entries(state.users).map(([a,u]) => ({ addr:a, seerscore: u.seerscore||0, correct: u.correctVotes||0, total: u.totalVotes||0 })).sort((a,b) => b.seerscore - a.seerscore).slice(0,20);
     if (sorted.length === 0) { container.innerHTML = '<div>No users yet</div>'; return; }
-    container.innerHTML = sorted.map((u, i) => `
-      <div class="leaderboard-item">
-        <div>${i+1}. ${u.addr.slice(0,6)}...${u.addr.slice(-4)}</div>
-        <div>⭐ ${u.seerscore} pts</div>
-        <div>🎯 ${((u.correct/(u.total||1))*100).toFixed(0)}%</div>
-      </div>
-    `).join('');
+    container.innerHTML = sorted.map((u,i) => `<div class="leaderboard-item"><div>${i+1}. ${u.addr.slice(0,6)}...${u.addr.slice(-4)}</div><div>⭐ ${u.seerscore} pts</div><div>🎯 ${((u.correct/(u.total||1))*100).toFixed(0)}%</div></div>`).join('');
   }
 
   function renderProfile() {
     const container = document.getElementById('profileStats');
     if (!container) return;
-    const user = state.users[walletAddress] || { balance: 0, reputation: 0, correctVotes: 0, totalVotes: 0, seerscore: 0, votesLeft: 7 };
+    const u = state.users[walletAddress] || { balance:0, reputation:0, correctVotes:0, totalVotes:0, seerscore:0, votesLeft:7 };
     refreshDailyVotes(walletAddress);
-    const votesLeft = user.votesLeft !== undefined ? user.votesLeft : 0;
-    container.innerHTML = `
-      <div class="profile-stat">🗳️ Votes left today: ${votesLeft}/7</div>
-      <div class="profile-stat">⭐ Total Seerscore: ${user.seerscore || 0}</div>
-      <div class="profile-stat">🎯 Accuracy: ${((user.correctVotes||0)/(user.totalVotes||1)*100).toFixed(0)}%</div>
-      <div class="profile-stat">🦉 Reputation: ${(user.reputation||0.5).toFixed(3)}</div>
-      <div class="profile-stat">📊 Praedictions made: ${user.totalVotes||0}</div>
-    `;
+    const votesLeft = u.votesLeft !== undefined ? u.votesLeft : 0;
+    container.innerHTML = `<div class="profile-stat">🗳️ Votes left today: ${votesLeft}/7</div><div class="profile-stat">⭐ Total Seerscore: ${u.seerscore||0}</div><div class="profile-stat">🎯 Accuracy: ${((u.correctVotes||0)/(u.totalVotes||1)*100).toFixed(0)}%</div><div class="profile-stat">🦉 Reputation: ${(u.reputation||0.5).toFixed(3)}</div><div class="profile-stat">📊 Praedictions made: ${u.totalVotes||0}</div>`;
   }
 
   function renderPraedictions() {
@@ -877,45 +746,51 @@
 
   function escapeHtml(str) { if (!str) return ''; return str.replace(/[&<>]/g, m => ({ '&':'&amp;','<':'&lt;','>':'&gt;' })[m]); }
   function showToast(msg) { const t=document.createElement('div'); t.className='toast'; t.textContent=msg; document.body.appendChild(t); setTimeout(()=>t.remove(),3000); }
-  function shareOnTwitter(p) { const t=`🔮 Praediction: "${p.title}" on PRAEDICTA. Join me!`; const u=`https://twitter.com/intent/tweet?text=${encodeURIComponent(t)}&url=${encodeURIComponent(window.location.href)}`; const w=window.open(u,'_blank','noopener,noreferrer'); if(!w||w.closed||typeof w.closed==='undefined'){ showToast("Pop-up blocked. Please allow pop-ups or share manually."); alert(`Share this link:\n${u}`); } }
-  function shareOnTelegram(p) { const t=`🔮 Praediction: "${p.title}" on PRAEDICTA. Join me! ${window.location.href}`; const u=`https://t.me/share/url?url=${encodeURIComponent(window.location.href)}&text=${encodeURIComponent(t)}`; const w=window.open(u,'_blank','noopener,noreferrer'); if(!w||w.closed||typeof w.closed==='undefined'){ showToast("Pop-up blocked. Please allow pop-ups or share manually."); alert(`Share this link:\n${u}`); } }
+  function shareOnTwitter(p) { const text=`🔮 Praediction: "${p.title}" on PRAEDICTA. Join me!`; const url=`https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(window.location.href)}`; const w=window.open(url,'_blank','noopener,noreferrer'); if(!w||w.closed||typeof w.closed==='undefined'){ showToast("Pop-up blocked. Please allow pop-ups or share manually."); alert(`Share this link:\n${url}`); } }
+  function shareOnTelegram(p) { const text=`🔮 Praediction: "${p.title}" on PRAEDICTA. Join me! ${window.location.href}`; const url=`https://t.me/share/url?url=${encodeURIComponent(window.location.href)}&text=${encodeURIComponent(text)}`; const w=window.open(url,'_blank','noopener,noreferrer'); if(!w||w.closed||typeof w.closed==='undefined'){ showToast("Pop-up blocked. Please allow pop-ups or share manually."); alert(`Share this link:\n${url}`); } }
   function exportData() { const dataStr=JSON.stringify(state,null,2); const blob=new Blob([dataStr],{type:"application/json"}); const url=URL.createObjectURL(blob); const a=document.createElement('a'); a.href=url; a.download=`praedicta_export_${Date.now()}.json`; a.click(); URL.revokeObjectURL(url); showToast("📥 Data exported"); }
 
-  // ---------- THEME ----------
+  // Theme
   function initTheme() { const saved=localStorage.getItem('praedicta_theme'); if(saved==='light') document.body.classList.add('light'); else document.body.classList.remove('light'); }
   function toggleTheme() { document.body.classList.toggle('light'); localStorage.setItem('praedicta_theme',document.body.classList.contains('light')?'light':'dark'); }
   function openDonation() { window.open('https://ko-fi.com/yourusername','_blank'); }
 
-  // ---------- EVENT LISTENERS ----------
-  document.getElementById('themeToggle')?.addEventListener('click',toggleTheme);
-  initTheme();
-  document.querySelectorAll('.tab-btn').forEach(btn=>{
-    btn.addEventListener('click',()=>{
-      const tab=btn.dataset.tab;
-      document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  // Tab switching
+  document.querySelectorAll('.tab-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const tabId = btn.getAttribute('data-tab');
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
       btn.classList.add('active');
-      document.querySelectorAll('.tab-content').forEach(t=>t.style.display='none');
-      document.getElementById(`${tab}Tab`).style.display='block';
-      if(tab==='leaderboard') renderLeaderboard();
-      if(tab==='profile') { renderProfile(); updateReferralLink(); }
-      if(tab==='disputes') renderDisputesDashboard();
+      document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+      document.getElementById(`tab-${tabId}`).classList.add('active');
+      if (tabId === 'leaderboard') renderLeaderboard();
+      if (tabId === 'profile') { renderProfile(); updateReferralLink(); }
+      if (tabId === 'disputes') renderDisputesDashboard();
     });
   });
-  document.getElementById('reloadStateBtn')?.addEventListener('click',async()=>{ await loadGlobalState(); showToast("Reloaded"); });
-  document.getElementById('createPraedictionBtn')?.addEventListener('click',createPraediction);
-  document.getElementById('connectBtn')?.addEventListener('click',connectWallet);
-  document.getElementById('exportDataBtn')?.addEventListener('click',exportData);
-  document.getElementById('copyReferralBtn')?.addEventListener('click',copyReferralLink);
-  document.getElementById('donateBtn')?.addEventListener('click',openDonation);
-  window.praedict=praedict;
-  window.oracleVote=oracleVote;
-  window.raiseDispute=raiseDispute;
-  window.adminResolveDispute=adminResolveDispute;
-  window.shareOnTwitter=shareOnTwitter;
-  window.shareOnTelegram=shareOnTelegram;
-  setInterval(()=>{ autoResolveAllMarkets(); autoResolveExpired(); for(let u in state.users) refreshDailyVotes(u); saveGlobalState(); renderProfile(); },3600000);
-  if(window.solana?.isConnected&&window.solana?.publicKey){ walletAddress=window.solana.publicKey.toString(); verifyAccess(); }
-  if('serviceWorker'in navigator) navigator.serviceWorker.register('/sw.js').catch(()=>{});
+
+  document.getElementById('themeToggle')?.addEventListener('click', toggleTheme);
+  initTheme();
+  document.getElementById('reloadStateBtn')?.addEventListener('click', async () => { await loadGlobalState(); showToast("Reloaded"); });
+  document.getElementById('createPraedictionBtn')?.addEventListener('click', createPraediction);
+  document.getElementById('connectBtn')?.addEventListener('click', connectWallet);
+  document.getElementById('exportDataBtn')?.addEventListener('click', exportData);
+  document.getElementById('copyReferralBtn')?.addEventListener('click', copyReferralLink);
+  document.getElementById('donateBtn')?.addEventListener('click', openDonation);
+
+  window.praedict = praedict;
+  window.oracleVote = oracleVote;
+  window.raiseDispute = raiseDispute;
+  window.adminResolveDispute = adminResolveDispute;
+  window.shareOnTwitter = shareOnTwitter;
+  window.shareOnTelegram = shareOnTelegram;
+
+  setInterval(() => { autoResolveAllMarkets(); autoResolveExpired(); for(let u in state.users) refreshDailyVotes(u); saveGlobalState(); renderProfile(); }, 3600000);
+
+  if (window.solana?.isConnected && window.solana?.publicKey) {
+    walletAddress = window.solana.publicKey.toString();
+    verifyAccess();
+  }
 })();
 </script>
 </body>
