@@ -113,7 +113,7 @@
   </div>
 
   <script>
-    // ============================================================
+       // ============================================================
     // PRAEDICTA - Shared global state via Cloudflare Worker
     // ============================================================
     
@@ -124,106 +124,86 @@
     const REQUIRED_PRAE = 0;      // Set to 777 for production
     const BUY_LINK = "https://dexscreener.com/solana/32keyn7qdtvvjaq2qd8t8yv1ngxurheshvnsgroje1yd";
     const DISPUTE_WINDOW_DAYS = 7;
-    const DISPUTE_BOND = 500;     // PRAE
-    const REPUTATION_DECAY_FACTOR = 0.95; // weekly decay
-    const ADMIN_THRESHOLD = 3;    // 3-of-5 multisig
+    const DISPUTE_BOND = 500;
+    const REPUTATION_DECAY_FACTOR = 0.95;
+    const ADMIN_THRESHOLD = 3;
     
-    // Global state (loaded from worker)
+    // Global state
     let state = {
       markets: [],
-      users: {},        // address -> { balance, reputation, correctVotes, totalVotes, lastActive }
-      admins: [],       // list of 5 admin addresses
-      pendingProposals: []  // { id, type, marketId, newValue, votes: [] }
+      users: {},
+      admins: [],
+      pendingProposals: []
     };
     
     let walletAddress = null;
     let hasAccess = false;
     
-    // ---------- HELPER: Load/Save global state via Worker ----------
- // Helper: fetch with retry
-async function fetchWithRetry(url, options = {}, retries = 3, delay = 500) {
-  for (let i = 0; i < retries; i++) {
-    try {
-      const res = await fetch(url, options);
-      if (res.ok) return res;
-      // If not ok, throw to trigger retry
-      throw new Error(`HTTP ${res.status}`);
-    } catch (err) {
-      if (i === retries - 1) throw err;
-      await new Promise(r => setTimeout(r, delay * Math.pow(2, i))); // exponential backoff
-    }
-  }
-}
-
-async function loadGlobalState() {
-  try {
-    const res = await fetchWithRetry(WORKER_URL, {}, 3, 500);
-    const data = await res.json();
-    if (data && data.markets) {
-      state = data;
-    } else {
-      state = {
-        markets: [],
-        users: {},
-        admins: [],
-        pendingProposals: []
-      };
-    }
-  } catch(e) {
-    console.error("Failed to load from worker after retries:", e);
-    showToast("⚠️ Could not connect to backend. Using local fallback (single user).");
-    const saved = localStorage.getItem('praedicta_fallback');
-    if (saved) {
-      state = JSON.parse(saved);
-    } else {
-      state = {
-        markets: [],
-        users: {},
-        admins: [],
-        pendingProposals: []
-      };
-    }
-  }
-}
-
-async function saveGlobalState() {
-  try {
-    await fetchWithRetry(WORKER_URL, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(state)
-    }, 3, 500);
-    localStorage.setItem('praedicta_fallback', JSON.stringify(state));
-  } catch(e) {
-    console.error("Failed to save to worker after retries, saving locally only", e);
-    localStorage.setItem('praedicta_fallback', JSON.stringify(state));
-  }
-}
-        // Ensure admins exist (if not, set default from first user? For demo we set placeholder)
-        if (state.admins.length === 0) {
-          state.admins = ["0xAdmin1", "0xAdmin2", "0xAdmin3", "0xAdmin4", "0xAdmin5"]; // Replace with real addresses
+    // Helper: fetch with retry
+    async function fetchWithRetry(url, options = {}, retries = 3, delay = 500) {
+      for (let i = 0; i < retries; i++) {
+        try {
+          const res = await fetch(url, options);
+          if (res.ok) return res;
+          throw new Error(`HTTP ${res.status}`);
+        } catch (err) {
+          if (i === retries - 1) throw err;
+          await new Promise(r => setTimeout(r, delay * Math.pow(2, i)));
         }
-        // Apply reputation decay (once per day, but we'll do on every load)
-        applyReputationDecay();
-      } catch(e) { console.error("Failed to load state", e); }
+      }
     }
     
-   async function saveGlobalState() {
-  try {
-    await fetch(WORKER_URL, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(state)
-    });
-    // Also save to localStorage as backup
-    localStorage.setItem('praedicta_fallback', JSON.stringify(state));
-  } catch(e) {
-    console.error("Failed to save to worker, saving locally only", e);
-    localStorage.setItem('praedicta_fallback', JSON.stringify(state));
-  }
-}
+    async function loadGlobalState() {
+      try {
+        const res = await fetchWithRetry(WORKER_URL, {}, 3, 500);
+        const data = await res.json();
+        if (data && data.markets) {
+          state = data;
+        } else {
+          state = {
+            markets: [],
+            users: {},
+            admins: [],
+            pendingProposals: []
+          };
+        }
+        // Ensure admins exist
+        if (state.admins.length === 0) {
+          state.admins = ["0xAdmin1", "0xAdmin2", "0xAdmin3", "0xAdmin4", "0xAdmin5"];
+        }
+        applyReputationDecay();
+      } catch(e) {
+        console.error("Failed to load from worker:", e);
+        showToast("⚠️ Could not connect to backend. Using local fallback.");
+        const saved = localStorage.getItem('praedicta_fallback');
+        if (saved) {
+          state = JSON.parse(saved);
+        } else {
+          state = {
+            markets: [],
+            users: {},
+            admins: [],
+            pendingProposals: []
+          };
+        }
+      }
+    }
     
-    // Reputation decay: reduce reputation by 5% each week since last activity
+    async function saveGlobalState() {
+      try {
+        await fetchWithRetry(WORKER_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(state)
+        }, 3, 500);
+        localStorage.setItem('praedicta_fallback', JSON.stringify(state));
+      } catch(e) {
+        console.error("Failed to save to worker, saving locally only", e);
+        localStorage.setItem('praedicta_fallback', JSON.stringify(state));
+      }
+    }
+    
+    // Reputation decay
     function applyReputationDecay() {
       const now = Date.now();
       for (let addr in state.users) {
@@ -238,7 +218,7 @@ async function saveGlobalState() {
       }
     }
     
-    // ---------- TOKEN GATE (unchanged) ----------
+    // ---------- TOKEN GATE ----------
     async function checkPRAEBalance(address) {
       if (REQUIRED_PRAE === 0) return 999999;
       try {
@@ -299,7 +279,6 @@ async function saveGlobalState() {
       try {
         const resp = await window.solana.connect();
         walletAddress = resp.publicKey.toString();
-        // Initialize user in state if not exists
         if (!state.users[walletAddress]) {
           state.users[walletAddress] = { balance: 1000, reputation: 0.5, correctVotes: 0, totalVotes: 0, lastActive: new Date().toISOString() };
           await saveGlobalState();
@@ -308,13 +287,12 @@ async function saveGlobalState() {
       } catch(e) { alert("Connection failed"); }
     }
     
-    // ---------- CORE MARKET LOGIC (using shared state) ----------
+    // ---------- CORE MARKET LOGIC ----------
     function placeBet(marketId, outcome) {
       const market = state.markets.find(m => m.id === marketId);
       if (!market || market.status !== "active") { showToast("Market not active"); return; }
       const amount = parseFloat(prompt(`Enter amount to bet on ${outcome.toUpperCase()}:`, "100"));
       if (isNaN(amount) || amount <= 0) return;
-      // Deduct from user's simulated balance (in production would lock real tokens)
       let user = state.users[walletAddress];
       if (!user) user = { balance: 1000, reputation: 0.5, correctVotes: 0, totalVotes: 0 };
       if (user.balance < amount) { showToast("Insufficient balance"); return; }
@@ -363,7 +341,6 @@ async function saveGlobalState() {
       market.resolvedOutcome = outcome;
       market.resolvedAt = new Date().toISOString();
       market.disputeDeadline = new Date(Date.now() + DISPUTE_WINDOW_DAYS * 86400000).toISOString();
-      // Distribute rewards (simplified)
       const totalPool = market.bettingPool.yes + market.bettingPool.no;
       const winningPool = market.bettingPool[outcome];
       if (winningPool > 0) {
@@ -387,9 +364,8 @@ async function saveGlobalState() {
           }
         }
       }
-      // Oracle reward (5% to voters who voted correctly – simplified)
       const oracleReward = totalPool * 0.05;
-      const correctVoters = market.oracleVotes.voters.filter(v => true); // in real app filter by how they voted
+      const correctVoters = market.oracleVotes.voters;
       if (correctVoters.length > 0 && oracleReward > 0) {
         const rewardPerOracle = oracleReward / correctVoters.length;
         for (const oracle of correctVoters) {
@@ -403,7 +379,7 @@ async function saveGlobalState() {
       });
     }
     
-    // ---------- DISPUTE & ADMIN MULTISIG ----------
+    // ---------- DISPUTE & ADMIN ----------
     function raiseDispute(marketId) {
       const market = state.markets.find(m => m.id === marketId);
       if (!market || market.status !== "resolved") { showToast("Only resolved markets can be disputed"); return; }
@@ -432,12 +408,11 @@ async function saveGlobalState() {
       showToast(`⚠️ Dispute raised! Waiting for admin review.`);
     }
     
-    // Admin multisig: create a proposal
     function createAdminProposal(type, marketId, newValue) {
       if (!state.admins.includes(walletAddress)) { showToast("Only admins can propose"); return; }
       const proposal = {
         id: Date.now().toString(),
-        type,   // "resolveDispute" or "changeAdmin"
+        type,
         marketId,
         newValue,
         votes: [walletAddress],
@@ -455,17 +430,14 @@ async function saveGlobalState() {
       if (proposal.votes.includes(walletAddress)) { showToast("Already voted"); return; }
       proposal.votes.push(walletAddress);
       if (proposal.votes.length >= ADMIN_THRESHOLD) {
-        // Execute proposal
         if (proposal.type === "resolveDispute") {
           const market = state.markets.find(m => m.id === proposal.marketId);
           if (market && market.dispute?.active) {
             resolveDisputeFinal(market.id, proposal.newValue);
           }
         } else if (proposal.type === "changeAdmin") {
-          // change admin list (simplified)
           state.admins = proposal.newValue;
         }
-        // Remove proposal after execution
         state.pendingProposals = state.pendingProposals.filter(p => p.id !== proposalId);
         showToast("Proposal passed and executed!");
       }
@@ -476,14 +448,11 @@ async function saveGlobalState() {
       const market = state.markets.find(m => m.id === marketId);
       if (!market || market.status !== "disputed" || !market.dispute?.active) return;
       if (acceptChallenge) {
-        // Flip outcome
         market.resolvedOutcome = market.dispute.proposedOutcome;
-        // Return bond to challenger
         let challenger = state.users[market.dispute.challenger];
         if (challenger) challenger.balance += market.dispute.bondAmount;
         showToast(`Dispute accepted! Outcome changed to ${market.dispute.proposedOutcome.toUpperCase()}.`);
       } else {
-        // Reject dispute: slash bond (50% to admin treasury, 50% burned)
         let adminTreasury = state.users[state.admins[0]] || { balance: 0 };
         adminTreasury.balance += market.dispute.bondAmount * 0.5;
         state.users[state.admins[0]] = adminTreasury;
@@ -583,6 +552,7 @@ async function saveGlobalState() {
     window.voteOnProposal = voteOnProposal;
     window.createMarket = createMarket;
     
+    // Event listeners
     document.getElementById('connectBtn').addEventListener('click', connectWallet);
     document.getElementById('createMarketBtn').addEventListener('click', createMarket);
     
