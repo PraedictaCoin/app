@@ -6,6 +6,7 @@
     <meta name="theme-color" content="#00F0FF">
     <meta name="mobile-web-app-capable" content="yes">
     <title>PRAEDICTA – For Those Who See</title>
+    <!-- Fixed manifest JSON (properly escaped) -->
     <link rel="manifest" href="data:application/manifest+json,{\"name\":\"PRAEDICTA\",\"short_name\":\"PRAEDICTA\",\"start_url\":\".\",\"display\":\"standalone\",\"background_color\":\"#0A0A0A\",\"theme_color\":\"#00F0FF\",\"icons\":[{\"src\":\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='50' fill='%2300F0FF'/%3E%3Ctext x='50' y='67' text-anchor='middle' fill='%230A0A0A' font-size='50' font-weight='bold'%3EP%3C/text%3E%3C/svg%3E\",\"sizes\":\"any\"}]}">
     <style>
         * {
@@ -20,7 +21,6 @@
             overflow-x: hidden;
             transition: background-color 0.3s, color 0.3s;
         }
-        /* LIGHT THEME - updated colors */
         body.light {
             background-color: #F5F5F7;
             color: #111111;
@@ -37,27 +37,27 @@
         body.light .tab-btn,
         body.light .zodiac-selector select {
             background-color: rgba(0,0,0,0.03);
-            border-color: rgba(120,81,169,0.3);
+            border-color: rgba(0,240,255,0.3);
             color: #111;
         }
         body.light .tab-btn.active {
-            background: #7851A9;
-            color: #FFFFFF;
+            background: #00F0FF;
+            color: #0A0A0A;
         }
         body.light .praediction-title,
         body.light .stat-value,
         body.light .logo-area h1 {
-            color: #330066;
+            color: #0066cc;
         }
         body.light .btn-secondary,
         body.light .social-btn {
-            background: rgba(51,0,102,0.1);
-            color: #330066;
+            background: rgba(0,102,204,0.1);
+            color: #0066cc;
         }
         body.light .horoscope {
-            background: rgba(120,81,169,0.05);
-            color: #330066;
-            border-color: rgba(120,81,169,0.3);
+            background: rgba(0,102,204,0.05);
+            color: #0066cc;
+            border-color: rgba(0,102,204,0.3);
         }
         body.light .gate {
             background: #F5F5F7;
@@ -65,38 +65,13 @@
         body.light .filter-bar select,
         body.light .filter-bar input {
             background: white;
-            color: #330066;
-            border-color: #7851A9;
+            color: #0066cc;
+            border-color: #00F0FF;
         }
         body.light .filter-bar select option {
             background: white;
-            color: #330066;
+            color: #0066cc;
         }
-        body.light .badge-active {
-            background: #7851A920;
-            color: #330066;
-            border-color: #330066;
-        }
-        body.light .badge-resolved {
-            background: #00aa5520;
-            color: #006633;
-            border-color: #006633;
-        }
-        body.light .badge-expired {
-            background: #ff444420;
-            color: #cc0000;
-            border-color: #cc0000;
-        }
-        body.light .status-filter-btn.active-filter {
-            background: #7851A920;
-            color: #330066;
-            border-color: #330066;
-        }
-        body.light .oracle-resolve {
-            background: #FFB800;
-            color: #0A0A0A;
-        }
-        /* dark theme stays original cyan */
         @keyframes blink {
             0%, 90%, 100% { transform: scaleY(1); }
             95% { transform: scaleY(0.1); }
@@ -340,7 +315,6 @@
             flex-wrap: wrap;
             margin-top: 16px;
             margin-bottom: 24px;
-            align-items: center;
         }
         .filter-bar select, .filter-bar input {
             background: rgba(0, 240, 255, 0.05);
@@ -354,27 +328,9 @@
             background: #0A0A0A;
             color: #00F0FF;
         }
-        .status-filter-btns {
-            display: flex;
-            gap: 8px;
-        }
-        .status-filter-btn {
-            background: transparent;
-            border: 1px solid rgba(0,240,255,0.3);
-            padding: 8px 16px;
-            border-radius: 40px;
-            cursor: pointer;
-            color: #8A8A8A;
-            font-size: 0.75rem;
-        }
-        .status-filter-btn.active-filter {
-            background: #00F0FF20;
-            color: #00F0FF;
-            border-color: #00F0FF;
-        }
         .praedictions-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+            grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
             gap: 20px;
             margin-bottom: 30px;
         }
@@ -388,7 +344,7 @@
         .praediction-card:hover { border-color: rgba(0, 240, 255, 0.4); }
         .praediction-title {
             font-size: 1.2rem;
-            font-weight: 500;
+            font-weight: 600;
             color: #00F0FF;
             margin-bottom: 8px;
         }
@@ -418,8 +374,7 @@
             font-weight: 500;
         }
         .badge-active { background: #00F0FF20; color: #00F0FF; border: 1px solid #00F0FF; }
-        .badge-resolved { background: #00FF8020; color: #00FF80; border: 1px solid #00FF80; }
-        .badge-expired { background: #FF444420; color: #FF4444; border: 1px solid #FF4444; }
+        .badge-resolved { background: #4A4A4A; color: #BBBBBB; }
         .oracle-badge { background: #FFB80020; color: #FFB800; border: 1px solid #FFB800; }
         .vote-stats {
             display: flex;
@@ -551,7 +506,6 @@
             margin-bottom: 6px;
             letter-spacing: 1px;
         }
-        /* compact sign badge */
         .zodiac-status-text {
             background: rgba(0,240,255,0.15);
             padding: 4px 12px;
@@ -560,11 +514,9 @@
             font-size: 0.75rem;
             margin-bottom: 8px;
         }
-        /* center welcome headline */
         #profileHeadline {
             text-align: center;
         }
-        /* static horoscope centered */
         #dailyHoroscopeStatic {
             text-align: center;
             color: #00F0FF;
@@ -576,24 +528,6 @@
             color: #00F0FF;
             margin-bottom: 24px;
             font-weight: 500;
-        }
-        /* SeerStats custom */
-        #walletDisplay {
-            color: white;
-        }
-        body.light #walletDisplay {
-            color: #111;
-        }
-        .zodiac-label {
-            font-size: 1rem;
-            font-weight: 500;
-            color: #00F0FF;
-        }
-        .fetched-horoscope-white {
-            color: white;
-        }
-        body.light .fetched-horoscope-white {
-            color: #111;
         }
     </style>
 </head>
@@ -662,11 +596,7 @@
         <div id="dailyHoroscopeStatic">👁️ Loading daily insight...</div>
         <div class="filter-bar">
             <select id="filterCategory"><option value="all">All Categories</option><option value="crypto">Finance</option><option value="people">People</option><option value="politics">Politics</option><option value="sports">Sports</option><option value="worldevents">World Events</option><option value="wildcard">Wildcard</option></select>
-            <div class="status-filter-btns">
-                <button class="status-filter-btn active-filter" data-status="active">Active</button>
-                <button class="status-filter-btn" data-status="resolved">Resolved</button>
-                <button class="status-filter-btn" data-status="expired">Expired</button>
-            </div>
+            <select id="filterStatus"><option value="all">All Status</option><option value="active">Active</option><option value="resolved">Resolved</option></select>
             <input type="text" id="filterSearch" placeholder="Search title...">
         </div>
         <div id="praedictionsContainer" class="praedictions-grid"></div>
@@ -698,11 +628,11 @@
     <!-- PROFILE TAB (SeerStats) -->
     <div id="tab-profile" class="tab-content">
         <div class="card">
-            <h3 id="profileHeadline" style="color:#00F0FF;">Welcome Seer: <span id="walletDisplay"></span><span id="oracleIndicator" style="display:none; margin-left:8px;" class="oracle-badge">🦉 ORACLE</span></h3>
+            <h3 id="profileHeadline" style="color:#00F0FF;">Welcome 👁️ Seer:</h3>
             <div id="profileHoroscope" class="horoscope"></div>
             <div id="profileStats" style="margin-top: 16px;"></div>
-            <div class="zodiac-selector">
-                <span class="zodiac-label">⭐ Your Zodiac Sign:</span>
+            <div id="zodiacSelectorWrapper" class="zodiac-selector">
+                <span style="color:#00F0FF;">⭐ Your Zodiac Sign:</span>
                 <select id="zodiacSelect">
                     <option value="">Select</option>
                     <option value="aries">♈ Aries</option><option value="taurus">♉ Taurus</option><option value="gemini">♊ Gemini</option>
@@ -714,7 +644,7 @@
             </div>
             <div id="userZodiacDisplay" style="display: none;" class="zodiac-status-text"></div>
             <div id="zodiacRealHeadline" class="horoscope-headline" style="display: none;">Your Daily 👁️ Praediction:</div>
-            <div id="zodiacHoroscopeDisplay" style="margin-top: 12px; padding: 12px; background: rgba(0,240,255,0.05); border-radius: 20px; font-style: italic;" class="fetched-horoscope-white"></div>
+            <div id="zodiacHoroscopeDisplay" style="margin-top: 12px; padding: 12px; background: rgba(0,240,255,0.05); border-radius: 20px; font-style: italic;"></div>
             <div class="referral-box"><strong style="color:#00F0FF;">🔗 Your Referral Link</strong><br><span id="referralLink"></span><br><button id="copyReferralBtn" class="social-btn" style="margin-top:8px;">📋 Copy Link</button></div>
             <div style="margin-top: 20px;">
                 <button id="showMyPraedictionsBtn" class="btn" style="width:100%; background: #00F0FF20; color:#00F0FF;">📋 Show My Praedictions</button>
@@ -731,6 +661,7 @@
             <h3 style="color:#00F0FF; text-align: center;">Your Daily 👁️ PRAEDICTION</h3>
             <div id="dailyHoroscopeDetail" class="daily-praediction-content"></div>
             <div id="dailyRealHoroscopeBlock" style="display: none; margin-top: 20px;">
+                <div id="dailyRealHeadline" class="horoscope-headline" style="text-align: center;">Your Daily 👁️ Praediction:</div>
                 <div id="dailyRealHoroscopeContent" class="horoscope"></div>
             </div>
         </div>
@@ -781,82 +712,107 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
 // ============================================================
-// PRAEDICTA - Expired/Resolved tabs, admin resolve only on expired, light theme colors updated, oracle wallet changed
+// PRAEDICTA - Auto-expiration, admin resolve, user suggestions, full card layout
 // ============================================================
 const SUPABASE_URL = "https://klgwyaeqnklydlqatzys.supabase.co";
 const SUPABASE_ANON_KEY = "sb_publishable_OL32s1-muu_5d5ACQ_4kVQ_yEEeyJl1";
 const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-const ORACLE_WALLET = "FYCSFKujPbtAASg42J1riNfxYEJBUM5Sv88uBAnnSs3o";
+const ORACLE_WALLET = "7C2Y5NebLFG37wMbB85TbMqYERTSkq9tEi58wv28MCzt";
 
 let walletAddress = null;
 let currentPredictions = [];
 let actionCooldown = false;
-let currentFilter = { category: 'all', status: 'active', search: '' }; // default 'active'
+let currentFilter = { category: 'all', status: 'all', search: '' };
 
 function getUTCDayKey() { return new Date().toISOString().slice(0,10); }
 function escapeHtml(str) { if (!str) return ''; return str.replace(/[&<>]/g, m => ({ '&':'&amp;','<':'&lt;','>':'&gt;' })[m]); }
 function isValidUrl(url) { try { const u = new URL(url); return ['http:', 'https:'].includes(u.protocol); } catch(e) { return false; } }
 function showToast(msg) { const t = document.createElement('div'); t.className = 'toast'; t.textContent = msg; document.body.appendChild(t); setTimeout(() => t.remove(), 3000); }
 
+// Horoscope logic
 const signToNumber = { aries:1, taurus:2, gemini:3, cancer:4, leo:5, virgo:6, libra:7, scorpio:8, sagittarius:9, capricorn:10, aquarius:11, pisces:12 };
+const signNames = { aries:"Aries", taurus:"Taurus", gemini:"Gemini", cancer:"Cancer", leo:"Leo", virgo:"Virgo", libra:"Libra", scorpio:"Scorpio", sagittarius:"Sagittarius", capricorn:"Capricorn", aquarius:"Aquarius", pisces:"Pisces" };
+
+function generateFallbackHoroscope(sign) {
+    const today = getUTCDayKey();
+    let hash = 0;
+    const seed = today + sign;
+    for (let i = 0; i < seed.length; i++) hash = ((hash << 5) - hash) + seed.charCodeAt(i);
+    const luckyNumber = Math.abs(hash % 100) + 1;
+    const messages = [ "The stars align in your favour today. Trust your intuition.", "A hidden opportunity will reveal itself. Stay observant.", "Your praedictions carry extra weight. Vote wisely.", "The Oracle smiles upon your curiosity. Ask bold questions.", "Past efforts turn into rewards. Check your SeerScore.", "A conversation changes your perspective. Listen closely.", "The veil is thin. Your next praediction might come true.", "Patience brings clarity. Wait before acting.", "Unexpected support arrives from a fellow Seer.", "A small risk leads to a big insight. Take it." ];
+    const descIndex = Math.abs(hash >> 8) % messages.length;
+    return { description: messages[descIndex], luckyNumber, mood: "reflective" };
+}
 
 async function fetchHoroscopeForZodiac(sign) {
     if (!sign || !signToNumber[sign]) return null;
+    const today = getUTCDayKey();
+    const cacheKey = `horoscope_${sign}_${today}`;
+    const cached = localStorage.getItem(cacheKey);
+    if (cached) { try { return JSON.parse(cached); } catch(e) {} }
     const signNumber = signToNumber[sign];
-    const url = `https://api.allorigins.win/raw?url=https://www.horoscope.com/us/horoscopes/general/horoscope-general-daily-today.aspx?sign=${signNumber}`;
-    try {
-        const response = await fetch(url);
-        const html = await response.text();
-        const parser = new DOMParser();
-        const doc = parser.parseFromString(html, 'text/html');
-        let horoscopeText = '';
-        const mainDiv = doc.querySelector('.main-horoscope');
-        if (mainDiv) { const p = mainDiv.querySelector('p'); if (p) horoscopeText = p.textContent.trim(); }
-        if (!horoscopeText) {
-            const paragraphs = doc.querySelectorAll('p');
-            for (const p of paragraphs) { if (p.textContent.trim().length > 100) { horoscopeText = p.textContent.trim(); break; } }
-        }
-        if (horoscopeText) {
-            horoscopeText = horoscopeText.replace(/\s+/g, ' ').trim();
-            const today = getUTCDayKey();
-            let hash = 0;
-            const seed = today + sign;
-            for (let i = 0; i < seed.length; i++) hash = ((hash << 5) - hash) + seed.charCodeAt(i);
-            const luckyNumber = Math.abs(hash % 100) + 1;
-            return { description: horoscopeText, luckyNumber, mood: "inspired" };
-        }
-        return null;
-    } catch (e) {
-        console.error("Horoscope fetch failed:", e);
-        return null;
+    const proxies = [
+        `https://api.allorigins.win/raw?url=https://www.horoscope.com/us/horoscopes/general/horoscope-general-daily-today.aspx?sign=${signNumber}`,
+        `https://corsproxy.io/?url=https://www.horoscope.com/us/horoscopes/general/horoscope-general-daily-today.aspx?sign=${signNumber}`
+    ];
+    for (const proxyUrl of proxies) {
+        try {
+            const response = await fetch(proxyUrl);
+            const html = await response.text();
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(html, 'text/html');
+            let horoscopeText = '';
+            const mainDiv = doc.querySelector('.main-horoscope');
+            if (mainDiv) { const p = mainDiv.querySelector('p'); if (p) horoscopeText = p.textContent.trim(); }
+            if (!horoscopeText) {
+                const paragraphs = doc.querySelectorAll('p');
+                for (const p of paragraphs) { if (p.textContent.trim().length > 100) { horoscopeText = p.textContent.trim(); break; } }
+            }
+            if (horoscopeText) {
+                horoscopeText = horoscopeText.replace(/\s+/g, ' ').trim();
+                let hash = 0; const seed = today + sign;
+                for (let i = 0; i < seed.length; i++) hash = ((hash << 5) - hash) + seed.charCodeAt(i);
+                const luckyNumber = Math.abs(hash % 100) + 1;
+                const data = { description: horoscopeText, luckyNumber, mood: "inspired" };
+                localStorage.setItem(cacheKey, JSON.stringify(data));
+                return data;
+            }
+        } catch(e) { console.warn("Proxy failed", proxyUrl); }
     }
+    const fallback = generateFallbackHoroscope(sign);
+    localStorage.setItem(cacheKey, JSON.stringify(fallback));
+    return fallback;
 }
 
-const horoscopeMessages = [ "🌌 The cosmos whispers...", "👁️ A hidden pattern reveals itself.", "🪐 Your voting power resonates with the Seers.", "🔮 A suggestion you make today will be approved swiftly.", "⚡ Unexpected alignment: your next YES vote will be right.", "🌙 Silence before the storm.", "✨ The Oracle's favour tilts towards bold praedictions.", "🕯️ An old doubt resolves itself.", "🌀 The veil of uncertainty thins.", "⭐ A Seer's luck is favoured today.", "🌊 A wave of clarity washes over the leaderboard.", "🍃 The winds of change bring new opportunities."];
-function getDailyStaticHoroscope() { const today = new Date().toDateString(); let hash = 0; for (let i=0;i<today.length;i++) hash = ((hash<<5)-hash)+today.charCodeAt(i); const index = Math.abs(hash)%horoscopeMessages.length; return horoscopeMessages[index]; }
-function getDailyHypeMessage() { const messages = ["Praiseworthy Seers! 👁️", "The Oracle nods in approval.", "Lightning predictions! 👁️", "Bask in the glow of the Seer elite.", "These Seers move before the noise.", "Clairvoyance resonates among the top three.", "Whispers of fate echo through the SeerStats.", "A new Seer rises 👁️", "The oracle’s favour shines upon the most accurate.", "Seers who vote wisely climb the ladder."]; const today = new Date().toDateString(); let hash=0; for(let i=0;i<today.length;i++) hash+=today.charCodeAt(i); return messages[Math.abs(hash)%messages.length]; }
+const staticMessages = [ "🌌 The cosmos whispers...", "👁️ A hidden pattern reveals itself.", "🪐 Your voting power resonates with the Seers.", "🔮 A suggestion you make today will be approved swiftly.", "⚡ Unexpected alignment: your next YES vote will be right.", "🌙 Silence before the storm.", "✨ The Oracle's favour tilts towards bold praedictions.", "🕯️ An old doubt resolves itself.", "🌀 The veil of uncertainty thins.", "⭐ A Seer's luck is favoured today.", "🌊 A wave of clarity washes over the leaderboard.", "🍃 The winds of change bring new opportunities."];
+function getDailyStaticHoroscope() { const today = new Date().toDateString(); let hash = 0; for (let i=0;i<today.length;i++) hash = ((hash<<5)-hash)+today.charCodeAt(i); return staticMessages[Math.abs(hash)%staticMessages.length]; }
+function getDailyHypeMessage() { const msgs = ["Praiseworthy Seers! 👁️", "The Oracle nods in approval.", "Lightning predictions! 👁️", "Bask in the glow of the Seer elite.", "These Seers move before the noise.", "Clairvoyance resonates among the top three.", "Whispers of fate echo through the SeerStats.", "A new Seer rises 👁️", "The oracle’s favour shines upon the most accurate.", "Seers who vote wisely climb the ladder."]; const today = new Date().toDateString(); let hash=0; for(let i=0;i<today.length;i++) hash+=today.charCodeAt(i); return msgs[Math.abs(hash)%msgs.length]; }
 
 function updateHoroscopeDisplays() { const msg = getDailyStaticHoroscope(); if(document.getElementById('dailyHoroscopeStatic')) document.getElementById('dailyHoroscopeStatic').innerHTML = msg; if(document.getElementById('profileHoroscope')) document.getElementById('profileHoroscope').innerHTML = msg; if(document.getElementById('dailyHoroscopeDetail')) document.getElementById('dailyHoroscopeDetail').innerHTML = `<div class="horoscope">${msg}</div>`; }
 function updateHypeMessage() { const hypeDiv = document.getElementById('hypeMessage'); if(hypeDiv) hypeDiv.innerHTML = getDailyHypeMessage(); }
 
+// Supabase helpers
 async function loadPredictions() { const { data } = await supabaseClient.from('predictions').select('*').order('created_at', { ascending: false }); return data||[]; }
 async function loadUser(address) { const { data } = await supabaseClient.from('users').select('*').eq('address', address).maybeSingle(); return data; }
 async function upsertUser(user) { await supabaseClient.from('users').upsert(user, { onConflict: 'address' }); }
 async function updatePrediction(id, updates) { await supabaseClient.from('predictions').update(updates).eq('id', id); }
 
-// Auto-expire: set status='expired' for active markets past deadline (refund votes)
+// Auto-expire markets
 async function autoExpireMarkets() {
     const now = new Date();
     let changed = false;
     for (const p of currentPredictions) {
         if (p.status !== 'active') continue;
         if (p.resolution_date && new Date(p.resolution_date) <= now) {
-            // refund votes
+            // resolve as expired (refund votes)
             for (const bet of p.bets || []) {
                 let u = await loadUser(bet.user);
-                if (u) { u.balance = (u.balance || 0) + bet.amount; await upsertUser(u); }
+                if (u) {
+                    u.balance = (u.balance || 0) + bet.amount;
+                    await upsertUser(u);
+                }
             }
-            await updatePrediction(p.id, { status: 'expired', resolved_outcome: null, resolved_at: new Date().toISOString() });
+            await updatePrediction(p.id, { status: 'resolved', resolved_outcome: 'expired', resolved_at: new Date().toISOString() });
             showToast(`🕒 Praediction "${p.title}" expired. Votes refunded.`);
             changed = true;
         }
@@ -864,17 +820,22 @@ async function autoExpireMarkets() {
     if (changed) await renderAll();
 }
 
-// Resolve market (only for expired markets, by admin)
+// Resolve market (used by admin and auto-expire)
 async function resolveMarket(id, outcome) {
     const market = currentPredictions.find(p => p.id === id);
-    if (!market || market.status !== 'expired') { showToast("Cannot resolve: market not expired"); return; }
+    if (!market || market.status !== 'active') { showToast("Not active or already resolved"); return; }
     if (outcome === 'expired') {
-        // manual expire (already expired, but just in case)
-        await updatePrediction(id, { status: 'expired', resolved_outcome: null });
-        showToast(`Already expired.`);
+        for (const bet of market.bets || []) {
+            let u = await loadUser(bet.user);
+            if (u) u.balance = (u.balance || 0) + bet.amount;
+            await upsertUser(u);
+        }
+        await updatePrediction(id, { status: 'resolved', resolved_outcome: 'expired', resolved_at: new Date().toISOString() });
+        showToast(`🕒 Praediction expired. Votes refunded.`);
+        await renderAll();
         return;
     }
-    // resolve yes/no - award points to correct voters
+    // resolve yes/no
     if (market.bets) {
         for (const bet of market.bets) {
             if (bet.outcome === outcome) {
@@ -897,23 +858,16 @@ async function resolveMarket(id, outcome) {
     await renderAll();
 }
 
+// Render praedictions with full features
 function renderPraedictions() {
     const container = document.getElementById('praedictionsContainer');
     if(!container) return;
-    let filtered = currentPredictions.filter(p => {
-        if (currentFilter.category !== 'all' && p.category !== currentFilter.category) return false;
-        if (currentFilter.search && !p.title.toLowerCase().includes(currentFilter.search.toLowerCase())) return false;
-        if (currentFilter.status === 'active') return p.status === 'active';
-        if (currentFilter.status === 'resolved') return p.status === 'resolved';
-        if (currentFilter.status === 'expired') return p.status === 'expired';
-        return true;
-    });
+    let filtered = currentPredictions.filter(p => (currentFilter.category === 'all' || p.category === currentFilter.category) && (currentFilter.status === 'all' || p.status === currentFilter.status) && (!currentFilter.search || p.title.toLowerCase().includes(currentFilter.search.toLowerCase())));
     if(filtered.length===0){ container.innerHTML='<div style="text-align:center; padding:40px;">No praedictions match filters.</div>'; return; }
     const isOracle = (walletAddress === ORACLE_WALLET);
     container.innerHTML = filtered.map(p => {
         const isActive = p.status === 'active';
         const isResolved = p.status === 'resolved';
-        const isExpired = p.status === 'expired';
         const deadline = p.resolution_date ? new Date(p.resolution_date).toLocaleString() : 'No deadline';
         const total = (p.betting_pool_yes||0)+(p.betting_pool_no||0);
         const yesPercent = total>0 ? ((p.betting_pool_yes||0)/total*100).toFixed(0) : 50;
@@ -921,18 +875,14 @@ function renderPraedictions() {
         const hasUserVoted = walletAddress && (p.bets||[]).some(b => b.user === walletAddress);
         const canSuggest = isActive && walletAddress && new Date(p.resolution_date) <= new Date();
         const hasSuggested = (p.suggestions||[]).some(s => s.user === walletAddress);
-        const canResolve = isExpired && isOracle; // only expired can be resolved by admin
-        let badgeClass = 'badge-active';
-        let badgeText = 'ACTIVE';
-        if (isResolved) { badgeClass = 'badge-resolved'; badgeText = 'RESOLVED'; }
-        if (isExpired) { badgeClass = 'badge-expired'; badgeText = 'EXPIRED'; }
+        const canResolve = isActive && isOracle;
         return `<div class="praediction-card">
             <div class="praediction-title">${escapeHtml(p.title)}${isOracle?'<span class="badge oracle-badge">🦉 ORACLE</span>':''}</div>
             <div class="praediction-desc">${escapeHtml(p.description)}</div>
             <div class="meta-row">
                 <span>📂 ${escapeHtml(p.category)}</span>
                 <span>⏰ ${deadline}</span>
-                <span class="badge ${badgeClass}">${badgeText}</span>
+                <span class="badge ${isActive ? 'badge-active' : 'badge-resolved'}">${isActive ? 'ACTIVE' : 'RESOLVED'}</span>
             </div>
             <div class="vote-stats">
                 <span>👁️ YES ${yesPercent}% (${p.betting_pool_yes||0})</span>
@@ -942,9 +892,9 @@ function renderPraedictions() {
                 <button class="btn-praedict" data-id="${p.id}" data-outcome="yes" ${hasUserVoted ? 'disabled style="opacity:0.5;"' : ''}>👁️ YES</button>
                 <button class="btn-praedict" data-id="${p.id}" data-outcome="no" ${hasUserVoted ? 'disabled style="opacity:0.5;"' : ''}>👁️ NO</button>
                 ${canSuggest ? `<button class="btn-suggest" data-id="${p.id}" ${hasSuggested ? 'disabled style="opacity:0.5;"' : ''}>🗳️ Suggest Outcome</button>` : ''}
-            </div>` : `<div style="text-align:center; margin-top:12px;">🏆 ${isResolved ? `RESOLVED: ${p.resolved_outcome === 'yes' ? '✅ YES' : '❌ NO'}` : '🕒 EXPIRED - waiting for resolution'}</div>`}
+            </div>` : `<div style="text-align:center; margin-top:12px;">🏆 RESOLVED: ${p.resolved_outcome === 'yes' ? '✅ YES' : p.resolved_outcome === 'no' ? '❌ NO' : '🕒 EXPIRED'}</div>`}
             ${(p.suggestions||[]).length > 0 && isOracle ? `<div class="suggestions-list"><strong>📢 Seer Suggestions:</strong>${p.suggestions.map(s => `<div class="suggestion-item"><div>${s.user.slice(0,6)}... suggests <strong>${s.outcome.toUpperCase()}</strong></div><div>Evidence: <a href="${escapeHtml(s.evidence)}" target="_blank">link</a></div><button class="oracle-resolve" data-id="${p.id}" data-outcome="${s.outcome}">✅ Approve this suggestion</button></div>`).join('')}</div>` : ''}
-            ${canResolve ? `<div style="margin-top:12px;"><button class="oracle-resolve" data-id="${p.id}" data-outcome="yes">✅ Resolve YES</button><button class="oracle-resolve" data-id="${p.id}" data-outcome="no">❌ Resolve NO</button></div>` : ''}
+            ${canResolve ? `<div style="margin-top:12px;"><button class="oracle-resolve" data-id="${p.id}" data-outcome="yes">✅ Resolve YES</button><button class="oracle-resolve" data-id="${p.id}" data-outcome="no">❌ Resolve NO</button><button class="oracle-resolve" data-id="${p.id}" data-outcome="expired">🕒 Expire (refund)</button></div>` : ''}
         </div>`;
     }).join('');
     document.querySelectorAll('.btn-praedict').forEach(btn => btn.addEventListener('click', praedictClick));
@@ -1002,7 +952,7 @@ async function resolveClick(e) {
     const id = e.currentTarget.dataset.id;
     const outcome = e.currentTarget.dataset.outcome;
     if(walletAddress !== ORACLE_WALLET){ showToast("Only Oracle can resolve"); return; }
-    if(!confirm(`Resolve to ${outcome.toUpperCase()}? This will award points to correct voters.`)) return;
+    if(!confirm(`Resolve to ${outcome.toUpperCase()}? This cannot be undone.`)) return;
     await resolveMarket(id, outcome);
 }
 
@@ -1011,17 +961,16 @@ async function renderLeaderboard() { const {data}=await supabaseClient.from('use
 async function renderProfile() {
     const user = await loadUser(walletAddress);
     if(!user) return;
-    document.getElementById('walletDisplay').innerText = `${walletAddress.slice(0,8)}...${walletAddress.slice(-6)}`;
     document.getElementById('profileStats').innerHTML = `<div><span style="color:#00F0FF;">✨ Creations left:</span> ${7-(user.creations_today||0)}/7</div><div><span style="color:#00F0FF;">🗳️ Votes left:</span> ${user.votes_left}/7</div><div><span style="color:#00F0FF;">🎯 Accuracy:</span> ${((user.correct_votes||0)/(user.total_votes||1)*100).toFixed(0)}%</div><div><span style="color:#00F0FF;">👁️ Seerscore:</span> ${user.seerscore||0}</div>`;
     document.getElementById('referralLink') && (document.getElementById('referralLink').innerText = `${window.location.origin}${window.location.pathname}?ref=${walletAddress}`);
-    const selectorWrap = document.getElementById('zodiacSelectorWrapper') || document.querySelector('.zodiac-selector');
+    const selectorWrap = document.getElementById('zodiacSelectorWrapper');
     const userDisplay = document.getElementById('userZodiacDisplay');
     const headline = document.getElementById('zodiacRealHeadline');
     const horoDiv = document.getElementById('zodiacHoroscopeDisplay');
     if(user.zodiac) {
-        if(selectorWrap) selectorWrap.style.display = 'none';
+        selectorWrap.style.display = 'none';
         userDisplay.style.display = 'inline-block';
-        userDisplay.innerHTML = `⭐ ${user.zodiac.charAt(0).toUpperCase()+user.zodiac.slice(1)}`;
+        userDisplay.innerHTML = `⭐ ${signNames[user.zodiac] || user.zodiac}`;
         const horoData = await fetchHoroscopeForZodiac(user.zodiac);
         if(horoData) {
             headline.style.display = 'block';
@@ -1032,54 +981,42 @@ async function renderProfile() {
         if(horoData && dailyBlock && dailyContent) {
             dailyBlock.style.display = 'block';
             dailyContent.innerHTML = `${horoData.description}<br><br>🍀 Lucky number: ${horoData.luckyNumber}<br>😌 Mood: ${horoData.mood}`;
-        } else if(dailyBlock) { dailyBlock.style.display = 'none'; }
+        } else if(dailyBlock) dailyBlock.style.display = 'none';
     } else {
-        if(selectorWrap) selectorWrap.style.display = 'flex';
+        selectorWrap.style.display = 'flex';
         userDisplay.style.display = 'none';
         headline.style.display = 'none';
         horoDiv.innerHTML = '';
         document.getElementById('dailyRealHoroscopeBlock').style.display = 'none';
     }
-    const oracleInd = document.getElementById('oracleIndicator');
-    if(walletAddress === ORACLE_WALLET) oracleInd.style.display = 'inline-block';
-    else oracleInd.style.display = 'none';
 }
 
 async function renderAll() {
     currentPredictions = await loadPredictions();
-    await autoExpireMarkets();
-    currentPredictions = await loadPredictions();
+    await autoExpireMarkets(); // ensure expired ones are marked before rendering
+    currentPredictions = await loadPredictions(); // reload after possible changes
     renderPraedictions();
     renderLeaderboard();
     await renderProfile();
-    const activeCount = currentPredictions.filter(p=>p.status==='active').length;
-    const totalVotes = currentPredictions.reduce((s,p)=>s+(p.bets?.length||0),0);
-    document.getElementById('totalActive').innerText = activeCount;
-    document.getElementById('totalPraedicts').innerText = totalVotes;
+    document.getElementById('totalActive').innerText = currentPredictions.filter(p=>p.status==='active').length;
+    document.getElementById('totalPraedicts').innerText = currentPredictions.reduce((s,p)=>s+(p.bets?.length||0),0);
     const user = await loadUser(walletAddress);
     if(user) document.getElementById('totalSeerscore').innerText = user.seerscore||0;
     updateHoroscopeDisplays();
     updateHypeMessage();
 }
 
+// Theme
 function initTheme() { const saved = localStorage.getItem('praedicta_theme'); if(saved === 'light') document.body.classList.add('light'); else document.body.classList.remove('light'); }
 function toggleTheme() { document.body.classList.toggle('light'); localStorage.setItem('praedicta_theme', document.body.classList.contains('light') ? 'light' : 'dark'); }
 document.getElementById('themeToggleSmall')?.addEventListener('click', toggleTheme);
 initTheme();
 
-// Status filter buttons
-document.querySelectorAll('.status-filter-btn').forEach(btn => {
-    btn.addEventListener('click', () => {
-        document.querySelectorAll('.status-filter-btn').forEach(b => b.classList.remove('active-filter'));
-        btn.classList.add('active-filter');
-        currentFilter.status = btn.dataset.status;
-        renderPraedictions();
-    });
-});
-
-document.getElementById('filterCategory')?.addEventListener('change',(e)=>{currentFilter.category=e.target.value; renderPraedictions();});
-document.getElementById('filterSearch')?.addEventListener('input',(e)=>{currentFilter.search=e.target.value; renderPraedictions();});
+// Event listeners
 document.getElementById('saveZodiacBtn')?.addEventListener('click', async () => { const sign = document.getElementById('zodiacSelect').value; if(!sign) return; let user = await loadUser(walletAddress); if(user?.zodiac) { showToast("Zodiac already set"); return; } if(user) { user.zodiac = sign; await upsertUser(user); showToast("Zodiac saved!"); await renderAll(); } });
+document.getElementById('filterCategory')?.addEventListener('change',(e)=>{currentFilter.category=e.target.value; renderPraedictions();});
+document.getElementById('filterStatus')?.addEventListener('change',(e)=>{currentFilter.status=e.target.value; renderPraedictions();});
+document.getElementById('filterSearch')?.addEventListener('input',(e)=>{currentFilter.search=e.target.value; renderPraedictions();});
 document.getElementById('showMyPraedictionsBtn')?.addEventListener('click',()=>{ const c=document.getElementById('myPraedictionsList'); if(c.style.display==='none'||!c.style.display){ const myBets=currentPredictions.flatMap(p=>(p.bets||[]).filter(b=>b.user===walletAddress).map(b=>({...p,userBet:b}))); c.innerHTML=myBets.length?myBets.map(p=>`<div style="background:rgba(0,240,255,0.05); border-radius:12px; padding:12px; margin-bottom:8px;"><strong>${escapeHtml(p.title)}</strong>: ${p.userBet.outcome.toUpperCase()} • ${p.status}</div>`).join(''):'No praedictions.'; c.style.display='block'; } else { c.style.display='none'; } });
 document.getElementById('connectBtn')?.addEventListener('click', async () => { if(!window.solana?.isPhantom){alert("Install Phantom");return;} const resp=await window.solana.connect(); walletAddress=resp.publicKey.toString(); let user=await loadUser(walletAddress); if(!user) await upsertUser({address:walletAddress, seerscore:0, creations_today:0, last_create_day:getUTCDayKey(), votes_left:7, last_vote_day:getUTCDayKey()}); document.getElementById('gate').style.display='none'; document.getElementById('mainApp').style.display='block'; await renderAll(); if(!localStorage.getItem('tutorialShown')){document.getElementById('tutorialOverlay').style.display='flex'; localStorage.setItem('tutorialShown','true');} });
 document.getElementById('closeTutorialBtn')?.addEventListener('click',()=>{document.getElementById('tutorialOverlay').style.display='none';});
@@ -1089,7 +1026,7 @@ document.getElementById('exportDataBtn')?.addEventListener('click',()=>{ const b
 document.getElementById('donateBtn')?.addEventListener('click',()=>window.open('https://ko-fi.com/yourusername','_blank'));
 document.querySelectorAll('.tab-btn').forEach(btn=>{ btn.addEventListener('click',async()=>{ const tab=btn.dataset.tab; document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active')); btn.classList.add('active'); document.querySelectorAll('.tab-content').forEach(t=>t.classList.remove('active')); document.getElementById(`tab-${tab}`).classList.add('active'); if(tab==='profile') await renderProfile(); if(tab==='dailyhoroscope') await renderProfile(); }); });
 if(window.solana?.isConnected) setTimeout(()=>document.getElementById('connectBtn')?.click(),100);
-setInterval(async () => { if(walletAddress) await autoExpireMarkets(); }, 300000);
+setInterval(async () => { if(walletAddress) await autoExpireMarkets(); }, 300000); // every 5 min
 for(let i=0;i<60;i++){ const p=document.createElement('div'); p.className='particle'; p.style.left=Math.random()*100+'%'; p.style.animationDuration=(15+Math.random()*20)+'s'; p.style.animationDelay=Math.random()*15+'s'; document.getElementById('particles').appendChild(p); }
 </script>
 </body>
