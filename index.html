@@ -6,9 +6,10 @@
     <meta name="theme-color" content="#00F0FF">
     <meta name="mobile-web-app-capable" content="yes">
     <title>PRAEDICTA – For Those Who See</title>
-    <!-- Valid manifest JSON (single line) -->
+    <!-- Valid manifest JSON (single line, no syntax errors) -->
     <link rel="manifest" href="data:application/manifest+json,{\"name\":\"PRAEDICTA\",\"short_name\":\"PRAEDICTA\",\"start_url\":\".\",\"display\":\"standalone\",\"background_color\":\"#0A0A0A\",\"theme_color\":\"#00F0FF\",\"icons\":[{\"src\":\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='50' fill='%2300F0FF'/%3E%3Ctext x='50' y='67' text-anchor='middle' fill='%230A0A0A' font-size='50' font-weight='bold'%3EP%3C/text%3E%3C/svg%3E\",\"sizes\":\"any\"}]}">
     <style>
+        /* (same styles as before – kept unchanged) */
         * {
             margin: 0;
             padding: 0;
@@ -592,7 +593,7 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
 // ============================================================
-// PRAEDICTA - with working horoscope API (no recursion)
+// PRAEDICTA - Fixed manifest + formatted horoscope display
 // ============================================================
 const SUPABASE_URL = "https://klgwyaeqnklydlqatzys.supabase.co";
 const SUPABASE_ANON_KEY = "sb_publishable_OL32s1-muu_5d5ACQ_4kVQ_yEEeyJl1";
@@ -625,15 +626,15 @@ async function fetchHoroscopeForZodiac(sign) {
         const html = await response.text();
         const parser = new DOMParser();
         const doc = parser.parseFromString(html, 'text/html');
-        // Find the main horoscope text
         let horoscopeText = '';
+        // Try to find the main horoscope paragraph
         const mainDiv = doc.querySelector('.main-horoscope');
         if (mainDiv) {
             const p = mainDiv.querySelector('p');
             if (p) horoscopeText = p.textContent.trim();
         }
         if (!horoscopeText) {
-            // Fallback: take any long paragraph
+            // Fallback: take the first long paragraph
             const paragraphs = doc.querySelectorAll('p');
             for (const p of paragraphs) {
                 if (p.textContent.trim().length > 100) {
@@ -643,9 +644,11 @@ async function fetchHoroscopeForZodiac(sign) {
             }
         }
         if (horoscopeText) {
+            // Remove any extra whitespace
+            horoscopeText = horoscopeText.replace(/\s+/g, ' ').trim();
             return {
                 description: horoscopeText,
-                luckyNumber: Math.floor(Math.random() * 100) + 1,
+                luckyNumber: Math.floor(Math.random() * 100) + 1, // horoscope.com doesn't provide lucky number, so random
                 mood: "inspired"
             };
         }
@@ -709,6 +712,12 @@ function updateHypeMessage() {
     const msg = getDailyHypeMessage();
     const hypeDiv = document.getElementById('hypeMessage');
     if (hypeDiv) hypeDiv.innerHTML = msg;
+}
+
+// Format zodiac horoscope for display
+function formatZodiacHoroscope(data, sign) {
+    if (!data) return null;
+    return `👁️ Praediction Day:\n${data.description}\n\n🍀 Lucky number: ${data.luckyNumber}\n😌 Mood: ${data.mood}`;
 }
 
 // Supabase helpers (same as before)
@@ -874,14 +883,15 @@ async function renderProfile() {
     `;
     const referralLink = document.getElementById('referralLink');
     if (referralLink) referralLink.textContent = `${window.location.origin}${window.location.pathname}?ref=${walletAddress}`;
-    // Zodiac handling
+    // Zodiac handling: show formatted horoscope
     const zodiacSelect = document.getElementById('zodiacSelect');
     if (zodiacSelect && user.zodiac) {
         zodiacSelect.value = user.zodiac;
         const horoData = await fetchHoroscopeForZodiac(user.zodiac);
         const horoDiv = document.getElementById('zodiacHoroscopeDisplay');
         if (horoData && horoDiv) {
-            horoDiv.innerHTML = `🔮 Your ${user.zodiac} horoscope: ${horoData.description}<br>🍀 Lucky number: ${horoData.luckyNumber}<br>😌 Mood: ${horoData.mood}`;
+            const formatted = formatZodiacHoroscope(horoData, user.zodiac);
+            horoDiv.innerHTML = formatted.replace(/\n/g, '<br>');
         } else if (horoDiv) horoDiv.innerHTML = '⚡ Could not fetch horoscope. Try again later.';
     } else if (zodiacSelect) {
         zodiacSelect.value = '';
@@ -1087,12 +1097,16 @@ function exportData() {
 }
 function openDonation() { window.open('https://ko-fi.com/yourusername', '_blank'); }
 
-// Zodiac save
+// Zodiac save (users can only select once – if already set, selector is hidden)
 document.getElementById('saveZodiacBtn')?.addEventListener('click', async () => {
     const sign = document.getElementById('zodiacSelect').value;
     if (!sign) { showToast("Select a zodiac sign"); return; }
     if (!walletAddress) return;
     const user = await loadUser(walletAddress);
+    if (user && user.zodiac) {
+        showToast("You have already set your zodiac sign.");
+        return;
+    }
     if (user) {
         user.zodiac = sign;
         await upsertUser(user);
@@ -1100,7 +1114,8 @@ document.getElementById('saveZodiacBtn')?.addEventListener('click', async () => 
         const horoData = await fetchHoroscopeForZodiac(sign);
         const horoDiv = document.getElementById('zodiacHoroscopeDisplay');
         if (horoData && horoDiv) {
-            horoDiv.innerHTML = `🔮 Your ${sign} horoscope: ${horoData.description}<br>🍀 Lucky number: ${horoData.luckyNumber}<br>😌 Mood: ${horoData.mood}`;
+            const formatted = formatZodiacHoroscope(horoData, sign);
+            horoDiv.innerHTML = formatted.replace(/\n/g, '<br>');
         }
         renderAll();
     }
