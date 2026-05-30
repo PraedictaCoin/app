@@ -6,7 +6,6 @@
     <meta name="theme-color" content="#00F0FF">
     <meta name="mobile-web-app-capable" content="yes">
     <title>PRAEDICTA – For Those Who See</title>
-    <!-- Fixed manifest JSON -->
     <link rel="manifest" href="data:application/manifest+json,{\"name\":\"PRAEDICTA\",\"short_name\":\"PRAEDICTA\",\"start_url\":\".\",\"display\":\"standalone\",\"background_color\":\"#0A0A0A\",\"theme_color\":\"#00F0FF\",\"icons\":[{\"src\":\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='50' fill='%2300F0FF'/%3E%3Ctext x='50' y='67' text-anchor='middle' fill='%230A0A0A' font-size='50' font-weight='bold'%3EP%3C/text%3E%3C/svg%3E\",\"sizes\":\"any\"}]}">
     <style>
         * {
@@ -21,10 +20,10 @@
             overflow-x: hidden;
             transition: background-color 0.3s, color 0.3s;
         }
-        /* Light theme - magenta instead of blue */
+        /* Light theme - using #330066 and magenta */
         body.light {
-            background-color: #F5F5F7;
-            color: #111111;
+            background-color: #F0F0F5;
+            color: #1a1a2e;
         }
         body.light .card,
         body.light .app-header,
@@ -37,13 +36,22 @@
         body.light .stat,
         body.light .tab-btn,
         body.light .zodiac-selector select {
-            background-color: rgba(0,0,0,0.03);
-            border-color: rgba(0,240,255,0.3);
-            color: #111;
+            background-color: #ffffff;
+            border-color: rgba(51,0,102,0.3);
+            color: #1a1a2e;
+        }
+        body.light .create-praediction select {
+            background-color: #ffffff;
+            color: #1a1a2e;
+        }
+        body.light .create-praediction select option {
+            background-color: #ffffff;
+            color: #1a1a2e;
         }
         body.light .tab-btn.active {
-            background: #00F0FF;
-            color: #0A0A0A;
+            background: #cc00cc;
+            color: #ffffff;
+            border-color: #cc00cc;
         }
         body.light .praediction-title,
         body.light .stat-value,
@@ -56,22 +64,47 @@
             color: #cc00cc;
         }
         body.light .horoscope {
-            background: rgba(204,0,204,0.05);
-            color: #cc00cc;
-            border-color: rgba(204,0,204,0.3);
+            background: rgba(51,0,102,0.05);
+            color: #330066;
+            border-color: rgba(51,0,102,0.3);
         }
         body.light .gate {
-            background: #F5F5F7;
+            background: #F0F0F5;
         }
         body.light .filter-bar select,
         body.light .filter-bar input {
             background: white;
-            color: #cc00cc;
-            border-color: #00F0FF;
+            color: #330066;
+            border-color: #cc00cc;
         }
         body.light .filter-bar select option {
             background: white;
+            color: #330066;
+        }
+        body.light .badge-active {
+            background: #cc00cc20;
             color: #cc00cc;
+            border-color: #cc00cc;
+        }
+        body.light .badge-resolved {
+            background: #00aa5520;
+            color: #00aa55;
+            border-color: #00aa55;
+        }
+        body.light .badge-expired {
+            background: #ff444420;
+            color: #ff4444;
+            border-color: #ff4444;
+        }
+        body.light .theme-toggle-small,
+        body.light .status-filter-btn {
+            border-color: #330066;
+            color: #330066;
+        }
+        body.light .status-filter-btn.active-filter {
+            background: #cc00cc20;
+            color: #cc00cc;
+            border-color: #cc00cc;
         }
         @keyframes blink {
             0%, 90%, 100% { transform: scaleY(1); }
@@ -330,6 +363,19 @@
             background: #0A0A0A;
             color: #00F0FF;
         }
+        /* Fix for create praediction dropdown in dark theme */
+        .create-praediction select {
+            background: rgba(0, 240, 255, 0.05);
+            color: #00F0FF;
+        }
+        .create-praediction select option {
+            background: #0A0A0A;
+            color: #00F0FF;
+        }
+        body.light .create-praediction select option {
+            background: white;
+            color: #330066;
+        }
         .status-filter-btns {
             display: flex;
             gap: 8px;
@@ -373,7 +419,7 @@
             margin-bottom: 12px;
             color: #ccc;
         }
-        body.light .praediction-desc { color: #333; }
+        body.light .praediction-desc { color: #1a1a2e; }
         .meta-row {
             display: flex;
             flex-wrap: wrap;
@@ -561,6 +607,15 @@
             align-items: center;
             margin-top: 8px;
         }
+        .oracle-indicator {
+            background: #FFB80020;
+            border: 1px solid #FFB800;
+            border-radius: 20px;
+            padding: 4px 12px;
+            font-size: 0.7rem;
+            margin-left: 12px;
+            display: inline-block;
+        }
     </style>
 </head>
 <body>
@@ -664,7 +719,7 @@
     <!-- PROFILE TAB (SeerStats) -->
     <div id="tab-profile" class="tab-content">
         <div class="card">
-            <h3 id="profileHeadline" style="color:#00F0FF;">Welcome 👁️ Seer:</h3>
+            <h3 id="profileHeadline" style="color:#00F0FF;">Welcome 👁️ Seer: <span id="oracleIndicator" class="oracle-indicator" style="display:none;">🦉 ORACLE</span></h3>
             <div id="profileHoroscope" class="horoscope"></div>
             <div id="profileStats" style="margin-top: 16px;"></div>
             <div class="zodiac-row">
@@ -708,42 +763,23 @@
 
     <!-- SUPPORT TAB -->
     <div id="tab-support" class="tab-content">
-        <div class="card">
-            <h3 style="color:#00F0FF;">💛 Support P R A E D I C T A</h3>
-            <p style="color: #FFFFFF;">Your support keeps PRAE in the Game.</p>
-            <div class="social-links"><a href="https://t.me/praedictacoin" target="_blank" class="social-btn">📱 PRAEDICTA Channel</a><a href="https://x.com/PraedictaCoin" target="_blank" class="social-btn">🐦 X </a><a href="https://dexscreener.com/solana/7C2Y5NebLFG37wMbB85TbMqYERTSkq9tEi58wv28MCzt" target="_blank" class="social-btn">📊 DexScreener</a></div>
-            <button id="donateBtn" class="btn" style="width:100%; margin:20px 0 0; background:#00F0FF; color:#0A0A0A;">☕ Buy me a coffee / Add liquidity</button>
-            <div class="ad-banner">🌟 Use affiliate links to support us:<br><a href="https://phantom.app/" target="_blank" style="color:#00F0FF;">Phantom Wallet</a> | <a href="https://jup.ag/" target="_blank" style="color:#00F0FF;">Jupiter Aggregator</a></div>
-            <div class="ad-banner" style="margin-top:12px;">👁️ P R A E D I C T A - For those who see<br><a href="https://dexscreener.com/solana/7C2Y5NebLFG37wMbB85TbMqYERTSkq9tEi58wv28MCzt" target="_blank" style="color:#00F0FF;">Trade PRAE here</a></div>
-        </div>
+        <div class="card"><h3 style="color:#00F0FF;">💛 Support P R A E D I C T A</h3><p>Your support keeps PRAE in the Game.</p><div class="social-links"><a href="https://t.me/praedictacoin" target="_blank" class="social-btn">📱 PRAEDICTA Channel</a><a href="https://x.com/PraedictaCoin" target="_blank" class="social-btn">🐦 X </a><a href="https://dexscreener.com/solana/7C2Y5NebLFG37wMbB85TbMqYERTSkq9tEi58wv28MCzt" target="_blank" class="social-btn">📊 DexScreener</a></div><button id="donateBtn" class="btn" style="width:100%; margin:20px 0 0;">☕ Buy me a coffee / Add liquidity</button><div class="ad-banner">🌟 Use affiliate links to support us:<br><a href="https://phantom.app/" target="_blank" style="color:#00F0FF;">Phantom Wallet</a> | <a href="https://jup.ag/" target="_blank" style="color:#00F0FF;">Jupiter Aggregator</a></div><div class="ad-banner">👁️ P R A E D I C T A - For those who see<br><a href="https://dexscreener.com/solana/7C2Y5NebLFG37wMbB85TbMqYERTSkq9tEi58wv28MCzt" target="_blank" style="color:#00F0FF;">Trade PRAE here</a></div></div>
     </div>
 
     <!-- FAQ TAB -->
     <div id="tab-faq" class="tab-content">
-        <div class="card">
-            <h3>❓ Frequently Asked Questions</h3>
-            <div class="faq-question" style="color:#00F0FF; margin-top:16px;">👁️ How does PRAEDICTA work?</div>
-            <div class="faq-answer">Seers praedict future events. The Community can vote. The Oracle resolves.</div>
-            <div class="faq-question" style="color:#00F0FF; margin-top:16px;">🔮 What can I PRAEdict?</div>
-            <div class="faq-answer">Anything with a <span style="color:#00F0FF;">VERIFIABLE</span> source URL! Finance, sports, elections, economics, tech, world events, or Wildcard.</div>
-            <div class="faq-question" style="color:#00F0FF; margin-top:16px;">🦉 How does the Oracle resolve the Praedictions?</div>
-            <div class="faq-answer">The Oracle resolves each praediction using user suggestions and real‑world evidence.</div>
-            <div class="faq-question" style="color:#00F0FF; margin-top:16px;">🗳️ How to help resolve?</div>
-            <div class="faq-answer">After the deadline, click "Suggest Outcome" with evidence URL. The Oracle reviews.</div>
-            <div class="faq-question" style="color:#00F0FF; margin-top:16px;">📈 How does auto‑resolve work?</div>
-            <div class="faq-answer">If you select a price feed and a target value, after the deadline the system automatically fetches the real price.</div>
-            <div class="faq-question" style="color:#00F0FF; margin-top:16px;">💎 Do I lose my 777 PRAE? </div>
-            <div class="faq-answer"><span style="color:#00F0FF;">NO!</span> The app only <span style="color:#00F0FF;">CHECKS</span> your balance. Your tokens stay in your wallet.</div>
-            <div class="faq-question" style="color:#00F0FF; margin-top:16px;">👁️ What is PRAE and where can I get it.</div>
-            <div class="faq-answer">PRAE is a community token. Used for reputation. You can get it on DexScreener or Raydium.</div>
-            <div class="faq-question" style="color:#00F0FF; margin-top:16px;">👥 Is there a community I can join?</div>
-            <div class="faq-answer"><span style="color:#00F0FF;">Yes!</span> Join our Telegram: <a href="https://t.me/praedictacoin" target="_blank" style="color:#2dd4bf;">t.me/praedictacoin</a> or X: <a href="https://x.com/PraedictaCoin" target="_blank" style="color:#2dd4bf;">@PraedictaCoin</a>.</div>
-            <div class="faq-question" style="color:#00F0FF; margin-top:16px;">💛 How can I support the project?</div>
-            <div class="faq-answer">Check the <strong>“Support” tab</strong> – you can donate or add liquidity to the PRAE token.</div>
-            <div class="faq-question" style="color:#00F0FF; margin-top:16px;">📱 Can I install this as an app?</div>
-            <div class="faq-answer">YES! This is a PWA. On mobile: Chrome → "Add to Home Screen". On desktop: Click the install icon.</div>
-            <div class="faq-question" style="color:#00F0FF; margin-top:16px;">⚖️ Legal disclaimer</div>
-            <div class="faq-answer">Free game for entertainment. SeerScore is for Reputation only, points have no cash value.</div>
+        <div class="card"><h3>❓ Frequently Asked Questions</h3>
+            <div class="faq-question" style="color:#00F0FF; margin-top:16px;">👁️ How does PRAEDICTA work?</div><div class="faq-answer">Seers praedict future events. The Community can vote. The Oracle resolves.</div>
+            <div class="faq-question" style="color:#00F0FF; margin-top:16px;">🔮 What can I PRAEdict?</div><div class="faq-answer">Anything with a <span style="color:#00F0FF;">VERIFIABLE</span> source URL! Finance, sports, elections, economics, tech, world events, or Wildcard.</div>
+            <div class="faq-question" style="color:#00F0FF; margin-top:16px;">🦉 How does the Oracle resolve the Praedictions?</div><div class="faq-answer">The Oracle resolves each praediction using user suggestions and real‑world evidence.</div>
+            <div class="faq-question" style="color:#00F0FF; margin-top:16px;">🗳️ How to help resolve?</div><div class="faq-answer">After the deadline, click "Suggest Outcome" with evidence URL. The Oracle reviews.</div>
+            <div class="faq-question" style="color:#00F0FF; margin-top:16px;">📈 How does auto‑resolve work?</div><div class="faq-answer">If you select a price feed and a target value, after the deadline the system automatically fetches the real price.</div>
+            <div class="faq-question" style="color:#00F0FF; margin-top:16px;">💎 Do I lose my 777 PRAE? </div><div class="faq-answer"><span style="color:#00F0FF;">NO!</span> The app only <span style="color:#00F0FF;">CHECKS</span> your balance. Your tokens stay in your wallet.</div>
+            <div class="faq-question" style="color:#00F0FF; margin-top:16px;">👁️ What is PRAE and where can I get it.</div><div class="faq-answer">PRAE is a community token. Used for reputation. You can get it on DexScreener or Raydium.</div>
+            <div class="faq-question" style="color:#00F0FF; margin-top:16px;">👥 Is there a community I can join?</div><div class="faq-answer"><span style="color:#00F0FF;">Yes!</span> Join our Telegram: <a href="https://t.me/praedictacoin" target="_blank" style="color:#2dd4bf;">t.me/praedictacoin</a> or X: <a href="https://x.com/PraedictaCoin" target="_blank" style="color:#2dd4bf;">@PraedictaCoin</a>.</div>
+            <div class="faq-question" style="color:#00F0FF; margin-top:16px;">💛 How can I support the project?</div><div class="faq-answer">Check the <strong>“Support” tab</strong> – you can donate or add liquidity to the PRAE token.</div>
+            <div class="faq-question" style="color:#00F0FF; margin-top:16px;">📱 Can I install this as an app?</div><div class="faq-answer">YES! This is a PWA. On mobile: Chrome → "Add to Home Screen". On desktop: Click the install icon.</div>
+            <div class="faq-question" style="color:#00F0FF; margin-top:16px;">⚖️ Legal disclaimer</div><div class="faq-answer">Free game for entertainment. SeerScore is for Reputation only, points have no cash value.</div>
         </div>
     </div>
 </div>
@@ -751,7 +787,7 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
 // ============================================================
-// PRAEDICTA - Final: Expired tab, fixed states, magenta light theme
+// PRAEDICTA - Final with fixed dropdown, light theme colors, admin resolve working
 // ============================================================
 const SUPABASE_URL = "https://klgwyaeqnklydlqatzys.supabase.co";
 const SUPABASE_ANON_KEY = "sb_publishable_OL32s1-muu_5d5ACQ_4kVQ_yEEeyJl1";
@@ -761,7 +797,7 @@ const ORACLE_WALLET = "7C2Y5NebLFG37wMbB85TbMqYERTSkq9tEi58wv28MCzt";
 let walletAddress = null;
 let currentPredictions = [];
 let actionCooldown = false;
-let currentFilter = { category: 'all', status: 'active', search: '' }; // default Active
+let currentFilter = { category: 'all', status: 'active', search: '' };
 
 function getUTCDayKey() { return new Date().toISOString().slice(0,10); }
 function escapeHtml(str) { if (!str) return ''; return str.replace(/[&<>]/g, m => ({ '&':'&amp;','<':'&lt;','>':'&gt;' })[m]); }
@@ -855,12 +891,12 @@ async function autoExpireMarkets() {
     if (changed) await renderAll();
 }
 
-// Resolve market (admin only) - sets status='resolved' and outcome
+// Resolve market (admin only) - can resolve yes/no on active or expired markets
 async function resolveMarket(id, outcome) {
     const market = currentPredictions.find(p => p.id === id);
-    if (!market || (market.status !== 'active' && market.status !== 'expired')) { showToast("Cannot resolve: not active or already expired"); return; }
+    if (!market || (market.status !== 'active' && market.status !== 'expired')) { showToast("Cannot resolve: not active/expired"); return; }
     if (outcome === 'expired') {
-        // already handled by auto-expire, but manual expire
+        // manual expire (refund)
         for (const bet of market.bets || []) {
             let u = await loadUser(bet.user);
             if (u) u.balance = (u.balance || 0) + bet.amount;
@@ -871,7 +907,7 @@ async function resolveMarket(id, outcome) {
         await renderAll();
         return;
     }
-    // resolve yes/no - only if active or expired? Actually admin can resolve even after expiry? Better to allow only if not resolved yet.
+    // resolve yes/no - award points to correct voters
     if (market.bets) {
         for (const bet of market.bets) {
             if (bet.outcome === outcome) {
@@ -900,7 +936,6 @@ function renderPraedictions() {
     let filtered = currentPredictions.filter(p => {
         if (currentFilter.category !== 'all' && p.category !== currentFilter.category) return false;
         if (currentFilter.search && !p.title.toLowerCase().includes(currentFilter.search.toLowerCase())) return false;
-        // status filter: active, resolved, expired
         if (currentFilter.status === 'active') return p.status === 'active';
         if (currentFilter.status === 'resolved') return p.status === 'resolved';
         if (currentFilter.status === 'expired') return p.status === 'expired';
@@ -1023,7 +1058,7 @@ async function renderProfile() {
         if(horoData) {
             headline.style.display = 'block';
             horoDiv.innerHTML = `${horoData.description}<br><br>🍀 Lucky number: ${horoData.luckyNumber}<br>😌 Mood: ${horoData.mood}`;
-            horoDiv.style.color = '#00F0FF'; // cyan
+            horoDiv.style.color = '#00F0FF';
         } else { horoDiv.innerHTML = '⚡ Could not fetch horoscope.'; }
         const dailyBlock = document.getElementById('dailyRealHoroscopeBlock');
         const dailyContent = document.getElementById('dailyRealHoroscopeContent');
@@ -1037,6 +1072,13 @@ async function renderProfile() {
         headline.style.display = 'none';
         horoDiv.innerHTML = '';
         document.getElementById('dailyRealHoroscopeBlock').style.display = 'none';
+    }
+    // Show oracle indicator
+    const oracleInd = document.getElementById('oracleIndicator');
+    if(walletAddress === ORACLE_WALLET) {
+        oracleInd.style.display = 'inline-block';
+    } else {
+        oracleInd.style.display = 'none';
     }
 }
 
@@ -1073,7 +1115,6 @@ document.querySelectorAll('.status-filter-btn').forEach(btn => {
     });
 });
 
-// Category and search filters
 document.getElementById('filterCategory')?.addEventListener('change',(e)=>{currentFilter.category=e.target.value; renderPraedictions();});
 document.getElementById('filterSearch')?.addEventListener('input',(e)=>{currentFilter.search=e.target.value; renderPraedictions();});
 document.getElementById('saveZodiacBtn')?.addEventListener('click', async () => { const sign = document.getElementById('zodiacSelect').value; if(!sign) return; let user = await loadUser(walletAddress); if(user?.zodiac) { showToast("Zodiac already set"); return; } if(user) { user.zodiac = sign; await upsertUser(user); showToast("Zodiac saved!"); await renderAll(); } });
