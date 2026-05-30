@@ -7,7 +7,6 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <title>PRAEDICTA – For Those Who See</title>
-    <!-- PWA manifest -->
     <link rel="manifest" href="data:application/manifest+json,{
       \"name\":\"PRAEDICTA\",
       \"short_name\":\"PRAEDICTA\",
@@ -18,7 +17,7 @@
       \"icons\":[{\"src\":\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='50' fill='%2300F0FF'/%3E%3Ctext x='50' y='67' text-anchor='middle' fill='%230A0A0A' font-size='50' font-weight='bold'%3EP%3C/text%3E%3C/svg%3E\",\"sizes\":\"any\"}]
     }">
     <style>
-        /* ----- BASE STYLES (homepage look) ----- */
+        /* ----- BASE STYLES (same as previous) ----- */
         * {
             margin: 0;
             padding: 0;
@@ -400,6 +399,43 @@
             text-align: center;
         }
         .ad-banner { background: rgba(0, 240, 255, 0.1); border-radius: 16px; padding: 12px; text-align: center; margin-top: 20px; }
+        /* New styles for horoscope, hype message, etc. */
+        .horoscope {
+            margin-top: 20px;
+            padding: 12px;
+            background: rgba(0, 240, 255, 0.05);
+            border-radius: 20px;
+            text-align: center;
+            font-style: italic;
+            border: 1px solid rgba(0, 240, 255, 0.2);
+        }
+        .hype-message {
+            text-align: center;
+            margin-bottom: 20px;
+            font-weight: 500;
+            letter-spacing: 1px;
+        }
+        .profile-stats div {
+            margin-bottom: 12px;
+        }
+        .zodiac-selector {
+            margin: 20px 0;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            align-items: center;
+        }
+        .zodiac-selector select {
+            background: rgba(0, 240, 255, 0.1);
+            border: 1px solid rgba(0, 240, 255, 0.3);
+            padding: 8px 16px;
+            border-radius: 40px;
+            color: white;
+        }
+        .daily-praediction-content {
+            text-align: center;
+            padding: 20px;
+        }
     </style>
 </head>
 <body>
@@ -454,12 +490,15 @@
         <button class="tab-btn active" data-tab="praedictions">📊 Praedictions</button>
         <button class="tab-btn" data-tab="leaderboard">🏆 Leaderboard</button>
         <button class="tab-btn" data-tab="profile">👤 SeerStats</button>
+        <button class="tab-btn" data-tab="dailyhoroscope">🕯️ Your Daily PRAEDICTION</button>
         <button class="tab-btn" data-tab="support">💛 Support</button>
         <button class="tab-btn" data-tab="faq">❓ FAQ</button>
     </div>
 
     <!-- PRAEDICTIONS TAB -->
     <div id="tab-praedictions" class="tab-content active">
+        <!-- Daily horoscope (static, same for all, changes daily) -->
+        <div id="dailyHoroscopeStatic" class="horoscope">🦉 Loading daily insight...</div>
         <div class="filter-bar">
             <select id="filterCategory"><option value="all">All Categories</option><option value="crypto">Finance</option><option value="people">People</option><option value="politics">Politics</option><option value="sports">Sports</option><option value="worldevents">World Events</option><option value="wildcard">Wildcard</option></select>
             <select id="filterStatus"><option value="all">All Status</option><option value="active">Active</option><option value="resolved">Resolved</option></select>
@@ -487,26 +526,49 @@
 
     <!-- LEADERBOARD TAB -->
     <div id="tab-leaderboard" class="tab-content">
-        <div class="card"><h3>🏆 Top Seers</h3><div id="leaderboardList"></div></div>
+        <div id="hypeMessage" class="hype-message" style="color: #00F0FF;">✨ Praising our top Seers... ✨</div>
+        <div class="card"><h3>🏆 <span style="color:#00F0FF;">TOP SEERS</span></h3><div id="leaderboardList"></div></div>
     </div>
 
-    <!-- PROFILE TAB -->
+    <!-- PROFILE TAB (SeerStats) -->
     <div id="tab-profile" class="tab-content">
         <div class="card">
             <h3 id="profileHeadline" style="color:#00F0FF;">Welcome 👁️ Seer:</h3>
             <div id="profileStats" style="margin-top: 16px;"></div>
-            <div class="referral-box"><strong>🔗 Your Referral Link</strong><br><span id="referralLink"></span><br><button id="copyReferralBtn" class="social-btn" style="margin-top:8px;">📋 Copy Link</button></div>
+            <!-- daily horoscope same as above -->
+            <div id="profileHoroscope" class="horoscope"></div>
+            <div class="zodiac-selector">
+                <span style="color:#00F0FF;">⭐ Your Zodiac Sign:</span>
+                <select id="zodiacSelect">
+                    <option value="">Select</option>
+                    <option value="aries">♈ Aries</option><option value="taurus">♉ Taurus</option><option value="gemini">♊ Gemini</option>
+                    <option value="cancer">♋ Cancer</option><option value="leo">♌ Leo</option><option value="virgo">♍ Virgo</option>
+                    <option value="libra">♎ Libra</option><option value="scorpio">♏ Scorpio</option><option value="sagittarius">♐ Sagittarius</option>
+                    <option value="capricorn">♑ Capricorn</option><option value="aquarius">♒ Aquarius</option><option value="pisces">♓ Pisces</option>
+                </select>
+                <button id="saveZodiacBtn" class="social-btn">Save</button>
+            </div>
+            <div id="zodiacHoroscopeDisplay" style="margin-top: 12px; padding: 12px; background: rgba(0,240,255,0.05); border-radius: 20px; font-style: italic;"></div>
+            <div class="referral-box"><strong style="color:#00F0FF;">🔗 Your Referral Link</strong><br><span id="referralLink"></span><br><button id="copyReferralBtn" class="social-btn" style="margin-top:8px;">📋 Copy Link</button></div>
             <div style="margin-top: 20px;"><button id="showMyPraedictionsBtn" class="btn" style="width:100%; background: #00F0FF20; color:#00F0FF;">📋 Show My Praedictions</button><div id="myPraedictionsList" style="margin-top: 12px;"></div></div>
             <div class="ad-banner">🧠 PRAEDICTA – Predict and earn 👁️ SeerScore!<br><a href="https://dexscreener.com/solana/7C2Y5NebLFG37wMbB85TbMqYERTSkq9tEi58wv28MCzt" target="_blank" style="color:#00F0FF;">Get PRAE on DexScreener →</a></div>
             <button id="exportDataBtn" class="btn" style="margin-top:16px; width:100%;">📥 Export Data (JSON)</button>
         </div>
     </div>
 
+    <!-- YOUR DAILY PRAEDICTION TAB -->
+    <div id="tab-dailyhoroscope" class="tab-content">
+        <div class="card">
+            <h3 style="color:#00F0FF;">🕯️ Your Daily PRAEDICTION</h3>
+            <div id="dailyHoroscopeDetail" class="daily-praediction-content"></div>
+        </div>
+    </div>
+
     <!-- SUPPORT TAB -->
     <div id="tab-support" class="tab-content">
         <div class="card">
-            <h3>💛 Support PRAEDICTA</h3>
-            <p style="color: #00F0FF;">Your support keeps the PRAEDICTA in the Game.</p>
+            <h3 style="color:#00F0FF;">💛 Support PRAEDICTA</h3>
+            <p style="color: #FFFFFF;">Your support keeps the PRAEDICTA in the Game.</p>
             <div class="social-links"><a href="https://t.me/praedictacoin" target="_blank" class="social-btn">📱 PRAEDICTA Channel</a><a href="https://x.com/PraedictaCoin" target="_blank" class="social-btn">🐦 X </a><a href="https://dexscreener.com/solana/7C2Y5NebLFG37wMbB85TbMqYERTSkq9tEi58wv28MCzt" target="_blank" class="social-btn">📊 DexScreener</a></div>
             <button id="donateBtn" class="btn" style="width:100%; margin:20px 0 0; background:#00F0FF; color:#0A0A0A;">☕ Buy me a coffee / Add liquidity</button>
             <div class="ad-banner">🌟 Use affiliate links to support us:<br><a href="https://phantom.app/" target="_blank" style="color:#00F0FF;">Phantom Wallet</a> | <a href="https://jup.ag/" target="_blank" style="color:#00F0FF;">Jupiter Aggregator</a></div>
@@ -518,7 +580,6 @@
     <div id="tab-faq" class="tab-content">
         <div class="card">
             <h3>❓ Frequently Asked Questions</h3>
-            
             <div class="faq-question" style="color:#00F0FF; margin-top:16px;">👁️ How does PRAEDICTA work?</div>
             <div class="faq-answer">Seers praedict future events. The Community can vote. The Oracle resolves.</div>
             <div class="faq-question" style="color:#00F0FF; margin-top:16px;">🔮 What can I PRAEdict?</div>
@@ -530,7 +591,7 @@
             <div class="faq-question" style="color:#00F0FF; margin-top:16px;">📈 How does auto‑resolve work?</div>
             <div class="faq-answer">If you select a price feed and a target value, after the deadline the system automatically fetches the real price.</div>
             <div class="faq-question" style="color:#00F0FF; margin-top:16px;">💎 Do I lose my 777 PRAE? </div>
-            <div class="faq-answer">NO! The app only CHECKS your balance (to protect from bots and scammers). Your tokens stay in your wallet. You never send them anywhere. No gas fees, no staking, no lockup.</div>
+            <div class="faq-answer">NO! The app only CHECKS your balance (to protect from bots and scammers). Your tokens stay in your wallet. No gas fees, no staking.</div>
             <div class="faq-question" style="color:#00F0FF; margin-top:16px;">👁️ What is PRAE and where can I get it.</div>
             <div class="faq-answer">PRAE is a community token. Used for reputation and to protect the platform community from bots and scammers. You can get it on DexScreener or Raydium.</div>
             <div class="faq-question" style="color:#00F0FF; margin-top:16px;">👥 Is there a community I can join?</div>
@@ -548,7 +609,7 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
 // ============================================================
-// PRAEDICTA - Audited (with requested changes)
+// PRAEDICTA - with daily horoscope, zodiac picker, hype messages
 // ============================================================
 const SUPABASE_URL = "https://klgwyaeqnklydlqatzys.supabase.co";
 const SUPABASE_ANON_KEY = "sb_publishable_OL32s1-muu_5d5ACQ_4kVQ_yEEeyJl1";
@@ -560,13 +621,62 @@ let currentPredictions = [];
 let actionCooldown = false;
 let currentFilter = { category: 'all', status: 'all', search: '' };
 
-// Helper functions (same as before)
+// Helper functions
 function getUTCDayKey() { return new Date().toISOString().slice(0,10); }
 function escapeHtml(str) { if (!str) return ''; return str.replace(/[&<>]/g, m => ({ '&':'&amp;','<':'&lt;','>':'&gt;' })[m]); }
 function isValidUrl(url) { try { const u = new URL(url); return ['http:', 'https:'].includes(u.protocol); } catch(e) { return false; } }
 function showToast(msg) { const t = document.createElement('div'); t.className = 'toast'; t.textContent = msg; document.body.appendChild(t); setTimeout(() => t.remove(), 3000); }
 
-// Supabase helpers
+// Daily static horoscope (changes daily, same for all)
+const horoscopeMessages = [
+    "🌌 The cosmos whispers. Today, a random praediction may come true.",
+    "👁️ A hidden pattern reveals itself. Watch the leaderboard.",
+    "🪐 Your voting power resonates with the Seers. Use it wisely.",
+    "🔮 A suggestion you make today will be approved swiftly.",
+    "⚡ Unexpected alignment: your next YES vote will be right.",
+    "🌙 Silence before the storm. Observe before you praedict.",
+    "✨ The Oracle's favour tilts towards bold praedictions.",
+    "🌀 The veil thins. Secrets you’ve sought will surface.",
+    "🕯️ An old doubt resolves itself. Your past praedictions gain new meaning."
+];
+function getDailyStaticHoroscope() {
+    const today = new Date().toDateString();
+    let hash = 0;
+    for (let i = 0; i < today.length; i++) hash = ((hash << 5) - hash) + today.charCodeAt(i);
+    const index = Math.abs(hash) % horoscopeMessages.length;
+    return horoscopeMessages[index];
+}
+// Leaderboard hype messages (rotating)
+const hypeMessages = [
+    "🌟 Praiseworthy Seers! These eyes see farthest.",
+    "🔮 The Oracle nods in approval at this leaderboard.",
+    "⚡ Lightning predictions! Top Seers are unstoppable.",
+    "👑 Bask in the glow of the Seer elite.",
+    "🌀 These Seers move before the noise. Respect."
+];
+function getDailyHypeMessage() {
+    const today = new Date().toDateString();
+    let hash = 0;
+    for (let i = 0; i < today.length; i++) hash = ((hash << 5) - hash) + today.charCodeAt(i);
+    const index = Math.abs(hash) % hypeMessages.length;
+    return hypeMessages[index];
+}
+
+// Update all horoscope displays
+function updateHoroscopeDisplays() {
+    const msg = getDailyStaticHoroscope();
+    document.querySelectorAll('#dailyHoroscopeStatic, #profileHoroscope, #dailyHoroscopeDetail').forEach(el => {
+        if (el) el.innerHTML = `🦉 Daily Seer Insight<br>${msg}`;
+    });
+}
+// Update leaderboard hype message
+function updateHypeMessage() {
+    const msg = getDailyHypeMessage();
+    const hypeDiv = document.getElementById('hypeMessage');
+    if (hypeDiv) hypeDiv.innerHTML = msg;
+}
+
+// Supabase helpers (same as before)
 async function loadPredictions() {
     const { data, error } = await supabaseClient.from('predictions').select('*').order('created_at', { ascending: false });
     if (error) { console.error(error); showToast("Error loading predictions"); return []; }
@@ -585,7 +695,17 @@ async function updatePrediction(id, updates) {
     const { error } = await supabaseClient.from('predictions').update(updates).eq('id', id);
     if (error) console.error(error);
 }
+// Zodiac API call
+async function fetchHoroscopeForZodiac(sign) {
+    if (!sign) return null;
+    try {
+        const response = await fetch(`https://aztro.sameerkumar.website/?sign=${sign}&day=today`, { method: 'POST' });
+        const data = await response.json();
+        return { description: data.description, luckyNumber: data.lucky_number, mood: data.mood };
+    } catch(e) { return null; }
+}
 
+// Render functions (keep existing logic, but add profile horoscope and zodiac)
 function getFilteredPredictions() {
     let filtered = [...currentPredictions];
     if (currentFilter.category !== 'all') filtered = filtered.filter(p => p.category === currentFilter.category);
@@ -609,6 +729,8 @@ async function renderAll() {
     document.getElementById('totalPraedicts').innerText = totalBets;
     const user = await loadUser(walletAddress);
     document.getElementById('totalSeerscore').innerText = user?.seerscore || 0;
+    updateHoroscopeDisplays();
+    updateHypeMessage();
 }
 
 function renderPraedictions() {
@@ -671,7 +793,6 @@ function renderPraedictions() {
             </div>
         `;
     }).join('');
-    // attach listeners
     document.querySelectorAll('.btn-praedict').forEach(btn => { btn.removeEventListener('click', praedictHandler); btn.addEventListener('click', praedictHandler); });
     document.querySelectorAll('.btn-suggest').forEach(btn => { btn.removeEventListener('click', suggestHandler); btn.addEventListener('click', suggestHandler); });
     document.querySelectorAll('.oracle-resolve').forEach(btn => { btn.removeEventListener('click', oracleResolveHandler); btn.addEventListener('click', oracleResolveHandler); });
@@ -717,19 +838,32 @@ async function renderProfile() {
     if (!container) return;
     const user = await loadUser(walletAddress);
     if (!user) { container.innerHTML = '<div>Loading...</div>'; return; }
-    if (headline) headline.innerHTML = `Welcome Seer: <span style="color:#00F0FF;">${walletAddress.slice(0,8)}...${walletAddress.slice(-6)}</span>`;
+    if (headline) headline.innerHTML = `Welcome Seer: <span style="color:#FFFFFF;">${walletAddress.slice(0,8)}...${walletAddress.slice(-6)}</span>`;
     const today = getUTCDayKey();
     const creationsUsed = (user.last_create_day === today) ? (user.creations_today || 0) : 0;
     const creationsLeft = 7 - creationsUsed;
-    // Removed the "Total Votes casted" line
     container.innerHTML = `
-        <div style="margin-top: 8px;"><span style="color: #00F0FF;">✨ Creations left today:</span> ${creationsLeft}/7</div>
+        <div><span style="color: #00F0FF;">✨ Creations left today:</span> ${creationsLeft}/7</div>
         <div><span style="color: #00F0FF;">🗳️ Votes left today:</span> ${user.votes_left}/7</div>
         <div><span style="color: #00F0FF;">🎯 Accuracy:</span> ${((user.correct_votes||0)/(user.total_votes||1)*100).toFixed(0)}%</div>
         <div><span style="color: #00F0FF;">👁️ Seerscore:</span> ${user.seerscore || 0}</div>
     `;
     const referralLink = document.getElementById('referralLink');
     if (referralLink) referralLink.textContent = `${window.location.origin}${window.location.pathname}?ref=${walletAddress}`;
+    // Zodiac handling
+    const zodiacSelect = document.getElementById('zodiacSelect');
+    if (zodiacSelect && user.zodiac) {
+        zodiacSelect.value = user.zodiac;
+        // Fetch horoscope for saved zodiac
+        const horoData = await fetchHoroscopeForZodiac(user.zodiac);
+        const horoDiv = document.getElementById('zodiacHoroscopeDisplay');
+        if (horoData && horoDiv) {
+            horoDiv.innerHTML = `🔮 Your ${user.zodiac} horoscope: ${horoData.description}<br>🍀 Lucky number: ${horoData.luckyNumber}<br>😌 Mood: ${horoData.mood}`;
+        } else if (horoDiv) horoDiv.innerHTML = '⚡ Could not fetch horoscope. Try again later.';
+    } else if (zodiacSelect) {
+        zodiacSelect.value = '';
+        document.getElementById('zodiacHoroscopeDisplay').innerHTML = '';
+    }
 }
 async function renderMyPraedictions() {
     const container = document.getElementById('myPraedictionsList');
@@ -913,12 +1047,33 @@ function exportData() {
     a.click(); URL.revokeObjectURL(url); showToast("📥 Data exported");
 }
 function openDonation() { window.open('https://ko-fi.com/yourusername', '_blank'); }
-// Filters
+
+// Zodiac save
+document.getElementById('saveZodiacBtn')?.addEventListener('click', async () => {
+    const sign = document.getElementById('zodiacSelect').value;
+    if (!sign) { showToast("Select a zodiac sign"); return; }
+    if (!walletAddress) return;
+    const user = await loadUser(walletAddress);
+    if (user) {
+        user.zodiac = sign;
+        await upsertUser(user);
+        showToast("Zodiac saved!");
+        // Fetch and display horoscope
+        const horoData = await fetchHoroscopeForZodiac(sign);
+        const horoDiv = document.getElementById('zodiacHoroscopeDisplay');
+        if (horoData && horoDiv) {
+            horoDiv.innerHTML = `🔮 Your ${sign} horoscope: ${horoData.description}<br>🍀 Lucky number: ${horoData.luckyNumber}<br>😌 Mood: ${horoData.mood}`;
+        }
+        renderAll();
+    }
+});
+
+// Filters and events (same as before)
 document.getElementById('filterCategory').addEventListener('change', (e) => { currentFilter.category = e.target.value; renderPraedictions(); });
 document.getElementById('filterStatus').addEventListener('change', (e) => { currentFilter.status = e.target.value; renderPraedictions(); });
 document.getElementById('filterSearch').addEventListener('input', (e) => { currentFilter.search = e.target.value; renderPraedictions(); });
 document.getElementById('showMyPraedictionsBtn').addEventListener('click', () => { renderMyPraedictions(); });
-// Event listeners
+
 document.getElementById('connectBtn').addEventListener('click', connectWallet);
 document.getElementById('createBtn').addEventListener('click', createNewPrediction);
 document.getElementById('reloadBtn')?.addEventListener('click', async () => { await renderAll(); showToast("Reloaded"); });
@@ -927,6 +1082,7 @@ document.getElementById('copyReferralBtn')?.addEventListener('click', copyReferr
 document.getElementById('exportDataBtn')?.addEventListener('click', exportData);
 document.getElementById('donateBtn')?.addEventListener('click', openDonation);
 initTheme();
+
 // Tab switching
 document.querySelectorAll('.tab-btn').forEach(btn => {
     btn.addEventListener('click', () => {
@@ -937,10 +1093,23 @@ document.querySelectorAll('.tab-btn').forEach(btn => {
         document.getElementById(`tab-${tab}`).classList.add('active');
         if (tab === 'leaderboard') renderLeaderboard();
         if (tab === 'profile') { renderProfile(); renderMyPraedictions(); }
+        if (tab === 'dailyhoroscope') {
+            const msg = getDailyStaticHoroscope();
+            document.getElementById('dailyHoroscopeDetail').innerHTML = `<div class="horoscope">🦉 ${msg}</div>`;
+            // Also show zodiac horoscope if available
+            const user = state?.users?.[walletAddress];
+            if (user && user.zodiac) {
+                (async () => {
+                    const horo = await fetchHoroscopeForZodiac(user.zodiac);
+                    if (horo) document.getElementById('dailyHoroscopeDetail').innerHTML += `<div class="horoscope" style="margin-top:12px;">🔮 Your zodiac (${user.zodiac}) insight:<br>${horo.description}</div>`;
+                })();
+            }
+        }
     });
 });
 if (window.solana?.isConnected && window.solana?.publicKey) { connectWallet(); }
-// Particles (homepage style)
+
+// Particles
 for (let i = 0; i < 60; i++) {
     const particle = document.createElement('div');
     particle.className = 'particle';
@@ -951,7 +1120,6 @@ for (let i = 0; i < 60; i++) {
     particle.style.height = particle.style.width;
     document.getElementById('particles').appendChild(particle);
 }
-// Service worker for PWA
 if ('serviceWorker' in navigator) { navigator.serviceWorker.register('/sw.js').catch(console.error); }
 </script>
 </body>
