@@ -6,16 +6,8 @@
     <meta name="theme-color" content="#00F0FF">
     <meta name="mobile-web-app-capable" content="yes">
     <title>PRAEDICTA – For Those Who See</title>
-    <!-- Inline manifest (correct JSON) -->
-    <link rel="manifest" href="data:application/manifest+json,{
-      \"name\":\"PRAEDICTA\",
-      \"short_name\":\"PRAEDICTA\",
-      \"start_url\":\".\",
-      \"display\":\"standalone\",
-      \"background_color\":\"#0A0A0A\",
-      \"theme_color\":\"#00F0FF\",
-      \"icons\":[{\"src\":\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='50' fill='%2300F0FF'/%3E%3Ctext x='50' y='67' text-anchor='middle' fill='%230A0A0A' font-size='50' font-weight='bold'%3EP%3C/text%3E%3C/svg%3E\",\"sizes\":\"any\"}]
-    }">
+    <!-- Valid manifest JSON (single line) -->
+    <link rel="manifest" href="data:application/manifest+json,{\"name\":\"PRAEDICTA\",\"short_name\":\"PRAEDICTA\",\"start_url\":\".\",\"display\":\"standalone\",\"background_color\":\"#0A0A0A\",\"theme_color\":\"#00F0FF\",\"icons\":[{\"src\":\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='50' fill='%2300F0FF'/%3E%3Ctext x='50' y='67' text-anchor='middle' fill='%230A0A0A' font-size='50' font-weight='bold'%3EP%3C/text%3E%3C/svg%3E\",\"sizes\":\"any\"}]}">
     <style>
         * {
             margin: 0;
@@ -600,7 +592,7 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
 // ============================================================
-// PRAEDICTA - with daily horoscope, zodiac picker, hype messages
+// PRAEDICTA - with working horoscope API (no recursion)
 // ============================================================
 const SUPABASE_URL = "https://klgwyaeqnklydlqatzys.supabase.co";
 const SUPABASE_ANON_KEY = "sb_publishable_OL32s1-muu_5d5ACQ_4kVQ_yEEeyJl1";
@@ -617,11 +609,7 @@ function escapeHtml(str) { if (!str) return ''; return str.replace(/[&<>]/g, m =
 function isValidUrl(url) { try { const u = new URL(url); return ['http:', 'https:'].includes(u.protocol); } catch(e) { return false; } }
 function showToast(msg) { const t = document.createElement('div'); t.className = 'toast'; t.textContent = msg; document.body.appendChild(t); setTimeout(() => t.remove(), 3000); }
 
-// ========== NEW HOROSCOPE API (CORS proxy + horoscope.com) ==========
-// This endpoint uses a public CORS proxy to fetch from horoscope.com
-const HOROSCOPE_API_URL = "https://api.allorigins.win/raw?url=https://www.horoscope.com/us/horoscopes/general/horoscope-general-daily-today.aspx?sign=";
-
-// Map signs to numbers used by horoscope.com
+// ========== WORKING HOROSCOPE API (via CORS proxy) ==========
 const signToNumber = {
     aries: 1, taurus: 2, gemini: 3, cancer: 4,
     leo: 5, virgo: 6, libra: 7, scorpio: 8,
@@ -631,30 +619,24 @@ const signToNumber = {
 async function fetchHoroscopeForZodiac(sign) {
     if (!sign || !signToNumber[sign]) return null;
     const signNumber = signToNumber[sign];
-    const url = `${HOROSCOPE_API_URL}${signNumber}`;
+    const url = `https://api.allorigins.win/raw?url=https://www.horoscope.com/us/horoscopes/general/horoscope-general-daily-today.aspx?sign=${signNumber}`;
     try {
         const response = await fetch(url);
         const html = await response.text();
-        // Parse the HTML to extract the horoscope text
         const parser = new DOMParser();
         const doc = parser.parseFromString(html, 'text/html');
-        // Find the horoscope text (it's in a <p> inside <div class="main-horoscope">)
-        const mainDiv = doc.querySelector('.main-horoscope');
+        // Find the main horoscope text
         let horoscopeText = '';
+        const mainDiv = doc.querySelector('.main-horoscope');
         if (mainDiv) {
-            const pTags = mainDiv.querySelectorAll('p');
-            for (const p of pTags) {
-                if (p.textContent.trim().length > 50) {
-                    horoscopeText = p.textContent.trim();
-                    break;
-                }
-            }
+            const p = mainDiv.querySelector('p');
+            if (p) horoscopeText = p.textContent.trim();
         }
         if (!horoscopeText) {
-            // Fallback: try to find any paragraph with substantial text
-            const allP = doc.querySelectorAll('p');
-            for (const p of allP) {
-                if (p.textContent.trim().length > 80) {
+            // Fallback: take any long paragraph
+            const paragraphs = doc.querySelectorAll('p');
+            for (const p of paragraphs) {
+                if (p.textContent.trim().length > 100) {
                     horoscopeText = p.textContent.trim();
                     break;
                 }
@@ -674,7 +656,7 @@ async function fetchHoroscopeForZodiac(sign) {
     }
 }
 
-// Daily static horoscope (changes daily, same for all) – expanded
+// Static horoscope messages (fallback)
 const horoscopeMessages = [
     "🌌 The cosmos whispers. Today, a random praediction may come true.",
     "👁️ A hidden pattern reveals itself. Watch the leaderboard.",
@@ -696,7 +678,7 @@ function getDailyStaticHoroscope() {
     const index = Math.abs(hash) % horoscopeMessages.length;
     return horoscopeMessages[index];
 }
-// Leaderboard messages
+
 const hypeMessages = [
     "Praiseworthy Seers! 👁️ These eyes see farthest.",
     "The Oracle nods in approval at this leaderboard.",
@@ -719,14 +701,10 @@ function getDailyHypeMessage() {
 
 function updateHoroscopeDisplays() {
     const msg = getDailyStaticHoroscope();
-    const staticDiv = document.getElementById('dailyHoroscopeStatic');
-    if (staticDiv) staticDiv.innerHTML = msg;
-    const profileHoro = document.getElementById('profileHoroscope');
-    if (profileHoro) profileHoro.innerHTML = msg;
-    const detailDiv = document.getElementById('dailyHoroscopeDetail');
-    if (detailDiv) detailDiv.innerHTML = `<div class="horoscope">${msg}</div>`;
+    document.getElementById('dailyHoroscopeStatic') && (document.getElementById('dailyHoroscopeStatic').innerHTML = msg);
+    document.getElementById('profileHoroscope') && (document.getElementById('profileHoroscope').innerHTML = msg);
+    document.getElementById('dailyHoroscopeDetail') && (document.getElementById('dailyHoroscopeDetail').innerHTML = `<div class="horoscope">${msg}</div>`);
 }
-
 function updateHypeMessage() {
     const msg = getDailyHypeMessage();
     const hypeDiv = document.getElementById('hypeMessage');
@@ -752,12 +730,7 @@ async function updatePrediction(id, updates) {
     const { error } = await supabaseClient.from('predictions').update(updates).eq('id', id);
     if (error) console.error(error);
 }
-// Zodiac API call (replaced with working scraper)
-async function fetchHoroscopeForZodiac(sign) {
-    return await fetchHoroscopeForZodiac(sign);
-}
 
-// Render functions (keep existing logic, but add profile horoscope and zodiac)
 function getFilteredPredictions() {
     let filtered = [...currentPredictions];
     if (currentFilter.category !== 'all') filtered = filtered.filter(p => p.category === currentFilter.category);
@@ -915,7 +888,6 @@ async function renderProfile() {
         document.getElementById('zodiacHoroscopeDisplay').innerHTML = '';
     }
 }
-// My Praedictions: populate only, not display
 async function renderMyPraedictions() {
     const container = document.getElementById('myPraedictionsList');
     if (!container) return;
