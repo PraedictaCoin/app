@@ -413,6 +413,7 @@
         /* For the Praedictions page, we remove the box */
         #dailyHoroscopeStatic {
             margin-top: 20px;
+            margin-bottom: 20px;
             padding: 0;
             background: transparent;
             border: none;
@@ -451,6 +452,10 @@
         .my-praedictions-list {
             display: none;
             margin-top: 12px;
+        }
+        /* Additional FAQ spacing */
+        .faq-answer {
+            margin-bottom: 16px;
         }
     </style>
 </head>
@@ -587,7 +592,7 @@
     <div id="tab-support" class="tab-content">
         <div class="card">
             <h3 style="color:#00F0FF;">💛 Support P R A E D I C T A</h3>
-            <p style="color: #FFFFFF;">Your support keeps the PRAEDICTA in the Game.</p>
+            <p style="color: #FFFFFF;">Your support keeps PRAE in the Game.</p>
             <div class="social-links"><a href="https://t.me/praedictacoin" target="_blank" class="social-btn">📱 PRAEDICTA Channel</a><a href="https://x.com/PraedictaCoin" target="_blank" class="social-btn">🐦 X </a><a href="https://dexscreener.com/solana/7C2Y5NebLFG37wMbB85TbMqYERTSkq9tEi58wv28MCzt" target="_blank" class="social-btn">📊 DexScreener</a></div>
             <button id="donateBtn" class="btn" style="width:100%; margin:20px 0 0; background:#00F0FF; color:#0A0A0A;">☕ Buy me a coffee / Add liquidity</button>
             <div class="ad-banner">🌟 Use affiliate links to support us:<br><a href="https://phantom.app/" target="_blank" style="color:#00F0FF;">Phantom Wallet</a> | <a href="https://jup.ag/" target="_blank" style="color:#00F0FF;">Jupiter Aggregator</a></div>
@@ -599,10 +604,10 @@
     <div id="tab-faq" class="tab-content">
         <div class="card">
             <h3>❓ Frequently Asked Questions</h3>
-            <div class="faq-question" style="color:#00F0FF; margin-top:16px;">👁️ How does P R A E D I C T A work?</div>
+            <div class="faq-question" style="color:#00F0FF; margin-top:16px;">👁️ How does PRAEDICTA work?</div>
             <div class="faq-answer">Seers praedict future events. The Community can vote. The Oracle resolves.</div>
             <div class="faq-question" style="color:#00F0FF; margin-top:16px;">🔮 What can I PRAEdict?</div>
-            <div class="faq-answer">Anything with a VERIFIABLE source URL! Finance, sports, elections, economics, tech, world events, or WILDCARD (anything with public proof or official records).</div>
+            <div class="faq-answer">Anything with a <span style="color:#00F0FF;">VERIFIABLE</span> source URL! Finance, sports, elections, economics, tech, world events, or Wildcard (<span style="color:#00F0FF;">anything with public proof or official records</span>).</div>
             <div class="faq-question" style="color:#00F0FF; margin-top:16px;">🦉 How does the Oracle resolve the Praedictions?</div>
             <div class="faq-answer">The Oracle resolves each praediction using user suggestions and real‑world evidence.</div>
             <div class="faq-question" style="color:#00F0FF; margin-top:16px;">🗳️ How to help resolve?</div>
@@ -610,11 +615,11 @@
             <div class="faq-question" style="color:#00F0FF; margin-top:16px;">📈 How does auto‑resolve work?</div>
             <div class="faq-answer">If you select a price feed and a target value, after the deadline the system automatically fetches the real price.</div>
             <div class="faq-question" style="color:#00F0FF; margin-top:16px;">💎 Do I lose my 777 PRAE? </div>
-            <div class="faq-answer">NO! The app only CHECKS your balance (to protect from bots and scammers). Your tokens stay in your wallet. No gas fees, no staking.</div>
+            <div class="faq-answer"><span style="color:#00F0FF;">NO!</span> The app only <span style="color:#00F0FF;">CHECKS</span> your balance (to protect from bots and scammers). Your tokens stay in your wallet. No gas fees, no staking.</div>
             <div class="faq-question" style="color:#00F0FF; margin-top:16px;">👁️ What is PRAE and where can I get it.</div>
             <div class="faq-answer">PRAE is a community token. Used for reputation and to protect the platform community from bots and scammers. You can get it on DexScreener or Raydium.</div>
             <div class="faq-question" style="color:#00F0FF; margin-top:16px;">👥 Is there a community I can join?</div>
-            <div class="faq-answer">Yes! Join our Telegram group: <a href="https://t.me/praedictacoin" target="_blank" style="color:#2dd4bf;">t.me/praedictacoin</a> or follow us on X: <a href="https://x.com/PraedictaCoin" target="_blank" style="color:#2dd4bf;">@PraedictaCoin</a>.</div>
+            <div class="faq-answer"><span style="color:#00F0FF;">Yes!</span> Join our Telegram group: <a href="https://t.me/praedictacoin" target="_blank" style="color:#2dd4bf;">t.me/praedictacoin</a> or follow us on X: <a href="https://x.com/PraedictaCoin" target="_blank" style="color:#2dd4bf;">@PraedictaCoin</a>.</div>
             <div class="faq-question" style="color:#00F0FF; margin-top:16px;">💛 How can I support the project?</div>
             <div class="faq-answer">Check the <strong>“Support” tab</strong> – you can donate to help P R A E D I C T A and the Community stay in the Game by adding liquidity to the PRAE token.</div>
             <div class="faq-question" style="color:#00F0FF; margin-top:16px;">📱 Can I install this as an app?</div>
@@ -668,18 +673,18 @@ function getDailyStaticHoroscope() {
     const index = Math.abs(hash) % horoscopeMessages.length;
     return horoscopeMessages[index];
 }
-// Leaderboard hype messages (rotating, without leading symbols, with 👁️ at end) – expanded
+// Leaderboard messages
 const hypeMessages = [
-    "Praiseworthy Seers! These eyes see farthest. 👁️",
-    "The Oracle nods in approval at this leaderboard. 👁️",
-    "Lightning predictions! Top Seers are unstoppable. 👁️",
-    "Bask in the glow of the Seer elite. 👁️",
-    "These Seers move before the noise. Respect. 👁️",
-    "Clairvoyance resonates among the top three. 👁️",
-    "Whispers of fate echo through the SeerStats. 👁️",
-    "A new Seer rises – watch the leaderboard shift. 👁️",
-    "The oracle’s favour shines upon the most accurate. 👁️",
-    "Seers who vote wisely climb the ladder. 👁️"
+    "Praiseworthy Seers! 👁️ These eyes see farthest.",
+    "The Oracle nods in approval at this leaderboard.",
+    "Lightning predictions! 👁️ Top Seers are unstoppable.",
+    "Bask in the glow of the Seer elite.",
+    "These Seers move before the noise. 👁️ Respect.",
+    "Clairvoyance resonates among the top three.",
+    "Whispers of fate echo through the SeerStats.",
+    "A new Seer rises 👁️ Watch the leaderboard shift.",
+    "The oracle’s favour shines upon the most accurate.",
+    "Seers who vote wisely climb the ladder."
 ];
 function getDailyHypeMessage() {
     const today = new Date().toDateString();
