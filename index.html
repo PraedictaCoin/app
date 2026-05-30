@@ -3,11 +3,22 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <meta name="theme-color" content="#40E0D0">
-    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="theme-color" content="#00F0FF">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <title>PRAEDICTA – For Those Who See</title>
-    <link rel="manifest" href="data:application/manifest+json,{\"name\":\"PRAEDICTA\",\"short_name\":\"PRAEDICTA\",\"start_url\":\".\",\"display\":\"standalone\",\"background_color\":\"#0A0A0A\",\"theme_color\":\"#40E0D0\",\"icons\":[{\"src\":\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='50' fill='%2340E0D0'/%3E%3Ctext x='50' y='67' text-anchor='middle' fill='%230A0A0A' font-size='50' font-weight='bold'%3EP%3C/text%3E%3C/svg%3E\",\"sizes\":\"any\"}]}">
+    <!-- PWA manifest -->
+    <link rel="manifest" href="data:application/manifest+json,{
+      \"name\":\"PRAEDICTA\",
+      \"short_name\":\"PRAEDICTA\",
+      \"start_url\":\".\",
+      \"display\":\"standalone\",
+      \"background_color\":\"#0A0A0A\",
+      \"theme_color\":\"#00F0FF\",
+      \"icons\":[{\"src\":\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='50' fill='%2300F0FF'/%3E%3Ctext x='50' y='67' text-anchor='middle' fill='%230A0A0A' font-size='50' font-weight='bold'%3EP%3C/text%3E%3C/svg%3E\",\"sizes\":\"any\"}]
+    }">
     <style>
+        /* ----- BASE STYLES (homepage look) ----- */
         * {
             margin: 0;
             padding: 0;
@@ -18,106 +29,6 @@
             color: #FFFFFF;
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             overflow-x: hidden;
-            transition: background-color 0.3s, color 0.3s;
-            font-size: 16px;
-        }
-        /* LIGHT THEME - white background, #40E0D0 (turquoise) accents */
-        body.light {
-            background-color: #FFFFFF;
-            color: #1A1A2E;
-        }
-        body.light .card,
-        body.light .app-header,
-        body.light .praediction-card,
-        body.light .create-praediction input,
-        body.light .create-praediction textarea,
-        body.light .create-praediction select,
-        body.light .filter-bar select,
-        body.light .filter-bar input,
-        body.light .stat,
-        body.light .tab-btn,
-        body.light .zodiac-selector select {
-            background-color: #F8F9FF;
-            border-color: rgba(64, 224, 208, 0.2);
-            color: #1A1A2E;
-        }
-        body.light .tab-btn.active {
-            background: #40E0D0;
-            color: #1A1A2E;
-            border-color: #40E0D0;
-        }
-        body.light .praediction-title,
-        body.light .stat-value,
-        body.light .logo-area h1 {
-            color: #40E0D0;
-        }
-        body.light .btn-secondary,
-        body.light .social-btn {
-            background: rgba(64, 224, 208, 0.1);
-            color: #40E0D0;
-            border-color: #40E0D0;
-        }
-        body.light .horoscope {
-            background: rgba(64, 224, 208, 0.08);
-            color: #008080;
-            border-color: #40E0D0;
-        }
-        body.light .gate {
-            background: #FFFFFF;
-        }
-        body.light .filter-bar select,
-        body.light .filter-bar input,
-        body.light .create-praediction select {
-            background-color: #1A1A2E;
-            color: #40E0D0;
-            border-color: #40E0D0;
-        }
-        body.light .filter-bar select option {
-            background-color: #1A1A2E;
-            color: #40E0D0;
-        }
-        body.light .badge-active {
-            background: #40E0D020;
-            color: #008080;
-            border-color: #40E0D0;
-        }
-        body.light .badge-expired {
-            background: #FF444420;
-            color: #CC3333;
-            border-color: #FF8888;
-        }
-        body.light .badge-resolved {
-            background: #40E0D020;
-            color: #40E0D0;
-            border-color: #40E0D0;
-        }
-        body.light .status-filter-btn.active-filter {
-            background: #40E0D020;
-            color: #008080;
-            border-color: #40E0D0;
-        }
-        body.light .oracle-resolve {
-            background: #FFB800;
-            color: #1A1A2E;
-        }
-        body.light .btn {
-            background: #40E0D0;
-            color: #1A1A2E;
-        }
-        body.light .theme-toggle-small {
-            border-color: #40E0D0;
-            color: #40E0D0;
-        }
-        body.light .oracle-badge {
-            background: #FFB80020;
-            color: #CC8800;
-            border-color: #FFB800;
-        }
-        body.light .vote-stats {
-            background: rgba(64, 224, 208, 0.08);
-        }
-        body.light .meta-row {
-            color: #666;
         }
         @keyframes blink {
             0%, 90%, 100% { transform: scaleY(1); }
@@ -133,6 +44,14 @@
             90% { opacity: 1; }
             100% { transform: translateY(-10vh) scale(1); opacity: 0; }
         }
+        @keyframes fadeUp {
+            0% { opacity: 0; transform: translateY(30px); }
+            100% { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes glow {
+            0%, 100% { box-shadow: 0 0 20px rgba(0, 240, 255, 0.3); }
+            50% { box-shadow: 0 0 40px rgba(0, 240, 255, 0.6); }
+        }
         .particles {
             position: fixed;
             top: 0;
@@ -147,10 +66,11 @@
             position: absolute;
             width: 2px;
             height: 2px;
-            background: rgba(64, 224, 208, 0.3);
+            background: rgba(0, 240, 255, 0.3);
             border-radius: 50%;
             animation: float linear infinite;
         }
+        /* Common components */
         .btn {
             padding: 12px 28px;
             border-radius: 50px;
@@ -158,27 +78,40 @@
             font-weight: 500;
             letter-spacing: 2px;
             text-transform: uppercase;
-            background: #40E0D0;
-            color: #0A0A0A;
+            text-decoration: none;
+            transition: all 0.3s;
             border: none;
             cursor: pointer;
+            display: inline-block;
+            background: #00F0FF;
+            color: #0A0A0A;
+            box-shadow: 0 0 20px rgba(0, 240, 255, 0.2);
+        }
+        .btn:hover {
+            box-shadow: 0 0 30px rgba(0, 240, 255, 0.4);
+            transform: translateY(-2px);
         }
         .btn-secondary {
             background: transparent;
-            color: #40E0D0;
-            border: 1px solid #40E0D0;
+            color: #00F0FF;
+            border: 1px solid #00F0FF;
+            box-shadow: none;
+        }
+        .btn-secondary:hover {
+            background: rgba(0, 240, 255, 0.1);
         }
         .card {
-            background: rgba(64, 224, 208, 0.03);
-            border: 1px solid rgba(64, 224, 208, 0.1);
+            background: rgba(0, 240, 255, 0.03);
+            border: 1px solid rgba(0, 240, 255, 0.1);
             border-radius: 20px;
             padding: 20px;
             margin-bottom: 20px;
             transition: border-color 0.3s;
         }
         .card:hover {
-            border-color: rgba(64, 224, 208, 0.3);
+            border-color: rgba(0, 240, 255, 0.3);
         }
+        /* Gate screen */
         .gate {
             position: fixed;
             top: 0;
@@ -192,8 +125,8 @@
             z-index: 1000;
         }
         .gate-card {
-            background: rgba(64, 224, 208, 0.03);
-            border: 1px solid rgba(64, 224, 208, 0.2);
+            background: rgba(0, 240, 255, 0.03);
+            border: 1px solid rgba(0, 240, 255, 0.2);
             border-radius: 48px;
             padding: 40px;
             max-width: 450px;
@@ -209,7 +142,7 @@
         .eye {
             width: 100%;
             height: 100%;
-            border: 2px solid #40E0D0;
+            border: 2px solid #00F0FF;
             border-radius: 50% 50% 50% 50%;
             position: relative;
             overflow: hidden;
@@ -222,10 +155,11 @@
         .iris {
             width: 45px;
             height: 45px;
-            background: radial-gradient(circle, #2D0B4F 0%, #6B2FA0 40%, #40E0D0 70%, #40E0D0 100%);
+            background: radial-gradient(circle, #2D0B4F 0%, #6B2FA0 40%, #00F0FF 70%, #00F0FF 100%);
             border-radius: 50%;
             position: relative;
             animation: pulse 3s ease-in-out infinite;
+            box-shadow: 0 0 20px rgba(0, 240, 255, 0.4);
         }
         .pupil {
             width: 18px;
@@ -241,7 +175,7 @@
             font-size: 2rem;
             font-weight: 300;
             letter-spacing: 6px;
-            color: #40E0D0;
+            color: #00F0FF;
             margin-bottom: 8px;
         }
         .gate-card .tagline {
@@ -250,15 +184,18 @@
             letter-spacing: 3px;
             margin-bottom: 24px;
         }
+        /* Main App Header */
         .main-app {
             display: none;
+            position: relative;
+            z-index: 1;
             max-width: 1400px;
             margin: 0 auto;
             padding: 20px 24px;
         }
         .app-header {
-            background: rgba(64, 224, 208, 0.03);
-            border: 1px solid rgba(64, 224, 208, 0.1);
+            background: rgba(0, 240, 255, 0.03);
+            border: 1px solid rgba(0, 240, 255, 0.1);
             border-radius: 24px;
             padding: 20px;
             margin-bottom: 30px;
@@ -294,7 +231,7 @@
             font-size: 1.8rem;
             font-weight: 300;
             letter-spacing: 6px;
-            color: #40E0D0;
+            color: #00F0FF;
         }
         .logo-area .tagline {
             font-size: 0.7rem;
@@ -304,10 +241,9 @@
         .stats {
             display: flex;
             gap: 20px;
-            align-items: center;
         }
         .stat {
-            background: rgba(64, 224, 208, 0.05);
+            background: rgba(0, 240, 255, 0.05);
             padding: 8px 20px;
             border-radius: 40px;
             text-align: center;
@@ -315,61 +251,29 @@
         .stat-value {
             font-size: 1.5rem;
             font-weight: 600;
-            color: #40E0D0;
+            color: #00F0FF;
         }
         .tabs {
             display: flex;
-            flex-wrap: wrap;
             gap: 8px;
+            flex-wrap: wrap;
             margin-bottom: 24px;
-            align-items: center;
-            justify-content: space-between;
-        }
-        .tabs-left {
-            display: flex;
-            gap: 8px;
-            flex-wrap: wrap;
         }
         .tab-btn {
             background: transparent;
-            border: 1px solid rgba(64, 224, 208, 0.3);
+            border: 1px solid rgba(0, 240, 255, 0.3);
             padding: 8px 20px;
             border-radius: 40px;
             cursor: pointer;
             color: #8A8A8A;
+            transition: all 0.2s;
             font-size: 0.8rem;
             letter-spacing: 1px;
         }
         .tab-btn.active {
-            background: #40E0D0;
+            background: #00F0FF;
             color: #0A0A0A;
-            border-color: #40E0D0;
-        }
-        .right-tab-items {
-            display: flex;
-            gap: 8px;
-            align-items: center;
-            flex-wrap: wrap;
-        }
-        .theme-toggle-small {
-            background: transparent;
-            border: 1px solid #40E0D0;
-            border-radius: 40px;
-            padding: 8px 16px;
-            cursor: pointer;
-            color: #40E0D0;
-            font-size: 0.8rem;
-        }
-        .oracle-indicator-top {
-            background: #FFB80020;
-            border: 1px solid #FFB800;
-            border-radius: 40px;
-            padding: 6px 14px;
-            font-size: 0.7rem;
-            color: #FFB800;
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
+            border-color: #00F0FF;
         }
         .tab-content { display: none; }
         .tab-content.active { display: block; }
@@ -377,39 +281,15 @@
             display: flex;
             gap: 12px;
             flex-wrap: wrap;
-            margin-top: 16px;
-            margin-bottom: 24px;
-            align-items: center;
+            margin-bottom: 20px;
         }
         .filter-bar select, .filter-bar input {
-            background: rgba(64, 224, 208, 0.05);
-            border: 1px solid rgba(64, 224, 208, 0.2);
+            background: rgba(0, 240, 255, 0.05);
+            border: 1px solid rgba(0, 240, 255, 0.2);
             border-radius: 40px;
             padding: 8px 16px;
-            color: #40E0D0;
+            color: #FFFFFF;
             font-size: 0.8rem;
-        }
-        .filter-bar select option {
-            background: #0A0A0A;
-            color: #40E0D0;
-        }
-        .status-filter-btns {
-            display: flex;
-            gap: 8px;
-        }
-        .status-filter-btn {
-            background: transparent;
-            border: 1px solid rgba(64,224,208,0.3);
-            padding: 8px 16px;
-            border-radius: 40px;
-            cursor: pointer;
-            color: #8A8A8A;
-            font-size: 0.75rem;
-        }
-        .status-filter-btn.active-filter {
-            background: #40E0D020;
-            color: #40E0D0;
-            border-color: #40E0D0;
         }
         .praedictions-grid {
             display: grid;
@@ -418,56 +298,29 @@
             margin-bottom: 30px;
         }
         .praediction-card {
-            background: rgba(64, 224, 208, 0.03);
-            border: 1px solid rgba(64, 224, 208, 0.1);
+            background: rgba(0, 240, 255, 0.03);
+            border: 1px solid rgba(0, 240, 255, 0.1);
             border-radius: 20px;
             padding: 20px;
             transition: border-color 0.2s;
         }
-        .praediction-card:hover { border-color: rgba(64, 224, 208, 0.4); }
+        .praediction-card:hover { border-color: rgba(0, 240, 255, 0.4); }
         .praediction-title {
             font-size: 1.2rem;
             font-weight: 500;
-            color: #40E0D0;
+            color: #00F0FF;
             margin-bottom: 8px;
-        }
-        .praediction-desc {
-            font-size: 0.9rem;
-            margin-bottom: 12px;
-            color: #ccc;
-        }
-        .meta-row {
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: space-between;
-            align-items: center;
-            gap: 8px;
-            font-size: 0.7rem;
-            color: #aaa;
-            border-top: 1px solid rgba(64,224,208,0.15);
-            padding-top: 8px;
-            margin-bottom: 12px;
         }
         .badge {
             display: inline-block;
             padding: 2px 8px;
             border-radius: 20px;
             font-size: 0.7rem;
-            font-weight: 500;
+            margin-left: 8px;
         }
-        .badge-active { background: #40E0D020; color: #40E0D0; border: 1px solid #40E0D0; }
-        .badge-resolved { background: #AA66FF20; color: #CCAAFF; border: 1px solid #CCAAFF; }
-        .badge-expired { background: #FF444420; color: #FF8888; border: 1px solid #FF8888; }
+        .badge-active { background: #00F0FF20; color: #00F0FF; border: 1px solid #00F0FF; }
+        .badge-resolved { background: #4A4A4A; color: #BBBBBB; }
         .oracle-badge { background: #FFB80020; color: #FFB800; border: 1px solid #FFB800; }
-        .vote-stats {
-            display: flex;
-            justify-content: space-between;
-            background: rgba(64,224,208,0.08);
-            border-radius: 40px;
-            padding: 8px 16px;
-            font-size: 0.7rem;
-            font-weight: 500;
-        }
         .action-buttons { display: flex; gap: 12px; margin-top: 16px; flex-wrap: wrap; }
         .btn-praedict, .btn-suggest {
             padding: 8px 16px;
@@ -478,8 +331,8 @@
             flex: 1;
             text-align: center;
         }
-        .btn-praedict { background: #40E0D0; color: #0A0A0A; border: none; }
-        .btn-suggest { background: rgba(64, 224, 208, 0.2); color: #40E0D0; border: 1px solid #40E0D0; }
+        .btn-praedict { background: #00F0FF; color: #0A0A0A; border: none; }
+        .btn-suggest { background: rgba(0, 240, 255, 0.2); color: #00F0FF; border: 1px solid #00F0FF; }
         .oracle-resolve {
             background: #FFB800;
             color: #0A0A0A;
@@ -491,32 +344,32 @@
             margin-top: 8px;
             width: 100%;
         }
-        .suggestions-list { margin-top: 12px; border-top: 1px solid rgba(64,224,208,0.2); padding-top: 8px; font-size: 0.8rem; }
-        .suggestion-item { background: rgba(64,224,208,0.05); border-radius: 12px; padding: 8px; margin-bottom: 8px; }
+        .suggestions-list { margin-top: 12px; border-top: 1px solid rgba(0, 240, 255, 0.2); padding-top: 8px; font-size: 0.8rem; }
+        .suggestion-item { background: rgba(0, 240, 255, 0.05); border-radius: 12px; padding: 8px; margin-bottom: 8px; }
         .create-praediction input, .create-praediction textarea, .create-praediction select {
             width: 100%;
             padding: 10px;
             margin-bottom: 12px;
-            background: rgba(64, 224, 208, 0.05);
-            border: 1px solid rgba(64, 224, 208, 0.2);
+            background: rgba(0, 240, 255, 0.05);
+            border: 1px solid rgba(0, 240, 255, 0.2);
             border-radius: 12px;
             color: white;
         }
         .referral-box, .social-links { margin-top: 16px; }
         .social-btn {
-            background: rgba(64, 224, 208, 0.1);
-            color: #40E0D0;
+            background: rgba(0, 240, 255, 0.1);
+            color: #00F0FF;
             padding: 6px 12px;
             border-radius: 40px;
             text-decoration: none;
             font-size: 0.8rem;
-            border: 1px solid rgba(64, 224, 208, 0.3);
+            border: 1px solid rgba(0, 240, 255, 0.3);
         }
         .toast {
             position: fixed;
             bottom: 20px;
             right: 20px;
-            background: #40E0D0;
+            background: #00F0FF;
             color: #0A0A0A;
             padding: 12px 24px;
             border-radius: 40px;
@@ -540,97 +393,15 @@
         }
         .tutorial-card {
             background: #0A0A0A;
-            border: 1px solid #40E0D0;
+            border: 1px solid #00F0FF;
             border-radius: 32px;
             padding: 32px;
             max-width: 400px;
             text-align: center;
         }
-        .ad-banner { background: rgba(64, 224, 208, 0.1); border-radius: 16px; padding: 12px; text-align: center; margin-top: 20px; }
-        .horoscope {
-            margin-top: 20px;
-            padding: 12px;
-            background: rgba(64, 224, 208, 0.05);
-            border-radius: 20px;
-            text-align: center;
-            font-style: italic;
-            border: 1px solid rgba(64, 224, 208, 0.2);
-            color: #40E0D0;
-        }
-        .daily-praediction-content {
-            text-align: center;
-            padding: 20px;
-        }
-        .my-praedictions-list {
-            display: none;
-            margin-top: 12px;
-        }
-        .faq-answer {
-            margin-bottom: 16px;
-        }
-        .zodiac-selector {
-            margin: 20px 0;
-            display: flex;
-            flex-wrap: wrap;
-            gap: 12px;
-            align-items: center;
-        }
-        .zodiac-selector select {
-            background: rgba(64, 224, 208, 0.1);
-            border: 1px solid rgba(64, 224, 208, 0.3);
-            padding: 8px 16px;
-            border-radius: 40px;
-            color: white;
-        }
-        .horoscope-headline {
-            font-size: 0.9rem;
-            font-weight: 600;
-            color: #40E0D0;
-            margin-bottom: 6px;
-            letter-spacing: 1px;
-        }
-        .zodiac-status-text {
-            background: rgba(64,224,208,0.15);
-            padding: 8px 16px;
-            border-radius: 40px;
-            display: inline-block;
-            font-size: 1rem;
-            font-weight: 600;
-            margin-bottom: 12px;
-            text-align: right;
-            float: right;
-            color: #40E0D0;
-        }
-        #profileHeadline {
-            text-align: center;
-        }
-        #dailyHoroscopeStatic {
-            text-align: center;
-            color: #40E0D0;
-            margin-bottom: 20px;
-            font-style: italic;
-        }
-        .hype-message {
-            text-align: center;
-            color: #40E0D0;
-            margin-bottom: 24px;
-            font-weight: 500;
-        }
-        .wallet-address {
-            color: white;
-        }
-        .clearfix::after {
-            content: "";
-            clear: both;
-            display: table;
-        }
-        .category-icon {
-            display: inline-block;
-            margin-right: 4px;
-        }
-        .extra-margin {
-            margin-bottom: 32px;
-        }
+        .violet-btn { background: #8b5cf6; box-shadow: none; }
+        .violet-btn:hover { background: #7c3aed; }
+        .ad-banner { background: rgba(0, 240, 255, 0.1); border-radius: 16px; padding: 12px; text-align: center; margin-top: 20px; }
     </style>
 </head>
 <body>
@@ -643,8 +414,8 @@
         <div class="eye-container" style="width: 80px; height: 50px; margin: 0 auto 16px;">
             <div class="eye"><div class="iris"><div class="pupil"></div></div></div>
         </div>
-        <h2 style="color:#40E0D0;">Welcome to P R A E D I C T A</h2>
-        <p style="margin: 16px 0; line-height:1.6;">✨ Create praedictions<br>🗳️ Use your 70 daily votes<br>🦉 The Oracle resolves after deadline<br>👤 Seers can send suggestions with evidence</p>
+        <h2 style="color:#00F0FF;">Welcome to PRAEDICTA</h2>
+        <p style="margin: 16px 0; line-height:1.6;">✨ Create praedictions<br>🗳️ Use your daily votes (7 per day)<br>🦉 The Oracle resolves after deadline<br>📢 Seers can send suggestions with evidence</p>
         <button id="closeTutorialBtn" class="btn">Let's go!</button>
     </div>
 </div>
@@ -657,7 +428,7 @@
         </div>
         <h2>PRAEDICTA</h2>
         <div class="tagline">for those who see</div>
-        <button id="connectBtn" class="btn" style="margin-top: 20px;"> Connect Wallet</button>
+        <button id="connectBtn" class="btn" style="margin-top: 20px;">👻 Connect Phantom</button>
         <div id="gateMessage" style="margin-top: 20px; color: #8A8A8A;"></div>
     </div>
 </div>
@@ -676,44 +447,24 @@
         </div>
         <div class="stats">
             <div class="stat"><div class="stat-value" id="totalActive">0</div><div>Active</div></div>
-            <div class="stat"><div class="stat-value" id="totalPraedicts">0</div><div>Votes</div></div>
+            <div class="stat"><div class="stat-value" id="totalPraedicts">0</div><div>Praedicts</div></div>
             <div class="stat"><div class="stat-value" id="totalSeerscore">0</div><div>Seerscore</div></div>
         </div>
     </div>
 
     <div class="tabs">
-        <div class="tabs-left">
-            <button class="tab-btn active" data-tab="praedictions">📊 Praedictions</button>
-            <button class="tab-btn" data-tab="leaderboard">🏆 Leaderboard</button>
-            <button class="tab-btn" data-tab="profile">👤 SeerStats</button>
-            <button class="tab-btn" data-tab="dailyhoroscope">Your Daily 👁️ </button>
-            <button class="tab-btn" data-tab="support">💛 Support</button>
-            <button class="tab-btn" data-tab="faq">❓ FAQ</button>
-        </div>
-        <div class="right-tab-items">
-            <button id="themeToggleSmall" class="theme-toggle-small">🌓 Light/Dark</button>
-            <div id="oracleIndicatorTop" class="oracle-indicator-top" style="display:none;">🦉 ORACLE</div>
-        </div>
+        <button class="tab-btn active" data-tab="praedictions">📊 Praedictions</button>
+        <button class="tab-btn" data-tab="leaderboard">🏆 Leaderboard</button>
+        <button class="tab-btn" data-tab="profile">👤 SeerStats</button>
+        <button class="tab-btn" data-tab="support">💛 Support</button>
+        <button class="tab-btn" data-tab="faq">❓ FAQ</button>
     </div>
 
     <!-- PRAEDICTIONS TAB -->
     <div id="tab-praedictions" class="tab-content active">
-        <div id="dailyHoroscopeStatic">👁️ Loading daily insight...</div>
         <div class="filter-bar">
-            <select id="filterCategory">
-                <option value="all">All Categories</option>
-                <option value="worldevents">🌍 World Events</option>
-                <option value="politics">🏛️ Politics</option>
-                <option value="crypto">💰 Finance</option>
-                <option value="people">👤 People</option>
-                <option value="sports">⚽ Sports</option>
-                <option value="wildcard">🎲 Wildcard</option>
-            </select>
-            <div class="status-filter-btns">
-                <button class="status-filter-btn active-filter" data-status="active">Active</button>
-                <button class="status-filter-btn" data-status="expired">Expired</button>
-                <button class="status-filter-btn" data-status="resolved">Resolved</button>
-            </div>
+            <select id="filterCategory"><option value="all">All Categories</option><option value="crypto">Crypto</option><option value="sports">Sports</option><option value="politics">Politics</option><option value="weather">Weather</option><option value="wildcard">Wildcard</option></select>
+            <select id="filterStatus"><option value="all">All Status</option><option value="active">Active</option><option value="resolved">Resolved</option></select>
             <input type="text" id="filterSearch" placeholder="Search title...">
         </div>
         <div id="praedictionsContainer" class="praedictions-grid"></div>
@@ -722,12 +473,7 @@
             <input type="text" id="title" placeholder="Title">
             <textarea id="description" rows="2" placeholder="Description"></textarea>
             <select id="category">
-                <option value="worldevents">🌍 World Events</option>
-                <option value="politics">🏛️ Politics</option>
-                <option value="crypto">💰 Finance</option>
-                <option value="people">👤 People</option>
-                <option value="sports">⚽ Sports</option>
-                <option value="wildcard">🎲 Wildcard</option>
+                <option value="crypto">💰 Crypto</option><option value="sports">⚽ Sports</option><option value="politics">🏛️ Politics</option><option value="weather">🌤️ Weather</option><option value="wildcard">🎲 Wildcard</option>
             </select>
             <input type="datetime-local" id="resolutionDate">
             <select id="autoSource">
@@ -743,61 +489,30 @@
 
     <!-- LEADERBOARD TAB -->
     <div id="tab-leaderboard" class="tab-content">
-        <div id="hypeMessage" class="hype-message"></div>
-        <div class="card"><h3>🏆 <span style="color:#40E0D0;">TOP SEERS</span></h3><div id="leaderboardList"></div></div>
+        <div class="card"><h3>🏆 Top Seers</h3><div id="leaderboardList"></div></div>
     </div>
 
-    <!-- PROFILE TAB (SeerStats) -->
+    <!-- PROFILE TAB -->
     <div id="tab-profile" class="tab-content">
         <div class="card">
-            <h3 id="profileHeadline" style="color:#40E0D0;">Welcome Seer: <span id="walletDisplay" class="wallet-address"></span><span id="oracleIndicatorProfile" style="display:none; margin-left:8px;" class="oracle-badge">🦉 ORACLE</span></h3>
-            <div id="profileHoroscope" class="horoscope"></div>
+            <h3 id="profileHeadline" style="color:#00F0FF;">Welcome Seer</h3>
             <div id="profileStats" style="margin-top: 16px;"></div>
-            <div class="zodiac-selector">
-                <span class="zodiac-label" style="color:#40E0D0;">⭐ Your Zodiac Sign:</span>
-                <select id="zodiacSelect">
-                    <option value="">Select</option>
-                    <option value="aries">♈ Aries</option><option value="taurus">♉ Taurus</option><option value="gemini">♊ Gemini</option>
-                    <option value="cancer">♋ Cancer</option><option value="leo">♌ Leo</option><option value="virgo">♍ Virgo</option>
-                    <option value="libra">♎ Libra</option><option value="scorpio">♏ Scorpio</option><option value="sagittarius">♐ Sagittarius</option>
-                    <option value="capricorn">♑ Capricorn</option><option value="aquarius">♒ Aquarius</option><option value="pisces">♓ Pisces</option>
-                </select>
-                <button id="saveZodiacBtn" class="social-btn">Save</button>
-            </div>
-            <div id="userZodiacDisplay" style="display: none;" class="zodiac-status-text"></div>
-            <div style="margin-bottom: 32px;"></div> <!-- extra spacing -->
-            <div id="zodiacRealHeadline" class="horoscope-headline" style="display: none;">Your Daily 👁️ Praediction:</div>
-            <div id="zodiacHoroscopeDisplay" style="margin-top: 12px; padding: 12px; background: rgba(64,224,208,0.05); border-radius: 20px; font-style: italic;"></div>
-            <div class="referral-box"><strong style="color:#40E0D0;">🔗 Your Referral Link</strong><br><span id="referralLink"></span><br><button id="copyReferralBtn" class="social-btn" style="margin-top:8px;">📋 Copy Link</button></div>
-            <div style="margin-top: 20px;">
-                <button id="showMyPraedictionsBtn" class="btn" style="width:100%; background: #40E0D020; color:#40E0D0;">📋 Show My Praedictions</button>
-                <div id="myPraedictionsList" class="my-praedictions-list"></div>
-            </div>
-            <div class="ad-banner">👁️ P R A E D I C T A – Predict and earn SeerScore ✨ <br><a href="https://dexscreener.com/solana/FYCSFKujPbtAASg42J1riNfxYEJBUM5Sv88uBAnnSs3o" target="_blank" style="color:#40E0D0;">Get PRAE on DexScreener →</a></div>
+            <div class="referral-box"><strong>🔗 Your Referral Link</strong><br><span id="referralLink"></span><br><button id="copyReferralBtn" class="social-btn" style="margin-top:8px;">📋 Copy Link</button></div>
+            <div style="margin-top: 20px;"><button id="showMyPraedictionsBtn" class="btn" style="width:100%; background: #00F0FF20; color:#00F0FF;">📋 Show My Praedictions</button><div id="myPraedictionsList" style="margin-top: 12px;"></div></div>
+            <div class="ad-banner">🧠 PRAEDICTA – Predict the future, earn Seerscore!<br><a href="https://dexscreener.com/solana/7C2Y5NebLFG37wMbB85TbMqYERTSkq9tEi58wv28MCzt" target="_blank" style="color:#00F0FF;">Get PRAE on DexScreener →</a></div>
             <button id="exportDataBtn" class="btn" style="margin-top:16px; width:100%;">📥 Export Data (JSON)</button>
-        </div>
-    </div>
-
-    <!-- YOUR DAILY PRAEDICTION TAB -->
-    <div id="tab-dailyhoroscope" class="tab-content">
-        <div class="card">
-            <h3 style="color:#40E0D0; text-align: center;">Your Daily 👁️ PRAEDICTION</h3>
-            <div id="dailyHoroscopeDetail" class="daily-praediction-content"></div>
-            <div id="dailyRealHoroscopeBlock" style="display: none; margin-top: 20px;">
-                <div id="dailyRealHoroscopeContent" class="horoscope"></div>
-            </div>
         </div>
     </div>
 
     <!-- SUPPORT TAB -->
     <div id="tab-support" class="tab-content">
         <div class="card">
-            <h3 style="color:#40E0D0;">💛 Support P R A E D I C T A</h3>
-            <p>Your support keeps PRAE in the Game.</p>
-            <div class="social-links"><a href="https://t.me/praedictacoin" target="_blank" class="social-btn">📱 PRAEDICTA Channel</a><a href="https://x.com/PraedictaCoin" target="_blank" class="social-btn">🐦 X </a><a href="https://dexscreener.com/solana/FYCSFKujPbtAASg42J1riNfxYEJBUM5Sv88uBAnnSs3o" target="_blank" class="social-btn">📊 DexScreener</a></div>
-            <button id="donateBtn" class="btn" style="width:100%; margin:20px 0 0;">☕ Buy me a coffee / Add liquidity</button>
-            <div class="ad-banner">🌟 Use affiliate links to support us:<br><a href="https://phantom.app/" target="_blank" style="color:#40E0D0;">Phantom Wallet</a> | <a href="https://jup.ag/" target="_blank" style="color:#40E0D0;">Jupiter Aggregator</a></div>
-            <div class="ad-banner">👁️ P R A E D I C T A - For those who see<br><a href="https://dexscreener.com/solana/FYCSFKujPbtAASg42J1riNfxYEJBUM5Sv88uBAnnSs3o" target="_blank" style="color:#40E0D0;">Trade PRAE here</a></div>
+            <h3>💛 Support PRAEDICTA</h3>
+            <p>Your support keeps the PRAEDICTA in the Game.</p>
+            <div class="social-links"><a href="https://t.me/praedictacoin" target="_blank" class="social-btn">📱 Telegram Group</a><a href="https://x.com/PraedictaCoin" target="_blank" class="social-btn">🐦 X (Twitter)</a><a href="https://dexscreener.com/solana/7C2Y5NebLFG37wMbB85TbMqYERTSkq9tEi58wv28MCzt" target="_blank" class="social-btn">📊 DexScreener</a></div>
+            <button id="donateBtn" class="btn violet-btn" style="width:100%; margin:16px 0;">☕ Buy me a coffee / Add liquidity</button>
+            <div class="ad-banner">🌟 Use affiliate links to support us:<br><a href="https://phantom.app/" target="_blank" style="color:#00F0FF;">Phantom Wallet</a> | <a href="https://jup.ag/" target="_blank" style="color:#00F0FF;">Jupiter Aggregator</a></div>
+            <div class="ad-banner" style="margin-top:12px;">🔮 PRAEDICTA – The premier prediction oracle<br><a href="https://dexscreener.com/solana/7C2Y5NebLFG37wMbB85TbMqYERTSkq9tEi58wv28MCzt" target="_blank" style="color:#00F0FF;">Trade PRAE here →</a></div>
         </div>
     </div>
 
@@ -805,28 +520,16 @@
     <div id="tab-faq" class="tab-content">
         <div class="card">
             <h3>❓ Frequently Asked Questions</h3>
-            <div class="faq-question" style="color:#40E0D0; margin-top:16px;">👁️ How does PRAEDICTA work?</div>
-            <div class="faq-answer">Seers praedict future events. The Community can vote. The Oracle resolves.</div>
-            <div class="faq-question" style="color:#40E0D0; margin-top:16px;">🔮 What can I PRAEdict?</div>
-            <div class="faq-answer">Anything with a <span style="color:#40E0D0;">VERIFIABLE</span> source URL! Finance, sports, elections, economics, tech, world events, or Wildcard.</div>
-            <div class="faq-question" style="color:#40E0D0; margin-top:16px;">🦉 How does the Oracle resolve the Praedictions?</div>
-            <div class="faq-answer">The Oracle resolves each praediction using user suggestions and real‑world evidence.</div>
-            <div class="faq-question" style="color:#40E0D0; margin-top:16px;">🗳️ How to help resolve?</div>
-            <div class="faq-answer">After the deadline, click "Suggest Outcome" with evidence URL. The Oracle reviews.</div>
-            <div class="faq-question" style="color:#40E0D0; margin-top:16px;">📈 How does auto‑resolve work?</div>
-            <div class="faq-answer">If you select a price feed and a target value, after the deadline the system automatically fetches the real price.</div>
-            <div class="faq-question" style="color:#40E0D0; margin-top:16px;">💎 Do I lose my 777 PRAE? </div>
-            <div class="faq-answer"><span style="color:#40E0D0;">NO!</span> The app only <span style="color:#40E0D0;">CHECKS</span> your balance. Your tokens stay in your wallet.</div>
-            <div class="faq-question" style="color:#40E0D0; margin-top:16px;">👁️ What is PRAE and where can I get it.</div>
-            <div class="faq-answer">PRAE is a community token. Used for reputation. You can get it on DexScreener or Raydium.</div>
-            <div class="faq-question" style="color:#40E0D0; margin-top:16px;">👥 Is there a community I can join?</div>
-            <div class="faq-answer"><span style="color:#40E0D0;">Yes!</span> Join our Telegram: <a href="https://t.me/praedictacoin" target="_blank" style="color:#40E0D0;">t.me/praedictacoin</a> or X: <a href="https://x.com/PraedictaCoin" target="_blank" style="color:#40E0D0;">@PraedictaCoin</a>.</div>
-            <div class="faq-question" style="color:#40E0D0; margin-top:16px;">💛 How can I support the project?</div>
-            <div class="faq-answer">Check the <strong>“Support” tab</strong> – you can donate or add liquidity to the PRAE token.</div>
-            <div class="faq-question" style="color:#40E0D0; margin-top:16px;">📱 Can I install this as an app?</div>
-            <div class="faq-answer">YES! This is a PWA. On mobile: Chrome → "Add to Home Screen". On desktop: Click the install icon.</div>
-            <div class="faq-question" style="color:#40E0D0; margin-top:16px;">⚖️ Legal disclaimer</div>
-            <div class="faq-answer">Free game for entertainment. SeerScore is for Reputation only, points have no cash value.</div>
+            <div class="faq-question" style="color:#00F0FF; margin-top:16px;">🔮 What is a Praediction?</div>
+            <div class="faq-answer">Users guess YES/NO on future events. After deadline, the Oracle resolves.</div>
+            <div class="faq-question" style="color:#00F0FF;">🗳️ How to help resolve?</div>
+            <div class="faq-answer">After deadline, click "Suggest Outcome" with evidence URL. Oracle reviews.</div>
+            <div class="faq-question" style="color:#00F0FF;">🦉 Who is the Oracle?</div>
+            <div class="faq-answer">The project owner resolves each praediction using user suggestions and real‑world evidence.</div>
+            <div class="faq-question" style="color:#00F0FF;">💎 Do I lose my 777 PRAE?</div>
+            <div class="faq-answer">No – app only checks balance. No money transferred.</div>
+            <div class="faq-question" style="color:#00F0FF;">⚖️ Legal disclaimer</div>
+            <div class="faq-answer">Free game for entertainment. Points have no cash value. Not gambling.</div>
         </div>
     </div>
 </div>
@@ -834,112 +537,232 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
 // ============================================================
-// PRAEDICTA - FINAL: votes 70/day, session horoscope cache, removed oracle badges from cards
+// PRAEDICTA - FULLY INTEGRATED WITH HOMEPAGE VISUAL STYLE
 // ============================================================
 const SUPABASE_URL = "https://klgwyaeqnklydlqatzys.supabase.co";
 const SUPABASE_ANON_KEY = "sb_publishable_OL32s1-muu_5d5ACQ_4kVQ_yEEeyJl1";
 const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-const ORACLE_WALLET = "FYCSFKujPbtAASg42J1riNfxYEJBUM5Sv88uBAnnSs3o";
+const ORACLE_WALLET = "7C2Y5NebLFG37wMbB85TbMqYERTSkq9tEi58wv28MCzt";
 
 let walletAddress = null;
 let currentPredictions = [];
 let actionCooldown = false;
-let currentFilter = { category: 'all', status: 'active', search: '' };
+let currentFilter = { category: 'all', status: 'all', search: '' };
 
-// Session cache for horoscope (per sign, per session)
-let sessionHoroscopeCache = {};
-
+// Helper functions (same as before)
 function getUTCDayKey() { return new Date().toISOString().slice(0,10); }
 function escapeHtml(str) { if (!str) return ''; return str.replace(/[&<>]/g, m => ({ '&':'&amp;','<':'&lt;','>':'&gt;' })[m]); }
 function isValidUrl(url) { try { const u = new URL(url); return ['http:', 'https:'].includes(u.protocol); } catch(e) { return false; } }
 function showToast(msg) { const t = document.createElement('div'); t.className = 'toast'; t.textContent = msg; document.body.appendChild(t); setTimeout(() => t.remove(), 3000); }
 
-const signToNumber = { aries:1, taurus:2, gemini:3, cancer:4, leo:5, virgo:6, libra:7, scorpio:8, sagittarius:9, capricorn:10, aquarius:11, pisces:12 };
-const signNames = { aries:"Aries", taurus:"Taurus", gemini:"Gemini", cancer:"Cancer", leo:"Leo", virgo:"Virgo", libra:"Libra", scorpio:"Scorpio", sagittarius:"Sagittarius", capricorn:"Capricorn", aquarius:"Aquarius", pisces:"Pisces" };
+// Supabase helpers
+async function loadPredictions() {
+    const { data, error } = await supabaseClient.from('predictions').select('*').order('created_at', { ascending: false });
+    if (error) { console.error(error); showToast("Error loading predictions"); return []; }
+    return data;
+}
+async function loadUser(address) {
+    const { data, error } = await supabaseClient.from('users').select('*').eq('address', address).maybeSingle();
+    if (error && error.code !== 'PGRST116') console.error(error);
+    return data;
+}
+async function upsertUser(user) {
+    const { error } = await supabaseClient.from('users').upsert(user, { onConflict: 'address' });
+    if (error) console.error(error);
+}
+async function updatePrediction(id, updates) {
+    const { error } = await supabaseClient.from('predictions').update(updates).eq('id', id);
+    if (error) console.error(error);
+}
 
-const categoryIcons = {
-    worldevents: "🌍",
-    politics: "🏛️",
-    crypto: "💰",
-    people: "👤",
-    sports: "⚽",
-    wildcard: "🎲"
-};
+function getFilteredPredictions() {
+    let filtered = [...currentPredictions];
+    if (currentFilter.category !== 'all') filtered = filtered.filter(p => p.category === currentFilter.category);
+    if (currentFilter.status !== 'all') filtered = filtered.filter(p => p.status === currentFilter.status);
+    if (currentFilter.search) {
+        const s = currentFilter.search.toLowerCase();
+        filtered = filtered.filter(p => p.title.toLowerCase().includes(s));
+    }
+    return filtered;
+}
 
-async function fetchHoroscopeForZodiac(sign) {
-    if (!sign || !signToNumber[sign]) return null;
+async function renderAll() {
+    currentPredictions = await loadPredictions();
+    renderPraedictions();
+    renderLeaderboard();
+    renderProfile();
+    renderMyPraedictions();
+    const activeCount = currentPredictions.filter(p => p.status === 'active').length;
+    const totalBets = currentPredictions.reduce((s,p) => s + (p.bets?.length || 0), 0);
+    document.getElementById('totalActive').innerText = activeCount;
+    document.getElementById('totalPraedicts').innerText = totalBets;
+    const user = await loadUser(walletAddress);
+    document.getElementById('totalSeerscore').innerText = user?.seerscore || 0;
+}
+
+function renderPraedictions() {
+    const container = document.getElementById('praedictionsContainer');
+    if (!container) return;
+    const filtered = getFilteredPredictions();
+    if (filtered.length === 0) { container.innerHTML = '<div style="text-align:center; padding:40px;">No praedictions match filters.</div>'; return; }
+    container.innerHTML = filtered.map(p => {
+        const isActive = p.status === 'active';
+        const isResolved = p.status === 'resolved';
+        const totalVol = (p.betting_pool_yes || 0) + (p.betting_pool_no || 0);
+        const yesProb = totalVol > 0 ? ((p.betting_pool_yes||0)/totalVol*100).toFixed(0) : 50;
+        const noProb = totalVol > 0 ? ((p.betting_pool_no||0)/totalVol*100).toFixed(0) : 50;
+        const deadline = p.resolution_date ? new Date(p.resolution_date).toLocaleString() : 'No deadline';
+        const isOracle = (walletAddress === ORACLE_WALLET);
+        const canResolve = isActive && isOracle && (!p.auto_source || new Date(p.resolution_date) <= new Date());
+        const canSuggest = isActive && walletAddress && (new Date(p.resolution_date) <= new Date());
+        const suggestions = p.suggestions || [];
+        const hasUserSuggested = suggestions.some(s => s.user === walletAddress);
+        return `
+            <div class="praediction-card">
+                <div class="praediction-title">
+                    ${escapeHtml(p.title)}
+                    <span class="badge ${isActive ? 'badge-active' : 'badge-resolved'}">${isActive ? 'ACTIVE' : 'RESOLVED'}</span>
+                    ${isOracle ? '<span class="badge oracle-badge">🦉 ORACLE</span>' : ''}
+                </div>
+                <div>${escapeHtml(p.description)}</div>
+                <div style="font-size:0.7rem; margin:4px 0;">📂 ${escapeHtml(p.category)} • ⏰ ${deadline}</div>
+                ${p.auto_source ? `<div style="font-size:0.7rem;">🤖 Auto-resolve: ${p.auto_source} ≥ ${p.target_value}</div>` : ''}
+                <div style="display:flex; justify-content:space-between; margin:12px 0;">
+                    <div>YES ${yesProb}% <br> 👁️ ${p.betting_pool_yes||0}</div>
+                    <div>NO ${noProb}% <br> 👁️ ${p.betting_pool_no||0}</div>
+                </div>
+                ${isActive ? `
+                    <div class="action-buttons">
+                        <button class="btn-praedict" data-id="${p.id}" data-outcome="yes">👁️ Praedict YES</button>
+                        <button class="btn-praedict" data-id="${p.id}" data-outcome="no">👁️ Praedict NO</button>
+                        ${canSuggest ? `<button class="btn-suggest" data-id="${p.id}" data-hassuggested="${hasUserSuggested}" ${hasUserSuggested ? 'disabled style="opacity:0.5;"' : ''}>🗳️ Suggest Outcome</button>` : ''}
+                    </div>
+                ` : `<div style="text-align:center; margin-top:12px;">🏆 RESOLVED: ${p.resolved_outcome === 'yes' ? '✅ YES' : p.resolved_outcome === 'no' ? '❌ NO' : '🕒 EXPIRED'}</div>`}
+                ${suggestions.length > 0 && isOracle ? `
+                    <div class="suggestions-list">
+                        <strong>📢 Seer Suggestions:</strong>
+                        ${suggestions.map(s => `
+                            <div class="suggestion-item">
+                                <div>${s.user.slice(0,6)}... suggests <strong>${s.outcome.toUpperCase()}</strong></div>
+                                <div>Evidence: <a href="${escapeHtml(s.evidence)}" target="_blank" rel="noopener noreferrer">link</a></div>
+                                <button class="oracle-resolve" data-id="${p.id}" data-outcome="${s.outcome}" data-suggestion-id="${s.timestamp}" style="background:#FFB800;">✅ Approve this suggestion</button>
+                            </div>
+                        `).join('')}
+                    </div>
+                ` : ''}
+                ${canResolve ? `
+                    <div style="margin-top:12px;">
+                        <button class="oracle-resolve" data-id="${p.id}" data-outcome="yes">✅ Oracle Resolve YES</button>
+                        <button class="oracle-resolve" data-id="${p.id}" data-outcome="no">❌ Oracle Resolve NO</button>
+                        <button class="oracle-resolve" data-id="${p.id}" data-outcome="expired">🕒 Expire (refund)</button>
+                    </div>
+                ` : ''}
+            </div>
+        `;
+    }).join('');
+    // attach listeners
+    document.querySelectorAll('.btn-praedict').forEach(btn => { btn.removeEventListener('click', praedictHandler); btn.addEventListener('click', praedictHandler); });
+    document.querySelectorAll('.btn-suggest').forEach(btn => { btn.removeEventListener('click', suggestHandler); btn.addEventListener('click', suggestHandler); });
+    document.querySelectorAll('.oracle-resolve').forEach(btn => { btn.removeEventListener('click', oracleResolveHandler); btn.addEventListener('click', oracleResolveHandler); });
+}
+function praedictHandler(e) { praedict(e.currentTarget.dataset.id, e.currentTarget.dataset.outcome); }
+async function suggestHandler(e) {
+    const btn = e.currentTarget;
+    const id = btn.dataset.id;
+    if (btn.dataset.hassuggested === 'true') { showToast("You already suggested"); return; }
+    const outcome = prompt("Correct outcome? (yes/no)", "yes");
+    if (!outcome || (outcome !== 'yes' && outcome !== 'no')) { showToast("Invalid outcome"); return; }
+    let evidence = prompt("Evidence URL:", "");
+    if (!evidence) { showToast("Evidence required"); return; }
+    if (!isValidUrl(evidence)) { showToast("Invalid URL"); return; }
+    if (!confirm(`Submit suggestion: ${outcome.toUpperCase()} with evidence?`)) return;
+    const market = currentPredictions.find(p => p.id === id);
+    if (!market || market.status !== 'active') { showToast("Market not active"); return; }
+    const suggestions = market.suggestions || [];
+    if (suggestions.some(s => s.user === walletAddress)) { showToast("Already suggested"); return; }
+    suggestions.push({ user: walletAddress, outcome, evidence, timestamp: Date.now() });
+    await updatePrediction(id, { suggestions });
+    showToast("✅ Suggestion submitted! Oracle will review.");
+    await renderAll();
+}
+async function oracleResolveHandler(e) {
+    const id = e.currentTarget.dataset.id;
+    const outcome = e.currentTarget.dataset.outcome;
+    if (walletAddress !== ORACLE_WALLET) { showToast("Only Oracle can resolve"); return; }
+    if (!confirm(`Resolve to ${outcome.toUpperCase()}? This cannot be undone.`)) return;
+    await resolveMarket(id, outcome);
+}
+async function renderLeaderboard() {
+    const { data, error } = await supabaseClient.from('users').select('address, seerscore').order('seerscore', { ascending: false }).limit(20);
+    if (error) return;
+    const container = document.getElementById('leaderboardList');
+    if (!container) return;
+    if (!data.length) { container.innerHTML = '<div>No seers yet</div>'; return; }
+    container.innerHTML = data.map((u, i) => `<div style="display:flex; justify-content:space-between; padding:8px; border-bottom:1px solid rgba(0,240,255,0.2);"><div>${i+1}. ${u.address.slice(0,6)}...${u.address.slice(-4)}</div><div>👁️ ${u.seerscore}</div></div>`).join('');
+}
+async function renderProfile() {
+    const container = document.getElementById('profileStats');
+    const headline = document.getElementById('profileHeadline');
+    if (!container) return;
+    const user = await loadUser(walletAddress);
+    if (!user) { container.innerHTML = '<div>Loading...</div>'; return; }
+    if (headline) headline.innerHTML = `Welcome Seer: <span style="color:#00F0FF;">${walletAddress.slice(0,8)}...${walletAddress.slice(-6)}</span>`;
     const today = getUTCDayKey();
-    const sessionKey = `${sign}_${today}`;
-    if (sessionHoroscopeCache[sessionKey]) return sessionHoroscopeCache[sessionKey];
-    const cacheKey = `horoscope_${sign}_${today}`;
-    const cached = localStorage.getItem(cacheKey);
-    if (cached) {
-        try { const data = JSON.parse(cached); sessionHoroscopeCache[sessionKey] = data; return data; } catch(e) {}
-    }
-    const signNumber = signToNumber[sign];
-    const url = `https://api.allorigins.win/raw?url=https://www.horoscope.com/us/horoscopes/general/horoscope-general-daily-today.aspx?sign=${signNumber}`;
+    const creationsUsed = (user.last_create_day === today) ? (user.creations_today || 0) : 0;
+    const creationsLeft = 7 - creationsUsed;
+    container.innerHTML = `
+        <div style="margin-top: 8px;">✨ Creations left today: ${creationsLeft}/7</div>
+        <div>🗳️ Votes left today: ${user.votes_left}/7</div>
+        <div>📝 Praedictions made: ${user.total_votes || 0}</div>
+        <div>🎯 Accuracy: ${((user.correct_votes||0)/(user.total_votes||1)*100).toFixed(0)}%</div>
+        <div>👁️ Total Seerscore: ${user.seerscore || 0}</div>
+    `;
+    const referralLink = document.getElementById('referralLink');
+    if (referralLink) referralLink.textContent = `${window.location.origin}${window.location.pathname}?ref=${walletAddress}`;
+}
+async function renderMyPraedictions() {
+    const container = document.getElementById('myPraedictionsList');
+    if (!container) return;
+    const myBets = currentPredictions.flatMap(p => (p.bets || []).filter(b => b.user === walletAddress).map(b => ({ ...p, userBet: b })));
+    if (myBets.length === 0) { container.innerHTML = '<div>You haven\'t praedicted yet.</div>'; return; }
+    container.innerHTML = myBets.map(p => `<div style="background:rgba(0,240,255,0.05); border-radius:12px; padding:12px; margin-bottom:8px;"><strong>${escapeHtml(p.title)}</strong><br>Your praedict: ${p.userBet.outcome.toUpperCase()} • Status: ${p.status}<br>Outcome: ${p.resolved_outcome ? (p.resolved_outcome === 'yes' ? '✅ YES' : p.resolved_outcome === 'no' ? '❌ NO' : '🕒 EXPIRED') : '⏳ Pending'}</div>`).join('');
+}
+async function praedict(id, outcome) {
+    if (actionCooldown) { showToast("Please wait"); return; }
+    actionCooldown = true;
     try {
-        const response = await fetch(url);
-        const html = await response.text();
-        const parser = new DOMParser();
-        const doc = parser.parseFromString(html, 'text/html');
-        let horoscopeText = '';
-        const mainDiv = doc.querySelector('.main-horoscope');
-        if (mainDiv) { const p = mainDiv.querySelector('p'); if (p) horoscopeText = p.textContent.trim(); }
-        if (!horoscopeText) {
-            const paragraphs = doc.querySelectorAll('p');
-            for (const p of paragraphs) { if (p.textContent.trim().length > 100) { horoscopeText = p.textContent.trim(); break; } }
-        }
-        if (horoscopeText) {
-            horoscopeText = horoscopeText.replace(/\s+/g, ' ').trim();
-            let hash = 0;
-            const seed = today + sign;
-            for (let i = 0; i < seed.length; i++) hash = ((hash << 5) - hash) + seed.charCodeAt(i);
-            const luckyNumber = Math.abs(hash % 100) + 1;
-            const data = { description: horoscopeText, luckyNumber, mood: "inspired" };
-            localStorage.setItem(cacheKey, JSON.stringify(data));
-            sessionHoroscopeCache[sessionKey] = data;
-            return data;
-        }
-        return null;
-    } catch (e) {
-        console.error("Horoscope fetch failed:", e);
-        return null;
-    }
+        const market = currentPredictions.find(p => p.id === id);
+        if (!market || market.status !== 'active') { showToast("Not active"); return; }
+        if (market.bets?.some(b => b.user === walletAddress)) { showToast("Already praedicted"); return; }
+        let user = await loadUser(walletAddress);
+        const today = getUTCDayKey();
+        if (!user) user = { address: walletAddress, votes_left: 7, last_vote_day: today };
+        if (user.last_vote_day !== today) { user.votes_left = 7; user.last_vote_day = today; }
+        if (user.votes_left <= 0) { showToast("No votes left today"); return; }
+        user.votes_left--;
+        await upsertUser(user);
+        const bets = market.bets || [];
+        bets.push({ user: walletAddress, outcome, amount: 1, timestamp: new Date().toISOString() });
+        const bettingPoolYes = (market.betting_pool_yes || 0) + (outcome === 'yes' ? 1 : 0);
+        const bettingPoolNo = (market.betting_pool_no || 0) + (outcome === 'no' ? 1 : 0);
+        await updatePrediction(id, { bets, betting_pool_yes: bettingPoolYes, betting_pool_no: bettingPoolNo });
+        await renderAll();
+        showToast(`👁️ Praedicted ${outcome.toUpperCase()}! (1 vote used)`);
+    } catch(e) { console.error(e); showToast("Error"); }
+    setTimeout(() => { actionCooldown = false; }, 3000);
 }
-
-const horoscopeMessages = [ "🌌 The cosmos whispers...", "👁️ A hidden pattern reveals itself.", "🪐 Your voting power resonates with the Seers.", "🔮 A suggestion you make today will be approved swiftly.", "⚡ Unexpected alignment: your next YES vote will be right.", "🌙 Silence before the storm.", "✨ The Oracle's favour tilts towards bold praedictions.", "🕯️ An old doubt resolves itself.", "🌀 The veil of uncertainty thins.", "⭐ A Seer's luck is favoured today.", "🌊 A wave of clarity washes over the leaderboard.", "🍃 The winds of change bring new opportunities."];
-function getDailyStaticHoroscope() { const today = new Date().toDateString(); let hash = 0; for (let i=0;i<today.length;i++) hash = ((hash<<5)-hash)+today.charCodeAt(i); const index = Math.abs(hash)%horoscopeMessages.length; return horoscopeMessages[index]; }
-function getDailyHypeMessage() { const messages = ["Praiseworthy Seers! 👁️", "The Oracle nods in approval.", "Lightning predictions! 👁️", "Bask in the glow of the Seer elite.", "These Seers move before the noise.", "Clairvoyance resonates among the top three.", "Whispers of fate echo through the SeerStats.", "A new Seer rises 👁️", "The oracle’s favour shines upon the most accurate.", "Seers who vote wisely climb the ladder."]; const today = new Date().toDateString(); let hash=0; for(let i=0;i<today.length;i++) hash+=today.charCodeAt(i); return messages[Math.abs(hash)%messages.length]; }
-
-function updateHoroscopeDisplays() { const msg = getDailyStaticHoroscope(); if(document.getElementById('dailyHoroscopeStatic')) document.getElementById('dailyHoroscopeStatic').innerHTML = msg; if(document.getElementById('profileHoroscope')) document.getElementById('profileHoroscope').innerHTML = msg; if(document.getElementById('dailyHoroscopeDetail')) document.getElementById('dailyHoroscopeDetail').innerHTML = `<div class="horoscope">${msg}</div>`; }
-function updateHypeMessage() { const hypeDiv = document.getElementById('hypeMessage'); if(hypeDiv) hypeDiv.innerHTML = getDailyHypeMessage(); }
-
-async function loadPredictions() { const { data } = await supabaseClient.from('predictions').select('*').order('created_at', { ascending: false }); return data||[]; }
-async function loadUser(address) { const { data } = await supabaseClient.from('users').select('*').eq('address', address).maybeSingle(); return data; }
-async function upsertUser(user) { await supabaseClient.from('users').upsert(user, { onConflict: 'address' }); }
-async function updatePrediction(id, updates) { await supabaseClient.from('predictions').update(updates).eq('id', id); }
-
-// Auto-expire: set status='expired' for active markets past deadline - NO REFUND, just notice
-async function autoExpireMarkets() {
-    const now = new Date();
-    let changed = false;
-    for (const p of currentPredictions) {
-        if (p.status !== 'active') continue;
-        if (p.resolution_date && new Date(p.resolution_date) <= now) {
-            await updatePrediction(p.id, { status: 'expired', resolved_outcome: null, resolved_at: new Date().toISOString() });
-            showToast(`🕒 Praediction "${p.title}" expired.`);
-            changed = true;
-        }
-    }
-    if (changed) await renderAll();
-}
-
 async function resolveMarket(id, outcome) {
     const market = currentPredictions.find(p => p.id === id);
-    if (!market || market.status !== 'expired') { showToast("Cannot resolve: market not expired"); return; }
+    if (!market || market.status !== 'active') return;
     if (outcome === 'expired') {
-        await updatePrediction(id, { status: 'expired' });
+        for (const bet of market.bets || []) {
+            let u = await loadUser(bet.user);
+            if (u) u.balance = (u.balance || 0) + bet.amount;
+            await upsertUser(u);
+        }
+        await updatePrediction(id, { status: 'resolved', resolved_outcome: 'expired', resolved_at: new Date().toISOString() });
+        showToast(`🕒 Praediction expired. Votes refunded.`);
+        await renderAll();
         return;
     }
     if (market.bets) {
@@ -963,213 +786,162 @@ async function resolveMarket(id, outcome) {
     showToast(`🏆 Resolved! Outcome: ${outcome.toUpperCase()}`);
     await renderAll();
 }
-
-function getCategoryIcon(category) {
-    return categoryIcons[category] || "📁";
-}
-
-function renderPraedictions() {
-    const container = document.getElementById('praedictionsContainer');
-    if(!container) return;
-    let filtered = currentPredictions.filter(p => {
-        if (currentFilter.category !== 'all' && p.category !== currentFilter.category) return false;
-        if (currentFilter.search && !p.title.toLowerCase().includes(currentFilter.search.toLowerCase())) return false;
-        if (currentFilter.status === 'active') return p.status === 'active';
-        if (currentFilter.status === 'expired') return p.status === 'expired';
-        if (currentFilter.status === 'resolved') return p.status === 'resolved';
-        return true;
-    });
-    if(filtered.length===0){ container.innerHTML='<div style="text-align:center; padding:40px;">No praedictions match filters.</div>'; return; }
-    const isOracle = (walletAddress === ORACLE_WALLET);
-    container.innerHTML = filtered.map(p => {
-        const isActive = p.status === 'active';
-        const isResolved = p.status === 'resolved';
-        const isExpired = p.status === 'expired';
-        const deadline = p.resolution_date ? new Date(p.resolution_date).toLocaleString() : 'No deadline';
-        const total = (p.betting_pool_yes||0)+(p.betting_pool_no||0);
-        const yesPercent = total>0 ? ((p.betting_pool_yes||0)/total*100).toFixed(0) : 50;
-        const noPercent = total>0 ? ((p.betting_pool_no||0)/total*100).toFixed(0) : 50;
-        const hasUserVoted = walletAddress && (p.bets||[]).some(b => b.user === walletAddress);
-        const canSuggest = isActive && walletAddress && new Date(p.resolution_date) <= new Date();
-        const hasSuggested = (p.suggestions||[]).some(s => s.user === walletAddress);
-        const canResolve = isExpired && isOracle;
-        let badgeClass = 'badge-active';
-        let badgeText = 'ACTIVE';
-        if (isResolved) { badgeClass = 'badge-resolved'; badgeText = 'RESOLVED'; }
-        if (isExpired) { badgeClass = 'badge-expired'; badgeText = 'EXPIRED'; }
-        const categoryIcon = getCategoryIcon(p.category);
-        return `<div class="praediction-card">
-            <div class="praediction-title">${escapeHtml(p.title)}</div>
-            <div class="praediction-desc">${escapeHtml(p.description)}</div>
-            <div class="meta-row">
-                <span><span class="category-icon">${categoryIcon}</span> ${escapeHtml(p.category)}</span>
-                <span>⏰ ${deadline}</span>
-                <span class="badge ${badgeClass}">${badgeText}</span>
-            </div>
-            <div class="vote-stats">
-                <span>👁️ YES ${yesPercent}% (${p.betting_pool_yes||0})</span>
-                <span>👁️ NO ${noPercent}% (${p.betting_pool_no||0})</span>
-            </div>
-            ${isActive ? `<div class="action-buttons">
-                <button class="btn-praedict" data-id="${p.id}" data-outcome="yes" ${hasUserVoted ? 'disabled style="opacity:0.5;"' : ''}>👁️ YES</button>
-                <button class="btn-praedict" data-id="${p.id}" data-outcome="no" ${hasUserVoted ? 'disabled style="opacity:0.5;"' : ''}>👁️ NO</button>
-                ${canSuggest ? `<button class="btn-suggest" data-id="${p.id}" ${hasSuggested ? 'disabled style="opacity:0.5;"' : ''}>🗳️ Suggest Outcome</button>` : ''}
-            </div>` : `<div style="text-align:center; margin-top:12px;">🏆 ${isResolved ? `RESOLVED: ${p.resolved_outcome === 'yes' ? '✅ YES' : '❌ NO'}` : '🕒 EXPIRED - awaiting resolution'}</div>`}
-            ${(p.suggestions||[]).length > 0 && isOracle ? `<div class="suggestions-list"><strong>📢 Seer Suggestions:</strong>${p.suggestions.map(s => `<div class="suggestion-item"><div>${s.user.slice(0,6)}... suggests <strong>${s.outcome.toUpperCase()}</strong></div><div>Evidence: <a href="${escapeHtml(s.evidence)}" target="_blank">link</a></div><button class="oracle-resolve" data-id="${p.id}" data-outcome="${s.outcome}">✅ Approve this suggestion</button></div>`).join('')}</div>` : ''}
-            ${canResolve ? `<div style="margin-top:12px;"><button class="oracle-resolve" data-id="${p.id}" data-outcome="yes">✅ Resolve YES</button><button class="oracle-resolve" data-id="${p.id}" data-outcome="no">❌ Resolve NO</button></div>` : ''}
-        </div>`;
-    }).join('');
-    document.querySelectorAll('.btn-praedict').forEach(btn => btn.addEventListener('click', praedictClick));
-    document.querySelectorAll('.btn-suggest').forEach(btn => btn.addEventListener('click', suggestClick));
-    document.querySelectorAll('.oracle-resolve').forEach(btn => btn.addEventListener('click', resolveClick));
-}
-
-async function praedictClick(e) {
-    if(actionCooldown) return;
-    const btn = e.currentTarget;
-    if(btn.disabled) { showToast("You already voted on this prediction"); return; }
-    actionCooldown=true;
-    const id=btn.dataset.id, outcome=btn.dataset.outcome;
-    try{
-        const market=currentPredictions.find(p=>p.id===id);
-        if(!market||market.status!=='active'){showToast("Not active"); return;}
-        if((market.bets||[]).some(b=>b.user===walletAddress)){ showToast("Already voted"); return; }
-        let user=await loadUser(walletAddress);
-        const today=getUTCDayKey();
-        if(!user) user={address:walletAddress, votes_left:70, last_vote_day:today};
-        if(user.last_vote_day!==today){user.votes_left=70; user.last_vote_day=today;}
-        if(user.votes_left<=0){showToast("No votes left today"); return;}
-        user.votes_left--;
-        await upsertUser(user);
-        const bets=market.bets||[];
-        bets.push({user:walletAddress, outcome, amount:1, timestamp:Date.now()});
-        const bettingPoolYes=(market.betting_pool_yes||0)+(outcome==='yes'?1:0);
-        const bettingPoolNo=(market.betting_pool_no||0)+(outcome==='no'?1:0);
-        await updatePrediction(id,{bets, betting_pool_yes:bettingPoolYes, betting_pool_no:bettingPoolNo});
-        await renderAll();
-        showToast(`Praedicted ${outcome.toUpperCase()}!`);
-    } catch(e){ console.error(e); showToast("Error"); }
-    setTimeout(()=>{actionCooldown=false;},2000);
-}
-
-async function suggestClick(e) {
-    const btn = e.currentTarget;
-    if(btn.disabled) { showToast("You already suggested"); return; }
-    const id = btn.dataset.id;
-    const outcome = prompt("Correct outcome? (yes/no)", "yes");
-    if(!outcome || (outcome!=='yes' && outcome!=='no')) return;
-    let evidence = prompt("Evidence URL:", "");
-    if(!evidence || !isValidUrl(evidence)){ showToast("Valid evidence URL required"); return; }
-    const market = currentPredictions.find(p=>p.id===id);
-    if(!market || market.status!=='active'){ showToast("Market not active"); return; }
-    if((market.suggestions||[]).some(s=>s.user===walletAddress)){ showToast("Already suggested"); return; }
-    const suggestions = market.suggestions||[];
-    suggestions.push({ user:walletAddress, outcome, evidence, timestamp:Date.now() });
-    await updatePrediction(id, { suggestions });
-    showToast("✅ Suggestion submitted! Oracle will review.");
+async function createNewPrediction() {
+    if (!walletAddress) { showToast("Connect wallet first"); return; }
+    const title = document.getElementById('title').value.trim();
+    const description = document.getElementById('description').value.trim();
+    const category = document.getElementById('category').value;
+    const resolutionDate = document.getElementById('resolutionDate').value;
+    const autoSource = document.getElementById('autoSource').value;
+    const targetValue = document.getElementById('targetValue').value.trim();
+    if (!title || !description || !resolutionDate) { showToast("Fill all fields"); return; }
+    let user = await loadUser(walletAddress);
+    const today = getUTCDayKey();
+    if (!user) user = { address: walletAddress, creations_today: 0, last_create_day: today };
+    if (user.last_create_day !== today) { user.creations_today = 0; user.last_create_day = today; }
+    if (user.creations_today >= 7) { showToast("Max 7 creations per day"); return; }
+    const activeCount = currentPredictions.filter(p => p.creator === walletAddress && p.status === 'active').length;
+    if (activeCount >= 5) { showToast("Max 5 active praedictions"); return; }
+    if (currentPredictions.some(p => p.status === 'active' && p.title.toLowerCase() === title.toLowerCase())) {
+        showToast("Identical active praediction exists");
+        return;
+    }
+    const minDate = new Date(); minDate.setHours(minDate.getHours() + 24);
+    const selected = new Date(resolutionDate);
+    if (selected < minDate) { showToast("Resolution date must be at least 24h from now"); return; }
+    user.creations_today++;
+    await upsertUser(user);
+    const newPred = {
+        id: "pred_" + Date.now(),
+        title, description, category, creator: walletAddress,
+        created_at: new Date().toISOString(),
+        resolution_date: resolutionDate,
+        status: 'active',
+        betting_pool_yes: 0, betting_pool_no: 0,
+        bets: [], suggestions: [],
+        resolved_outcome: null, resolved_at: null,
+        auto_source: autoSource || null, target_value: targetValue || null,
+        auto_resolve_date: new Date(selected.getTime() + 7*86400000).toISOString()
+    };
+    const { error } = await supabaseClient.from('predictions').insert(newPred);
+    if (error) { showToast("Error: " + error.message); return; }
+    showToast("✨ Praediction created!");
+    document.getElementById('title').value = "";
+    document.getElementById('description').value = "";
+    document.getElementById('resolutionDate').value = "";
+    document.getElementById('autoSource').value = "";
+    document.getElementById('targetValue').value = "";
     await renderAll();
 }
-
-async function resolveClick(e) {
-    const id = e.currentTarget.dataset.id;
-    const outcome = e.currentTarget.dataset.outcome;
-    if(walletAddress !== ORACLE_WALLET){ showToast("Only Oracle can resolve"); return; }
-    if(!confirm(`Resolve to ${outcome.toUpperCase()}? This will award points to correct voters.`)) return;
-    await resolveMarket(id, outcome);
-}
-
-async function renderLeaderboard() { const {data}=await supabaseClient.from('users').select('address,seerscore').order('seerscore',{ascending:false}).limit(20); const container=document.getElementById('leaderboardList'); if(container) container.innerHTML=data.map((u,i)=>`<div style="display:flex; justify-content:space-between; padding:8px;"><div>${i+1}. ${u.address.slice(0,6)}...${u.address.slice(-4)}</div><div>👁️ ${u.seerscore}</div></div>`).join(''); }
-
-async function renderProfile() {
-    const user = await loadUser(walletAddress);
-    if(!user) return;
-    document.getElementById('walletDisplay').innerText = `${walletAddress.slice(0,8)}...${walletAddress.slice(-6)}`;
-    document.getElementById('profileStats').innerHTML = `<div><span style="color:#40E0D0;">✨ Creations left:</span> ${7-(user.creations_today||0)}/7</div><div><span style="color:#40E0D0;">🗳️ Votes left:</span> ${user.votes_left}/70</div><div><span style="color:#40E0D0;">🎯 Accuracy:</span> ${((user.correct_votes||0)/(user.total_votes||1)*100).toFixed(0)}%</div><div><span style="color:#40E0D0;">👁️ Seerscore:</span> ${user.seerscore||0}</div>`;
-    document.getElementById('referralLink') && (document.getElementById('referralLink').innerText = `${window.location.origin}${window.location.pathname}?ref=${walletAddress}`);
-    const selectorWrap = document.querySelector('.zodiac-selector');
-    const userDisplay = document.getElementById('userZodiacDisplay');
-    const headline = document.getElementById('zodiacRealHeadline');
-    const horoDiv = document.getElementById('zodiacHoroscopeDisplay');
-    if(user.zodiac) {
-        selectorWrap.style.display = 'none';
-        userDisplay.style.display = 'block';
-        userDisplay.style.float = 'right';
-        userDisplay.innerHTML = `⭐ ${signNames[user.zodiac] || user.zodiac}`;
-        const horoData = await fetchHoroscopeForZodiac(user.zodiac);
-        if(horoData) {
-            headline.style.display = 'block';
-            horoDiv.innerHTML = `${horoData.description}<br><br>🍀 Lucky number: ${horoData.luckyNumber}<br>😌 Mood: ${horoData.mood}`;
-        } else { horoDiv.innerHTML = '⚡ Could not fetch horoscope.'; }
-        const dailyBlock = document.getElementById('dailyRealHoroscopeBlock');
-        const dailyContent = document.getElementById('dailyRealHoroscopeContent');
-        if(horoData && dailyBlock && dailyContent) {
-            dailyBlock.style.display = 'block';
-            dailyContent.innerHTML = `${horoData.description}<br><br>🍀 Lucky number: ${horoData.luckyNumber}<br>😌 Mood: ${horoData.mood}`;
-        } else if(dailyBlock) { dailyBlock.style.display = 'none'; }
-    } else {
-        selectorWrap.style.display = 'flex';
-        userDisplay.style.display = 'none';
-        headline.style.display = 'none';
-        horoDiv.innerHTML = '';
-        document.getElementById('dailyRealHoroscopeBlock').style.display = 'none';
+async function autoResolveMarkets() {
+    const now = new Date();
+    for (const p of currentPredictions) {
+        if (p.status !== 'active') continue;
+        if (p.auto_source && p.target_value && new Date(p.resolution_date) <= now) {
+            let price = null;
+            try {
+                const idMap = { coingecko_btc:"bitcoin", coingecko_eth:"ethereum", coingecko_sol:"solana", coingecko_doge:"dogecoin", coingecko_matic:"polygon-pos", coingecko_avax:"avalanche-2", coingecko_link:"chainlink" };
+                const coinId = idMap[p.auto_source];
+                if (coinId) {
+                    const resp = await fetch(`https://api.coingecko.com/api/v3/simple/price?ids=${coinId}&vs_currencies=usd`);
+                    const data = await resp.json();
+                    price = data[coinId]?.usd;
+                }
+            } catch(e) { continue; }
+            if (price !== null) {
+                const target = parseFloat(p.target_value);
+                const outcome = price >= target ? 'yes' : 'no';
+                await resolveMarket(p.id, outcome);
+                showToast(`🤖 Auto-resolved: ${p.title} → ${outcome.toUpperCase()} (${price} USD)`);
+            }
+        } else if (p.auto_resolve_date && new Date(p.auto_resolve_date) <= now) {
+            await resolveMarket(p.id, 'expired');
+        }
     }
-    // Oracle indicators: only in top bar and profile (not in cards)
-    const oracleTop = document.getElementById('oracleIndicatorTop');
-    const oracleProfile = document.getElementById('oracleIndicatorProfile');
-    if(walletAddress === ORACLE_WALLET) {
-        if(oracleTop) oracleTop.style.display = 'inline-flex';
-        if(oracleProfile) oracleProfile.style.display = 'inline-block';
-    } else {
-        if(oracleTop) oracleTop.style.display = 'none';
-        if(oracleProfile) oracleProfile.style.display = 'none';
+    await renderAll();
+}
+async function connectWallet() {
+    const gateMessage = document.getElementById('gateMessage');
+    gateMessage.innerText = "Connecting...";
+    if (!window.solana || !window.solana.isPhantom) {
+        gateMessage.innerText = "Phantom not detected. Please install Phantom Wallet.";
+        return;
     }
+    try {
+        const resp = await window.solana.connect();
+        walletAddress = resp.publicKey.toString();
+        gateMessage.innerText = "Connected! Loading...";
+        let user = await loadUser(walletAddress);
+        if (!user) {
+            await upsertUser({
+                address: walletAddress, seerscore: 0, creations_today: 0, last_create_day: getUTCDayKey(),
+                votes_left: 7, last_vote_day: getUTCDayKey(), balance: 1000,
+                correct_votes: 0, total_votes: 0, last_active: new Date().toISOString()
+            });
+        }
+        document.getElementById('gate').style.display = 'none';
+        document.getElementById('mainApp').style.display = 'block';
+        await renderAll();
+        setInterval(autoResolveMarkets, 3600000);
+        autoResolveMarkets();
+        if (!localStorage.getItem('tutorialShown')) {
+            document.getElementById('tutorialOverlay').style.display = 'flex';
+            localStorage.setItem('tutorialShown', 'true');
+        }
+    } catch (err) { gateMessage.innerText = "Connection failed: " + err.message; }
 }
-
-async function renderAll() {
-    currentPredictions = await loadPredictions();
-    await autoExpireMarkets();
-    currentPredictions = await loadPredictions();
-    renderPraedictions();
-    renderLeaderboard();
-    await renderProfile();
-    const activeCount = currentPredictions.filter(p=>p.status==='active').length;
-    const totalVotes = currentPredictions.reduce((s,p)=>s+(p.bets?.length||0),0);
-    document.getElementById('totalActive').innerText = activeCount;
-    document.getElementById('totalPraedicts').innerText = totalVotes;
-    const user = await loadUser(walletAddress);
-    if(user) document.getElementById('totalSeerscore').innerText = user.seerscore||0;
-    updateHoroscopeDisplays();
-    updateHypeMessage();
+document.getElementById('closeTutorialBtn')?.addEventListener('click', () => { document.getElementById('tutorialOverlay').style.display = 'none'; });
+function initTheme() { const saved = localStorage.getItem('theme'); if (saved === 'light') document.body.classList.add('light'); }
+function toggleTheme() { document.body.classList.toggle('light'); localStorage.setItem('theme', document.body.classList.contains('light') ? 'light' : 'dark'); }
+function copyReferralLink() { const link = document.getElementById('referralLink')?.textContent; if (link) { navigator.clipboard.writeText(link); showToast("Link copied!"); } }
+function exportData() {
+    const dataStr = JSON.stringify(currentPredictions, null, 2);
+    const blob = new Blob([dataStr], {type:"application/json"});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a'); a.href = url; a.download = `praedicta_export_${Date.now()}.json`;
+    a.click(); URL.revokeObjectURL(url); showToast("📥 Data exported");
 }
-
-function initTheme() { const saved = localStorage.getItem('praedicta_theme'); if(saved === 'light') document.body.classList.add('light'); else document.body.classList.remove('light'); }
-function toggleTheme() { document.body.classList.toggle('light'); localStorage.setItem('praedicta_theme', document.body.classList.contains('light') ? 'light' : 'dark'); }
-document.getElementById('themeToggleSmall')?.addEventListener('click', toggleTheme);
+function openDonation() { window.open('https://ko-fi.com/yourusername', '_blank'); }
+// Filters
+document.getElementById('filterCategory').addEventListener('change', (e) => { currentFilter.category = e.target.value; renderPraedictions(); });
+document.getElementById('filterStatus').addEventListener('change', (e) => { currentFilter.status = e.target.value; renderPraedictions(); });
+document.getElementById('filterSearch').addEventListener('input', (e) => { currentFilter.search = e.target.value; renderPraedictions(); });
+document.getElementById('showMyPraedictionsBtn').addEventListener('click', () => { renderMyPraedictions(); });
+// Event listeners
+document.getElementById('connectBtn').addEventListener('click', connectWallet);
+document.getElementById('createBtn').addEventListener('click', createNewPrediction);
+document.getElementById('reloadBtn')?.addEventListener('click', async () => { await renderAll(); showToast("Reloaded"); });
+document.getElementById('themeToggle')?.addEventListener('click', toggleTheme);
+document.getElementById('copyReferralBtn')?.addEventListener('click', copyReferralLink);
+document.getElementById('exportDataBtn')?.addEventListener('click', exportData);
+document.getElementById('donateBtn')?.addEventListener('click', openDonation);
 initTheme();
-
-document.querySelectorAll('.status-filter-btn').forEach(btn => {
+// Tab switching
+document.querySelectorAll('.tab-btn').forEach(btn => {
     btn.addEventListener('click', () => {
-        document.querySelectorAll('.status-filter-btn').forEach(b => b.classList.remove('active-filter'));
-        btn.classList.add('active-filter');
-        currentFilter.status = btn.dataset.status;
-        renderPraedictions();
+        const tab = btn.dataset.tab;
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+        document.getElementById(`tab-${tab}`).classList.add('active');
+        if (tab === 'leaderboard') renderLeaderboard();
+        if (tab === 'profile') { renderProfile(); renderMyPraedictions(); }
     });
 });
-
-document.getElementById('filterCategory')?.addEventListener('change',(e)=>{currentFilter.category=e.target.value; renderPraedictions();});
-document.getElementById('filterSearch')?.addEventListener('input',(e)=>{currentFilter.search=e.target.value; renderPraedictions();});
-document.getElementById('saveZodiacBtn')?.addEventListener('click', async () => { const sign = document.getElementById('zodiacSelect').value; if(!sign) return; let user = await loadUser(walletAddress); if(user?.zodiac) { showToast("Zodiac already set"); return; } if(user) { user.zodiac = sign; await upsertUser(user); showToast("Zodiac saved!"); await renderAll(); } });
-document.getElementById('showMyPraedictionsBtn')?.addEventListener('click',()=>{ const c=document.getElementById('myPraedictionsList'); if(c.style.display==='none'||!c.style.display){ const myBets=currentPredictions.flatMap(p=>(p.bets||[]).filter(b=>b.user===walletAddress).map(b=>({...p,userBet:b}))); c.innerHTML=myBets.length?myBets.map(p=>`<div style="background:rgba(64,224,208,0.05); border-radius:12px; padding:12px; margin-bottom:8px;"><strong>${escapeHtml(p.title)}</strong>: ${p.userBet.outcome.toUpperCase()} • ${p.status}</div>`).join(''):'No praedictions.'; c.style.display='block'; } else { c.style.display='none'; } });
-document.getElementById('connectBtn')?.addEventListener('click', async () => { if(!window.solana?.isPhantom){alert("Install Phantom");return;} const resp=await window.solana.connect(); walletAddress=resp.publicKey.toString(); let user=await loadUser(walletAddress); if(!user) await upsertUser({address:walletAddress, seerscore:0, creations_today:0, last_create_day:getUTCDayKey(), votes_left:70, last_vote_day:getUTCDayKey()}); document.getElementById('gate').style.display='none'; document.getElementById('mainApp').style.display='block'; await renderAll(); if(!localStorage.getItem('tutorialShown')){document.getElementById('tutorialOverlay').style.display='flex'; localStorage.setItem('tutorialShown','true');} });
-document.getElementById('closeTutorialBtn')?.addEventListener('click',()=>{document.getElementById('tutorialOverlay').style.display='none';});
-document.getElementById('createBtn')?.addEventListener('click', async () => { const title=document.getElementById('title').value.trim(); const desc=document.getElementById('description').value.trim(); const cat=document.getElementById('category').value; const date=document.getElementById('resolutionDate').value; if(!title||!desc||!date){showToast("Fill fields");return;} let user=await loadUser(walletAddress); const today=getUTCDayKey(); if(!user)user={address:walletAddress,creations_today:0,last_create_day:today}; if(user.last_create_day!==today) user.creations_today=0; if(user.creations_today>=7){showToast("Max 7 creations/day");return;} user.creations_today++; await upsertUser(user); const newPred={id:"pred_"+Date.now(), title, description:desc, category:cat, creator:walletAddress, created_at:new Date().toISOString(), resolution_date:date, status:'active', betting_pool_yes:0, betting_pool_no:0, bets:[], suggestions:[], auto_source:document.getElementById('autoSource').value||null, target_value:document.getElementById('targetValue').value||null}; await supabaseClient.from('predictions').insert(newPred); showToast("Created!"); await renderAll(); });
-document.getElementById('copyReferralBtn')?.addEventListener('click',()=>{ const link=document.getElementById('referralLink')?.innerText; if(link) { navigator.clipboard.writeText(link); showToast("Copied!"); } });
-document.getElementById('exportDataBtn')?.addEventListener('click',()=>{ const blob=new Blob([JSON.stringify(currentPredictions,null,2)],{type:"application/json"}); const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download=`praedicta_${Date.now()}.json`; a.click(); URL.revokeObjectURL(blob); showToast("Exported"); });
-document.getElementById('donateBtn')?.addEventListener('click',()=>window.open('https://ko-fi.com/yourusername','_blank'));
-document.querySelectorAll('.tab-btn').forEach(btn=>{ btn.addEventListener('click',async()=>{ const tab=btn.dataset.tab; document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active')); btn.classList.add('active'); document.querySelectorAll('.tab-content').forEach(t=>t.classList.remove('active')); document.getElementById(`tab-${tab}`).classList.add('active'); if(tab==='profile') await renderProfile(); if(tab==='dailyhoroscope') await renderProfile(); }); });
-if(window.solana?.isConnected) setTimeout(()=>document.getElementById('connectBtn')?.click(),100);
-setInterval(async () => { if(walletAddress) await autoExpireMarkets(); }, 300000);
-for(let i=0;i<60;i++){ const p=document.createElement('div'); p.className='particle'; p.style.left=Math.random()*100+'%'; p.style.animationDuration=(15+Math.random()*20)+'s'; p.style.animationDelay=Math.random()*15+'s'; document.getElementById('particles').appendChild(p); }
+if (window.solana?.isConnected && window.solana?.publicKey) { connectWallet(); }
+// Particles (homepage style)
+for (let i = 0; i < 60; i++) {
+    const particle = document.createElement('div');
+    particle.className = 'particle';
+    particle.style.left = Math.random() * 100 + '%';
+    particle.style.animationDuration = (15 + Math.random() * 20) + 's';
+    particle.style.animationDelay = Math.random() * 15 + 's';
+    particle.style.width = (1 + Math.random() * 3) + 'px';
+    particle.style.height = particle.style.width;
+    document.getElementById('particles').appendChild(particle);
+}
+// Service worker for PWA
+if ('serviceWorker' in navigator) { navigator.serviceWorker.register('/sw.js').catch(console.error); }
 </script>
 </body>
 </html>
