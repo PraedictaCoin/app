@@ -408,12 +408,14 @@
             text-align: center;
             font-style: italic;
             border: 1px solid rgba(0, 240, 255, 0.2);
+            color: #00F0FF;
         }
         .hype-message {
             text-align: center;
             margin-bottom: 20px;
             font-weight: 500;
             letter-spacing: 1px;
+            color: #00F0FF;
         }
         .profile-stats div {
             margin-bottom: 12px;
@@ -490,7 +492,7 @@
         <button class="tab-btn active" data-tab="praedictions">📊 Praedictions</button>
         <button class="tab-btn" data-tab="leaderboard">🏆 Leaderboard</button>
         <button class="tab-btn" data-tab="profile">👤 SeerStats</button>
-        <button class="tab-btn" data-tab="dailyhoroscope">🕯️ Your Daily PRAEDICTION</button>
+        <button class="tab-btn" data-tab="dailyhoroscope">👁️ Your Daily PRAEDICTION</button>
         <button class="tab-btn" data-tab="support">💛 Support</button>
         <button class="tab-btn" data-tab="faq">❓ FAQ</button>
     </div>
@@ -498,7 +500,7 @@
     <!-- PRAEDICTIONS TAB -->
     <div id="tab-praedictions" class="tab-content active">
         <!-- Daily horoscope (static, same for all, changes daily) -->
-        <div id="dailyHoroscopeStatic" class="horoscope">🦉 Loading daily insight...</div>
+        <div id="dailyHoroscopeStatic" class="horoscope">👁️ Loading daily insight...</div>
         <div class="filter-bar">
             <select id="filterCategory"><option value="all">All Categories</option><option value="crypto">Finance</option><option value="people">People</option><option value="politics">Politics</option><option value="sports">Sports</option><option value="worldevents">World Events</option><option value="wildcard">Wildcard</option></select>
             <select id="filterStatus"><option value="all">All Status</option><option value="active">Active</option><option value="resolved">Resolved</option></select>
@@ -526,7 +528,7 @@
 
     <!-- LEADERBOARD TAB -->
     <div id="tab-leaderboard" class="tab-content">
-        <div id="hypeMessage" class="hype-message" style="color: #00F0FF;">✨ Praising our top Seers... ✨</div>
+        <div id="hypeMessage" class="hype-message"></div>
         <div class="card"><h3>🏆 <span style="color:#00F0FF;">TOP SEERS</span></h3><div id="leaderboardList"></div></div>
     </div>
 
@@ -534,9 +536,9 @@
     <div id="tab-profile" class="tab-content">
         <div class="card">
             <h3 id="profileHeadline" style="color:#00F0FF;">Welcome 👁️ Seer:</h3>
-            <div id="profileStats" style="margin-top: 16px;"></div>
-            <!-- daily horoscope same as above -->
+            <!-- daily horoscope moved here (beneath welcome line) -->
             <div id="profileHoroscope" class="horoscope"></div>
+            <div id="profileStats" style="margin-top: 16px;"></div>
             <div class="zodiac-selector">
                 <span style="color:#00F0FF;">⭐ Your Zodiac Sign:</span>
                 <select id="zodiacSelect">
@@ -559,7 +561,7 @@
     <!-- YOUR DAILY PRAEDICTION TAB -->
     <div id="tab-dailyhoroscope" class="tab-content">
         <div class="card">
-            <h3 style="color:#00F0FF;">🕯️ Your Daily PRAEDICTION</h3>
+            <h3 style="color:#00F0FF;">👁️ Your Daily PRAEDICTION</h3>
             <div id="dailyHoroscopeDetail" class="daily-praediction-content"></div>
         </div>
     </div>
@@ -646,13 +648,13 @@ function getDailyStaticHoroscope() {
     const index = Math.abs(hash) % horoscopeMessages.length;
     return horoscopeMessages[index];
 }
-// Leaderboard hype messages (rotating)
+// Leaderboard hype messages (rotating, without leading symbols, with 👁️ at end)
 const hypeMessages = [
-    "🌟 Praiseworthy Seers! These eyes see farthest.",
-    "🔮 The Oracle nods in approval at this leaderboard.",
-    "⚡ Lightning predictions! Top Seers are unstoppable.",
-    "👑 Bask in the glow of the Seer elite.",
-    "🌀 These Seers move before the noise. Respect."
+    "Praiseworthy Seers! These eyes see farthest. 👁️",
+    "The Oracle nods in approval at this leaderboard. 👁️",
+    "Lightning predictions! Top Seers are unstoppable. 👁️",
+    "Bask in the glow of the Seer elite. 👁️",
+    "These Seers move before the noise. Respect. 👁️"
 ];
 function getDailyHypeMessage() {
     const today = new Date().toDateString();
@@ -662,11 +664,12 @@ function getDailyHypeMessage() {
     return hypeMessages[index];
 }
 
-// Update all horoscope displays
+// Update all horoscope displays (no headline, only 👁️ + message)
 function updateHoroscopeDisplays() {
     const msg = getDailyStaticHoroscope();
+    const displayText = `👁️ ${msg}`;
     document.querySelectorAll('#dailyHoroscopeStatic, #profileHoroscope, #dailyHoroscopeDetail').forEach(el => {
-        if (el) el.innerHTML = `🦉 Daily Seer Insight<br>${msg}`;
+        if (el) el.innerHTML = displayText;
     });
 }
 // Update leaderboard hype message
@@ -854,7 +857,6 @@ async function renderProfile() {
     const zodiacSelect = document.getElementById('zodiacSelect');
     if (zodiacSelect && user.zodiac) {
         zodiacSelect.value = user.zodiac;
-        // Fetch horoscope for saved zodiac
         const horoData = await fetchHoroscopeForZodiac(user.zodiac);
         const horoDiv = document.getElementById('zodiacHoroscopeDisplay');
         if (horoData && horoDiv) {
@@ -1058,7 +1060,6 @@ document.getElementById('saveZodiacBtn')?.addEventListener('click', async () => 
         user.zodiac = sign;
         await upsertUser(user);
         showToast("Zodiac saved!");
-        // Fetch and display horoscope
         const horoData = await fetchHoroscopeForZodiac(sign);
         const horoDiv = document.getElementById('zodiacHoroscopeDisplay');
         if (horoData && horoDiv) {
@@ -1093,18 +1094,7 @@ document.querySelectorAll('.tab-btn').forEach(btn => {
         document.getElementById(`tab-${tab}`).classList.add('active');
         if (tab === 'leaderboard') renderLeaderboard();
         if (tab === 'profile') { renderProfile(); renderMyPraedictions(); }
-        if (tab === 'dailyhoroscope') {
-            const msg = getDailyStaticHoroscope();
-            document.getElementById('dailyHoroscopeDetail').innerHTML = `<div class="horoscope">🦉 ${msg}</div>`;
-            // Also show zodiac horoscope if available
-            const user = state?.users?.[walletAddress];
-            if (user && user.zodiac) {
-                (async () => {
-                    const horo = await fetchHoroscopeForZodiac(user.zodiac);
-                    if (horo) document.getElementById('dailyHoroscopeDetail').innerHTML += `<div class="horoscope" style="margin-top:12px;">🔮 Your zodiac (${user.zodiac}) insight:<br>${horo.description}</div>`;
-                })();
-            }
-        }
+        if (tab === 'dailyhoroscope') updateHoroscopeDisplays();
     });
 });
 if (window.solana?.isConnected && window.solana?.publicKey) { connectWallet(); }
