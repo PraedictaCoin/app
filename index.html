@@ -399,16 +399,21 @@
             text-align: center;
         }
         .ad-banner { background: rgba(0, 240, 255, 0.1); border-radius: 16px; padding: 12px; text-align: center; margin-top: 20px; }
-        /* Horoscope styling */
+        /* New styles for horoscope, hype message, etc. */
         .horoscope {
-            margin: 20px 0;
+            margin-top: 20px;
             padding: 12px;
             background: rgba(0, 240, 255, 0.05);
             border-radius: 20px;
             text-align: center;
             font-style: italic;
             border: 1px solid rgba(0, 240, 255, 0.2);
-            color: #00F0FF;
+        }
+        .hype-message {
+            text-align: center;
+            margin-bottom: 20px;
+            font-weight: 500;
+            letter-spacing: 1px;
         }
         .profile-stats div {
             margin-bottom: 12px;
@@ -430,12 +435,6 @@
         .daily-praediction-content {
             text-align: center;
             padding: 20px;
-        }
-        .hype-message {
-            text-align: center;
-            margin-bottom: 20px;
-            font-weight: 500;
-            letter-spacing: 1px;
         }
     </style>
 </head>
@@ -491,14 +490,15 @@
         <button class="tab-btn active" data-tab="praedictions">📊 Praedictions</button>
         <button class="tab-btn" data-tab="leaderboard">🏆 Leaderboard</button>
         <button class="tab-btn" data-tab="profile">👤 SeerStats</button>
-        <button class="tab-btn" data-tab="dailyhoroscope">🔮 Your Daily PRAEDICTION</button>
+        <button class="tab-btn" data-tab="dailyhoroscope">🕯️ Your Daily PRAEDICTION</button>
         <button class="tab-btn" data-tab="support">💛 Support</button>
         <button class="tab-btn" data-tab="faq">❓ FAQ</button>
     </div>
 
     <!-- PRAEDICTIONS TAB -->
     <div id="tab-praedictions" class="tab-content active">
-        <div id="dailyHoroscopeStatic" class="horoscope">👁️ Loading daily insight...</div>
+        <!-- Daily horoscope (static, same for all, changes daily) -->
+        <div id="dailyHoroscopeStatic" class="horoscope">🦉 Loading daily insight...</div>
         <div class="filter-bar">
             <select id="filterCategory"><option value="all">All Categories</option><option value="crypto">Finance</option><option value="people">People</option><option value="politics">Politics</option><option value="sports">Sports</option><option value="worldevents">World Events</option><option value="wildcard">Wildcard</option></select>
             <select id="filterStatus"><option value="all">All Status</option><option value="active">Active</option><option value="resolved">Resolved</option></select>
@@ -526,7 +526,7 @@
 
     <!-- LEADERBOARD TAB -->
     <div id="tab-leaderboard" class="tab-content">
-        <div id="hypeMessage" class="hype-message" style="color: #00F0FF;">Praising our top Seers.</div>
+        <div id="hypeMessage" class="hype-message" style="color: #00F0FF;">✨ Praising our top Seers... ✨</div>
         <div class="card"><h3>🏆 <span style="color:#00F0FF;">TOP SEERS</span></h3><div id="leaderboardList"></div></div>
     </div>
 
@@ -538,7 +538,7 @@
             <!-- daily horoscope same as above -->
             <div id="profileHoroscope" class="horoscope"></div>
             <div class="zodiac-selector">
-                <span style="color:#00F0FF;">🔮 Your Zodiac Sign:</span>
+                <span style="color:#00F0FF;">⭐ Your Zodiac Sign:</span>
                 <select id="zodiacSelect">
                     <option value="">Select</option>
                     <option value="aries">♈ Aries</option><option value="taurus">♉ Taurus</option><option value="gemini">♊ Gemini</option>
@@ -559,7 +559,7 @@
     <!-- YOUR DAILY PRAEDICTION TAB -->
     <div id="tab-dailyhoroscope" class="tab-content">
         <div class="card">
-            <h3 style="color:#00F0FF;">🔮 Your Daily PRAEDICTION</h3>
+            <h3 style="color:#00F0FF;">🕯️ Your Daily PRAEDICTION</h3>
             <div id="dailyHoroscopeDetail" class="daily-praediction-content"></div>
         </div>
     </div>
@@ -648,11 +648,11 @@ function getDailyStaticHoroscope() {
 }
 // Leaderboard hype messages (rotating)
 const hypeMessages = [
-    "Praiseworthy Seers! These eyes see farthest.",
-    "The Oracle nods in approval at this leaderboard.",
-    "Lightning predictions! Top Seers are unstoppable.",
-    "Bask in the glow of the Seer elite.",
-    "These Seers move before the noise. Respect."
+    "🌟 Praiseworthy Seers! These eyes see farthest.",
+    "🔮 The Oracle nods in approval at this leaderboard.",
+    "⚡ Lightning predictions! Top Seers are unstoppable.",
+    "👑 Bask in the glow of the Seer elite.",
+    "🌀 These Seers move before the noise. Respect."
 ];
 function getDailyHypeMessage() {
     const today = new Date().toDateString();
@@ -662,28 +662,12 @@ function getDailyHypeMessage() {
     return hypeMessages[index];
 }
 
-// Update all horoscope displays (no headline, no symbol, only the message)
+// Update all horoscope displays
 function updateHoroscopeDisplays() {
     const msg = getDailyStaticHoroscope();
-    // For static horoscope on praedictions page and profile page
-    document.querySelectorAll('#dailyHoroscopeStatic, #profileHoroscope').forEach(el => {
-        if (el) el.innerHTML = msg;
+    document.querySelectorAll('#dailyHoroscopeStatic, #profileHoroscope, #dailyHoroscopeDetail').forEach(el => {
+        if (el) el.innerHTML = `🦉 Daily Seer Insight<br>${msg}`;
     });
-    // For the detailed daily horoscope tab (also only the message)
-    const detailDiv = document.getElementById('dailyHoroscopeDetail');
-    if (detailDiv) {
-        detailDiv.innerHTML = `<div class="horoscope">${msg}</div>`;
-        // Additionally show zodiac horoscope if user has one (crystal ball symbol)
-        const user = state?.users?.[walletAddress];
-        if (user && user.zodiac) {
-            (async () => {
-                const horo = await fetchHoroscopeForZodiac(user.zodiac);
-                if (horo) {
-                    detailDiv.innerHTML += `<div class="horoscope" style="margin-top:12px;">🔮 Your ${user.zodiac} insight:<br>${horo.description}</div>`;
-                }
-            })();
-        }
-    }
 }
 // Update leaderboard hype message
 function updateHypeMessage() {
@@ -1109,7 +1093,18 @@ document.querySelectorAll('.tab-btn').forEach(btn => {
         document.getElementById(`tab-${tab}`).classList.add('active');
         if (tab === 'leaderboard') renderLeaderboard();
         if (tab === 'profile') { renderProfile(); renderMyPraedictions(); }
-        if (tab === 'dailyhoroscope') updateHoroscopeDisplays();
+        if (tab === 'dailyhoroscope') {
+            const msg = getDailyStaticHoroscope();
+            document.getElementById('dailyHoroscopeDetail').innerHTML = `<div class="horoscope">🦉 ${msg}</div>`;
+            // Also show zodiac horoscope if available
+            const user = state?.users?.[walletAddress];
+            if (user && user.zodiac) {
+                (async () => {
+                    const horo = await fetchHoroscopeForZodiac(user.zodiac);
+                    if (horo) document.getElementById('dailyHoroscopeDetail').innerHTML += `<div class="horoscope" style="margin-top:12px;">🔮 Your zodiac (${user.zodiac}) insight:<br>${horo.description}</div>`;
+                })();
+            }
+        }
     });
 });
 if (window.solana?.isConnected && window.solana?.publicKey) { connectWallet(); }
