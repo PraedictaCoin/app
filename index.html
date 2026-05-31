@@ -21,7 +21,7 @@
             transition: background-color 0.3s, color 0.3s;
             font-size: 16px;
         }
-        /* LIGHT THEME - built around #510B85 (deep purple), no cyan except logo */
+        /* LIGHT THEME - built around #510B85, no cyan except Get PRAE button */
         body.light {
             background-color: #F5F0FA;
             color: #1A1A2E;
@@ -63,6 +63,25 @@
             background: rgba(81, 11, 133, 0.05);
             color: #510B85;
             border-color: #510B85;
+        }
+        /* Remove cyan from hype and static horoscope in light theme */
+        body.light .hype-message,
+        body.light .static-horoscope {
+            color: #510B85;
+        }
+        /* Make Get PRAE button cyan in light theme */
+        body.light .prae-btn {
+            border-color: #40E0D0 !important;
+            color: #40E0D0 !important;
+        }
+        /* Leaderboard heading */
+        body.light .leaderboard-heading {
+            color: #510B85;
+        }
+        /* Vote buttons in light theme */
+        body.light .btn-praedict {
+            background: #510B85;
+            color: #FFFFFF;
         }
         /* Gate stays dark - no light theme applied */
         .gate {
@@ -115,8 +134,7 @@
             color: #FFFFFF;
         }
         body.light .theme-toggle-small,
-        body.light .community-btn,
-        body.light .prae-btn {
+        body.light .community-btn {
             border-color: #510B85;
             color: #510B85;
         }
@@ -130,6 +148,9 @@
         }
         body.light .meta-row {
             color: #666;
+        }
+        body.light .wallet-address {
+            color: #1A1A2E;
         }
         /* Dark mode styles (original) */
         @keyframes blink {
@@ -641,6 +662,7 @@
         }
         #profileHeadline {
             text-align: center;
+            margin-bottom: 16px;
         }
         #dailyHoroscopeStatic {
             text-align: center;
@@ -653,7 +675,7 @@
             padding: 0;
         }
         .wallet-address {
-            color: white;
+            color: #FFFFFF;
         }
         .category-icon {
             display: inline-block;
@@ -673,7 +695,7 @@
             color: #510B85;
         }
         .profile-stats {
-            margin-bottom: 24px;
+            margin-top: 24px;
         }
         .support-spacing {
             margin-bottom: 20px;
@@ -689,6 +711,17 @@
         }
         .community-btn:hover {
             background: #1E90FF20 !important;
+        }
+        /* Leaderboard heading override */
+        .leaderboard-heading {
+            color: #40E0D0;
+        }
+        body.light .leaderboard-heading {
+            color: #510B85;
+        }
+        /* Extra spacing between wallet and static horoscope */
+        .profile-top-spacing {
+            margin-bottom: 20px;
         }
     </style>
 </head>
@@ -708,7 +741,7 @@
     </div>
 </div>
 
-<!-- GATE SCREEN (restored original dark style) -->
+<!-- GATE SCREEN (original cyan scheme) -->
 <div id="gate" class="gate">
     <div class="gate-card">
         <div class="eye-container">
@@ -744,7 +777,7 @@
         <div class="tabs-left">
             <button class="tab-btn active" data-tab="praedictions">📊 Praedictions</button>
             <button class="tab-btn" data-tab="leaderboard">🏆 Leaderboard</button>
-            <button class="tab-btn" data-tab="profile">👤 SeerStats</button>
+            <button class="tab-btn" data-tab="profile">👁️ Your Daily 👁️</button>
             <button class="tab-btn" data-tab="support">💛 Support</button>
             <button class="tab-btn" data-tab="faq">❓ FAQ</button>
         </div>
@@ -805,19 +838,17 @@
     <!-- LEADERBOARD TAB -->
     <div id="tab-leaderboard" class="tab-content">
         <div id="hypeMessage" class="hype-message"></div>
-        <div class="card"><h3>🏆 <span style="color:#40E0D0;">TOP SEERS</span></h3><div id="leaderboardList"></div></div>
+        <div class="card"><h3 class="leaderboard-heading">🏆 TOP SEERS</h3><div id="leaderboardList"></div></div>
         <div class="footer-text">PRAEDICTA - 2026 - For those who see</div>
     </div>
 
-    <!-- PROFILE TAB (SeerStats) - reordered: stats first, then fetched horoscope, static horoscope no box, zodiac wrapper removed -->
+    <!-- PROFILE TAB (Your Daily 👁️) - reordered: welcome, static horoscope, fetched horoscope, stats, etc. -->
     <div id="tab-profile" class="tab-content">
         <div class="card">
             <h3 id="profileHeadline" style="color:#40E0D0;">Welcome Seer: <span id="walletDisplay" class="wallet-address"></span><span id="oracleIndicatorProfile" style="display:none; margin-left:8px;" class="oracle-badge">🦉 ORACLE</span></h3>
-            <!-- Static daily horoscope - no box -->
-            <div id="profileHoroscope" class="static-horoscope"></div>
-            <!-- Stats moved up -->
-            <div id="profileStats" class="profile-stats" style="margin-top: 16px;"></div>
-            <!-- Zodiac selector (no wrapper box) -->
+            <!-- Static daily horoscope (no box) -->
+            <div id="profileHoroscope" class="static-horoscope profile-top-spacing"></div>
+            <!-- Zodiac selector (hidden after sign saved) -->
             <div class="zodiac-selector">
                 <span class="zodiac-label" style="color:#40E0D0;">⭐ Your Zodiac Sign:</span>
                 <select id="zodiacSelect">
@@ -830,10 +861,11 @@
                 <button id="saveZodiacBtn" class="social-btn">Save</button>
             </div>
             <div id="userZodiacDisplay" style="display: none;" class="zodiac-status-text"></div>
-            <!-- Headline centered -->
+            <!-- Fetched horoscope headline and content -->
             <div id="zodiacRealHeadline" class="horoscope-headline" style="display: none;">Your Daily 👁️ Praediction:</div>
-            <!-- Fetched horoscope (moved down) -->
             <div id="zodiacHoroscopeDisplay" style="margin-top: 12px; padding: 12px; background: rgba(64,224,208,0.05); border-radius: 20px; font-style: normal; font-size: 1rem;"></div>
+            <!-- User stats (moved after fetched horoscope) -->
+            <div id="profileStats" class="profile-stats"></div>
             <div class="referral-box"><strong style="color:#40E0D0;">🔗 Your Referral Link</strong><br><span id="referralLink"></span><br><button id="copyReferralBtn" class="social-btn" style="margin-top:8px;">📋 Copy Link</button></div>
             <div style="margin-top: 20px;">
                 <button id="showMyPraedictionsBtn" class="btn" style="width:100%; background: #40E0D020; color:#40E0D0;">📋 Show My Praedictions</button>
@@ -891,7 +923,7 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
 // ============================================================
-// PRAEDICTA - FINAL: removed daily tab, gate restored, SeerStats reordered, light theme #510B85, footer added
+// PRAEDICTA - FINAL: all light theme fixes, reordered profile, tab renamed, gate unchanged
 // ============================================================
 const SUPABASE_URL = "https://klgwyaeqnklydlqatzys.supabase.co";
 const SUPABASE_ANON_KEY = "sb_publishable_OL32s1-muu_5d5ACQ_4kVQ_yEEeyJl1";
@@ -1146,7 +1178,7 @@ async function renderProfile() {
     const headline = document.getElementById('zodiacRealHeadline');
     const horoDiv = document.getElementById('zodiacHoroscopeDisplay');
     if(user.zodiac) {
-        selectorWrap.style.display = 'flex';
+        selectorWrap.style.display = 'none';
         userDisplay.style.display = 'block';
         userDisplay.style.float = 'right';
         userDisplay.innerHTML = `⭐ ${signNames[user.zodiac] || user.zodiac}`;
