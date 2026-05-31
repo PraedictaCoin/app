@@ -13,7 +13,7 @@
             padding: 0;
             box-sizing: border-box;
         }
-        /* DARK THEME – original cyan/dark style (unchanged) */
+        /* DARK THEME – original cyan/dark style */
         body {
             background-color: #0A0A0A;
             color: #FFFFFF;
@@ -22,10 +22,10 @@
             transition: background-color 0.3s, color 0.3s;
             font-size: 16px;
         }
-        /* LIGHT THEME – white background, #62A29B highlights, #35363E text, headlines #3536E */
+        /* LIGHT THEME – white background, #510B85 highlights */
         body.light {
             background-color: #FFFFFF;
-            color: #35363E;
+            color: #1A1A2E;
         }
         body.light .card,
         body.light .app-header,
@@ -39,45 +39,45 @@
         body.light .tab-btn,
         body.light .zodiac-selector select {
             background-color: #FFFFFF;
-            border-color: rgba(98, 162, 155, 0.3);
-            color: #35363E;
+            border-color: rgba(81, 11, 133, 0.3);
+            color: #1A1A2E;
         }
         body.light .tab-btn.active {
-            background: #3536E;
+            background: #510B85;
             color: #FFFFFF;
-            border-color: #3536E;
+            border-color: #510B85;
         }
         body.light .praediction-title,
         body.light .stat-value {
-            color: #3536E;
+            color: #510B85;
         }
         body.light .logo-area h1 {
-            color: #62A29B;
+            color: #40E0D0;
         }
         body.light .btn-secondary,
         body.light .social-btn {
-            background: rgba(98, 162, 155, 0.1);
-            color: #62A29B;
-            border-color: #62A29B;
+            background: rgba(81, 11, 133, 0.1);
+            color: #510B85;
+            border-color: #510B85;
         }
         body.light .horoscope {
-            background: rgba(98, 162, 155, 0.05);
-            color: #35363E;
-            border-color: #62A29B;
+            background: rgba(81, 11, 133, 0.05);
+            color: #510B85;
+            border-color: #510B85;
         }
         body.light .hype-message,
         body.light .static-horoscope {
-            color: #35363E;
+            color: #510B85;
         }
         body.light .prae-btn {
-            border-color: #62A29B !important;
-            color: #62A29B !important;
+            border-color: #510B85 !important;
+            color: #510B85 !important;
         }
         body.light .leaderboard-heading {
-            color: #3536E;
+            color: #510B85;
         }
         body.light .btn-praedict {
-            background: #62A29B;
+            background: #510B85;
             color: #FFFFFF;
         }
         /* Gate stays dark for both themes */
@@ -95,17 +95,17 @@
         body.light .filter-bar input,
         body.light .create-praediction select {
             background-color: #1A1A2E;
-            color: #62A29B;
-            border-color: #62A29B;
+            color: #510B85;
+            border-color: #510B85;
         }
         body.light .filter-bar select option {
             background-color: #1A1A2E;
-            color: #62A29B;
+            color: #510B85;
         }
         body.light .badge-active {
-            background: #62A29B20;
-            color: #62A29B;
-            border-color: #62A29B;
+            background: #510B8520;
+            color: #510B85;
+            border-color: #510B85;
         }
         body.light .badge-expired {
             background: #FF444420;
@@ -113,27 +113,27 @@
             border-color: #FF8888;
         }
         body.light .badge-resolved {
-            background: #62A29B20;
-            color: #62A29B;
-            border-color: #62A29B;
+            background: #510B8520;
+            color: #510B85;
+            border-color: #510B85;
         }
         body.light .status-filter-btn.active-filter {
-            background: #62A29B20;
-            color: #62A29B;
-            border-color: #62A29B;
+            background: #510B8520;
+            color: #510B85;
+            border-color: #510B85;
         }
         body.light .oracle-resolve {
             background: #FFB800;
             color: #1A1A2E;
         }
         body.light .btn {
-            background: #62A29B;
+            background: #510B85;
             color: #FFFFFF;
         }
         body.light .theme-toggle-small {
-            border-color: #62A29B;
+            border-color: #510B85;
             color: #FFFFFF !important;
-            background: #62A29B;
+            background: #510B85;
         }
         /* Seers DEN – lighter blue for dark theme, same for light */
         .community-btn {
@@ -153,13 +153,13 @@
             border-color: #FFB800;
         }
         body.light .vote-stats {
-            background: rgba(98, 162, 155, 0.08);
+            background: rgba(81, 11, 133, 0.08);
         }
         body.light .meta-row {
             color: #666;
         }
         body.light .wallet-address {
-            color: #35363E;
+            color: #1A1A2E;
         }
         /* Rest of the styles (dark theme original) */
         @keyframes blink {
@@ -626,6 +626,9 @@
             border: 1px solid rgba(0, 240, 255, 0.2);
             color: #00F0FF;
         }
+        body.light .horoscope {
+            color: #510B85;
+        }
         .my-praedictions-list {
             display: none;
             margin-top: 12px;
@@ -665,6 +668,9 @@
             letter-spacing: 1px;
             text-align: center;
         }
+        body.light .horoscope-headline {
+            color: #510B85;
+        }
         .zodiac-status-text {
             background: rgba(0,240,255,0.15);
             padding: 8px 16px;
@@ -696,7 +702,7 @@
             color: #FFFFFF;
         }
         body.light .wallet-address {
-            color: #35363E;
+            color: #1A1A2E;
         }
         .category-icon {
             display: inline-block;
@@ -713,7 +719,7 @@
             border-top: 1px solid rgba(0,240,255,0.2);
         }
         body.light .footer-text {
-            color: #62A29B;
+            color: #510B85;
         }
         .profile-stats {
             margin-top: 24px;
@@ -738,7 +744,7 @@
         }
         body.light .theme-toggle-small {
             color: #FFFFFF !important;
-            background: #62A29B;
+            background: #510B85;
         }
     </style>
 </head>
@@ -793,7 +799,7 @@
     <div class="tabs">
         <div class="tabs-left">
             <button class="tab-btn active" data-tab="praedictions">📊 Praedictions</button>
-            <button class="tab-btn" data-tab="leaderboard">🏆 Leaderboard</button>
+            <button class="tab-btn" data-tab="leaderboard">🏆 Top Seer</button>
             <button class="tab-btn" data-tab="profile">Your Daily 👁️</button>
             <button class="tab-btn" data-tab="support">💛 Support</button>
             <button class="tab-btn" data-tab="faq">❓ FAQ</button>
@@ -852,7 +858,7 @@
         <div class="footer-text">PRAEDICTA - 2026 - For those who see</div>
     </div>
 
-    <!-- LEADERBOARD TAB -->
+    <!-- LEADERBOARD TAB (Top Seer) -->
     <div id="tab-leaderboard" class="tab-content">
         <div id="hypeMessage" class="hype-message"></div>
         <div class="card"><h3 class="leaderboard-heading">🏆 TOP SEERS</h3><div id="leaderboardList"></div></div>
@@ -863,9 +869,7 @@
     <div id="tab-profile" class="tab-content">
         <div class="card">
             <h3 id="profileHeadline" style="color:#00F0FF;">Welcome Seer: <span id="walletDisplay" class="wallet-address"></span><span id="oracleIndicatorProfile" style="display:none; margin-left:8px;" class="oracle-badge">🦉 ORACLE</span></h3>
-            <!-- Static daily horoscope (no box, smaller) -->
             <div id="profileHoroscope" class="static-horoscope" style="margin-top: 8px;"></div>
-            <!-- Zodiac selector (hidden after sign saved) -->
             <div class="zodiac-selector">
                 <span class="zodiac-label" style="color:#00F0FF;">⭐ Your Zodiac Sign:</span>
                 <select id="zodiacSelect">
@@ -878,10 +882,8 @@
                 <button id="saveZodiacBtn" class="social-btn">Save</button>
             </div>
             <div id="userZodiacDisplay" style="display: none;" class="zodiac-status-text"></div>
-            <!-- Fetched horoscope headline and content -->
             <div id="zodiacRealHeadline" class="horoscope-headline" style="display: none;">Your Daily 👁️ Praediction:</div>
             <div id="zodiacHoroscopeDisplay" style="margin-top: 12px; padding: 12px; background: rgba(0,240,255,0.05); border-radius: 20px; font-style: normal; font-size: 1rem;"></div>
-            <!-- User stats -->
             <div id="profileStats" class="profile-stats"></div>
             <div class="referral-box"><strong style="color:#00F0FF;">🔗 Your Referral Link</strong><br><span id="referralLink"></span><br><button id="copyReferralBtn" class="social-btn" style="margin-top:8px;">📋 Copy Link</button></div>
             <div style="margin-top: 20px;">
@@ -940,7 +942,7 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
 // ============================================================
-// PRAEDICTA – FINAL: dark theme restored, gate original, light theme correct (no cyan), Seers DEN lighter blue
+// PRAEDICTA – FINAL: light theme #510B85, time without seconds, category names unified, leaderboard renamed
 // ============================================================
 const SUPABASE_URL = "https://klgwyaeqnklydlqatzys.supabase.co";
 const SUPABASE_ANON_KEY = "sb_publishable_OL32s1-muu_5d5ACQ_4kVQ_yEEeyJl1";
@@ -970,6 +972,12 @@ const categoryIcons = {
     sports: "⚽",
     wildcard: "🎲"
 };
+
+function formatDateWithoutSeconds(dateStr) {
+    if (!dateStr) return 'No deadline';
+    const d = new Date(dateStr);
+    return d.toLocaleString(undefined, { year:'numeric', month:'2-digit', day:'2-digit', hour:'2-digit', minute:'2-digit', hour12: false });
+}
 
 async function fetchHoroscopeForZodiac(sign) {
     if (!sign || !signToNumber[sign]) return null;
@@ -1089,7 +1097,7 @@ function renderPraedictions() {
         const isActive = p.status === 'active';
         const isResolved = p.status === 'resolved';
         const isExpired = p.status === 'expired';
-        const deadline = p.resolution_date ? new Date(p.resolution_date).toLocaleString() : 'No deadline';
+        const deadline = p.resolution_date ? formatDateWithoutSeconds(p.resolution_date) : 'No deadline';
         const total = (p.betting_pool_yes||0)+(p.betting_pool_no||0);
         const yesPercent = total>0 ? ((p.betting_pool_yes||0)/total*100).toFixed(0) : 50;
         const noPercent = total>0 ? ((p.betting_pool_no||0)/total*100).toFixed(0) : 50;
@@ -1102,12 +1110,14 @@ function renderPraedictions() {
         if (isResolved) { badgeClass = 'badge-resolved'; badgeText = 'RESOLVED'; }
         if (isExpired) { badgeClass = 'badge-expired'; badgeText = 'EXPIRED'; }
         const categoryIcon = getCategoryIcon(p.category);
+        let displayCategory = p.category;
+        if (displayCategory === 'crypto') displayCategory = 'Finance';
         return `<div class="praediction-card">
             <div class="praediction-title">${escapeHtml(p.title)}</div>
             <div class="praediction-desc">${escapeHtml(p.description)}</div>
             <div class="meta-row">
-                <span><span class="category-icon">${categoryIcon}</span> ${escapeHtml(p.category)}</span>
-                <span>⏰ ${deadline}</span>
+                <span><span class="category-icon">${categoryIcon}</span> ${displayCategory}</span>
+                <span>📅 ${deadline}</span>
                 <span class="badge ${badgeClass}">${badgeText}</span>
             </div>
             <div class="vote-stats">
