@@ -3,10 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <meta name="theme-color" content="#40E0D0">
+    <meta name="theme-color" content="#7851A9">
     <meta name="mobile-web-app-capable" content="yes">
     <title>PRAEDICTA – For Those Who See</title>
-    <link rel="manifest" href="data:application/manifest+json,{\"name\":\"PRAEDICTA\",\"short_name\":\"PRAEDICTA\",\"start_url\":\".\",\"display\":\"standalone\",\"background_color\":\"#0A0A0A\",\"theme_color\":\"#40E0D0\",\"icons\":[{\"src\":\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='50' fill='%2340E0D0'/%3E%3Ctext x='50' y='67' text-anchor='middle' fill='%230A0A0A' font-size='50' font-weight='bold'%3EP%3C/text%3E%3C/svg%3E\",\"sizes\":\"any\"}]}">
+    <link rel="manifest" href="data:application/manifest+json,{\"name\":\"PRAEDICTA\",\"short_name\":\"PRAEDICTA\",\"start_url\":\".\",\"display\":\"standalone\",\"background_color\":\"#0A0A0A\",\"theme_color\":\"#7851A9\",\"icons\":[{\"src\":\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='50' fill='%237851A9'/%3E%3Ctext x='50' y='67' text-anchor='middle' fill='%230A0A0A' font-size='50' font-weight='bold'%3EP%3C/text%3E%3C/svg%3E\",\"sizes\":\"any\"}]}">
     <style>
         * {
             margin: 0;
@@ -21,9 +21,9 @@
             transition: background-color 0.3s, color 0.3s;
             font-size: 16px;
         }
-        /* LIGHT THEME - white background, #40E0D0 (turquoise) accents */
+        /* LIGHT THEME - built around #7851A9 */
         body.light {
-            background-color: #FFFFFF;
+            background-color: #F8F6FF;
             color: #1A1A2E;
         }
         body.light .card,
@@ -37,49 +37,49 @@
         body.light .stat,
         body.light .tab-btn,
         body.light .zodiac-selector select {
-            background-color: #F8F9FF;
-            border-color: rgba(64, 224, 208, 0.2);
+            background-color: #FFFFFF;
+            border-color: rgba(120, 81, 169, 0.3);
             color: #1A1A2E;
         }
         body.light .tab-btn.active {
-            background: #40E0D0;
-            color: #1A1A2E;
-            border-color: #40E0D0;
+            background: #7851A9;
+            color: #FFFFFF;
+            border-color: #7851A9;
         }
         body.light .praediction-title,
         body.light .stat-value,
         body.light .logo-area h1 {
-            color: #40E0D0;
+            color: #7851A9;
         }
         body.light .btn-secondary,
         body.light .social-btn {
-            background: rgba(64, 224, 208, 0.1);
-            color: #40E0D0;
-            border-color: #40E0D0;
+            background: rgba(120, 81, 169, 0.1);
+            color: #7851A9;
+            border-color: #7851A9;
         }
         body.light .horoscope {
-            background: rgba(64, 224, 208, 0.08);
-            color: #008080;
-            border-color: #40E0D0;
+            background: rgba(120, 81, 169, 0.08);
+            color: #5a3a8a;
+            border-color: #7851A9;
         }
         body.light .gate {
-            background: #FFFFFF;
+            background: #F8F6FF;
         }
         body.light .filter-bar select,
         body.light .filter-bar input,
         body.light .create-praediction select {
             background-color: #1A1A2E;
-            color: #40E0D0;
-            border-color: #40E0D0;
+            color: #7851A9;
+            border-color: #7851A9;
         }
         body.light .filter-bar select option {
             background-color: #1A1A2E;
-            color: #40E0D0;
+            color: #7851A9;
         }
         body.light .badge-active {
-            background: #40E0D020;
-            color: #008080;
-            border-color: #40E0D0;
+            background: #7851A920;
+            color: #7851A9;
+            border-color: #7851A9;
         }
         body.light .badge-expired {
             background: #FF444420;
@@ -87,26 +87,28 @@
             border-color: #FF8888;
         }
         body.light .badge-resolved {
-            background: #40E0D020;
-            color: #40E0D0;
-            border-color: #40E0D0;
+            background: #7851A920;
+            color: #7851A9;
+            border-color: #7851A9;
         }
         body.light .status-filter-btn.active-filter {
-            background: #40E0D020;
-            color: #008080;
-            border-color: #40E0D0;
+            background: #7851A920;
+            color: #7851A9;
+            border-color: #7851A9;
         }
         body.light .oracle-resolve {
             background: #FFB800;
             color: #1A1A2E;
         }
         body.light .btn {
-            background: #40E0D0;
-            color: #1A1A2E;
+            background: #7851A9;
+            color: #FFFFFF;
         }
-        body.light .theme-toggle-small {
-            border-color: #40E0D0;
-            color: #40E0D0;
+        body.light .theme-toggle-small,
+        body.light .community-btn,
+        body.light .prae-btn {
+            border-color: #7851A9;
+            color: #7851A9;
         }
         body.light .oracle-badge {
             background: #FFB80020;
@@ -114,10 +116,21 @@
             border-color: #FFB800;
         }
         body.light .vote-stats {
-            background: rgba(64, 224, 208, 0.08);
+            background: rgba(120, 81, 169, 0.08);
         }
         body.light .meta-row {
             color: #666;
+        }
+        /* Force gate to always be dark (overwrites any light theme) */
+        .gate {
+            background: #0A0A0A !important;
+        }
+        body.light .gate {
+            background: #0A0A0A !important;
+        }
+        body.light .gate-card {
+            background: rgba(120, 81, 169, 0.08) !important;
+            border-color: rgba(120, 81, 169, 0.3) !important;
         }
         @keyframes blink {
             0%, 90%, 100% { transform: scaleY(1); }
@@ -147,7 +160,7 @@
             position: absolute;
             width: 2px;
             height: 2px;
-            background: rgba(64, 224, 208, 0.3);
+            background: rgba(120, 81, 169, 0.3);
             border-radius: 50%;
             animation: float linear infinite;
         }
@@ -351,7 +364,7 @@
             align-items: center;
             flex-wrap: wrap;
         }
-        .theme-toggle-small {
+        .theme-toggle-small, .community-btn, .prae-btn {
             background: transparent;
             border: 1px solid #40E0D0;
             border-radius: 40px;
@@ -359,6 +372,11 @@
             cursor: pointer;
             color: #40E0D0;
             font-size: 0.8rem;
+            text-decoration: none;
+            display: inline-block;
+        }
+        .community-btn:hover, .prae-btn:hover {
+            background: #40E0D020;
         }
         .oracle-indicator-top {
             background: #FFB80020;
@@ -691,6 +709,8 @@
             <button class="tab-btn" data-tab="faq">❓ FAQ</button>
         </div>
         <div class="right-tab-items">
+            <a href="https://t.me/praedictacoin" target="_blank" class="community-btn">👥 Seers DEN</a>
+            <a href="https://dexscreener.com/solana/7C2Y5NebLFG37wMbB85TbMqYERTSkq9tEi58wv28MCzt" target="_blank" class="prae-btn">💰 Get PRAE</a>
             <button id="themeToggleSmall" class="theme-toggle-small">🌓 Light/Dark</button>
             <div id="oracleIndicatorTop" class="oracle-indicator-top" style="display:none;">🦉 ORACLE</div>
         </div>
@@ -774,7 +794,7 @@
                 <div id="myPraedictionsList" class="my-praedictions-list"></div>
             </div>
             <div class="ad-banner">👁️ P R A E D I C T A – Predict and earn SeerScore ✨ <br><a href="https://dexscreener.com/solana/FYCSFKujPbtAASg42J1riNfxYEJBUM5Sv88uBAnnSs3o" target="_blank" style="color:#40E0D0;">Get PRAE on DexScreener →</a></div>
-            <button id="exportDataBtn" class="btn" style="margin-top:16px; width:100%;">📥 Export Data (JSON)</button>
+            <!-- Export button removed -->
         </div>
     </div>
 
@@ -834,7 +854,7 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
 // ============================================================
-// PRAEDICTA - FINAL: votes 70/day, session horoscope cache, removed oracle badges from cards
+// PRAEDICTA - FINAL: light theme #7851A9, added Get PRAE and Seers DEN buttons
 // ============================================================
 const SUPABASE_URL = "https://klgwyaeqnklydlqatzys.supabase.co";
 const SUPABASE_ANON_KEY = "sb_publishable_OL32s1-muu_5d5ACQ_4kVQ_yEEeyJl1";
@@ -846,7 +866,6 @@ let currentPredictions = [];
 let actionCooldown = false;
 let currentFilter = { category: 'all', status: 'active', search: '' };
 
-// Session cache for horoscope (per sign, per session)
 let sessionHoroscopeCache = {};
 
 function getUTCDayKey() { return new Date().toISOString().slice(0,10); }
@@ -920,7 +939,6 @@ async function loadUser(address) { const { data } = await supabaseClient.from('u
 async function upsertUser(user) { await supabaseClient.from('users').upsert(user, { onConflict: 'address' }); }
 async function updatePrediction(id, updates) { await supabaseClient.from('predictions').update(updates).eq('id', id); }
 
-// Auto-expire: set status='expired' for active markets past deadline - NO REFUND, just notice
 async function autoExpireMarkets() {
     const now = new Date();
     let changed = false;
@@ -1113,7 +1131,6 @@ async function renderProfile() {
         horoDiv.innerHTML = '';
         document.getElementById('dailyRealHoroscopeBlock').style.display = 'none';
     }
-    // Oracle indicators: only in top bar and profile (not in cards)
     const oracleTop = document.getElementById('oracleIndicatorTop');
     const oracleProfile = document.getElementById('oracleIndicatorProfile');
     if(walletAddress === ORACLE_WALLET) {
@@ -1164,7 +1181,6 @@ document.getElementById('connectBtn')?.addEventListener('click', async () => { i
 document.getElementById('closeTutorialBtn')?.addEventListener('click',()=>{document.getElementById('tutorialOverlay').style.display='none';});
 document.getElementById('createBtn')?.addEventListener('click', async () => { const title=document.getElementById('title').value.trim(); const desc=document.getElementById('description').value.trim(); const cat=document.getElementById('category').value; const date=document.getElementById('resolutionDate').value; if(!title||!desc||!date){showToast("Fill fields");return;} let user=await loadUser(walletAddress); const today=getUTCDayKey(); if(!user)user={address:walletAddress,creations_today:0,last_create_day:today}; if(user.last_create_day!==today) user.creations_today=0; if(user.creations_today>=7){showToast("Max 7 creations/day");return;} user.creations_today++; await upsertUser(user); const newPred={id:"pred_"+Date.now(), title, description:desc, category:cat, creator:walletAddress, created_at:new Date().toISOString(), resolution_date:date, status:'active', betting_pool_yes:0, betting_pool_no:0, bets:[], suggestions:[], auto_source:document.getElementById('autoSource').value||null, target_value:document.getElementById('targetValue').value||null}; await supabaseClient.from('predictions').insert(newPred); showToast("Created!"); await renderAll(); });
 document.getElementById('copyReferralBtn')?.addEventListener('click',()=>{ const link=document.getElementById('referralLink')?.innerText; if(link) { navigator.clipboard.writeText(link); showToast("Copied!"); } });
-document.getElementById('exportDataBtn')?.addEventListener('click',()=>{ const blob=new Blob([JSON.stringify(currentPredictions,null,2)],{type:"application/json"}); const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download=`praedicta_${Date.now()}.json`; a.click(); URL.revokeObjectURL(blob); showToast("Exported"); });
 document.getElementById('donateBtn')?.addEventListener('click',()=>window.open('https://ko-fi.com/yourusername','_blank'));
 document.querySelectorAll('.tab-btn').forEach(btn=>{ btn.addEventListener('click',async()=>{ const tab=btn.dataset.tab; document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active')); btn.classList.add('active'); document.querySelectorAll('.tab-content').forEach(t=>t.classList.remove('active')); document.getElementById(`tab-${tab}`).classList.add('active'); if(tab==='profile') await renderProfile(); if(tab==='dailyhoroscope') await renderProfile(); }); });
 if(window.solana?.isConnected) setTimeout(()=>document.getElementById('connectBtn')?.click(),100);
