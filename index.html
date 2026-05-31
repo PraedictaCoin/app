@@ -3,17 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <meta name="theme-color" content="#40E0D0">
+    <meta name="theme-color" content="#00F0FF">
     <meta name="mobile-web-app-capable" content="yes">
     <title>PRAEDICTA – For Those Who See</title>
-    <link rel="manifest" href="data:application/manifest+json,{\"name\":\"PRAEDICTA\",\"short_name\":\"PRAEDICTA\",\"start_url\":\".\",\"display\":\"standalone\",\"background_color\":\"#0A0A0A\",\"theme_color\":\"#40E0D0\",\"icons\":[{\"src\":\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='50' fill='%2340E0D0'/%3E%3Ctext x='50' y='67' text-anchor='middle' fill='%230A0A0A' font-size='50' font-weight='bold'%3EP%3C/text%3E%3C/svg%3E\",\"sizes\":\"any\"}]}">
+    <link rel="manifest" href="data:application/manifest+json,{\"name\":\"PRAEDICTA\",\"short_name\":\"PRAEDICTA\",\"start_url\":\".\",\"display\":\"standalone\",\"background_color\":\"#0A0A0A\",\"theme_color\":\"#00F0FF\",\"icons\":[{\"src\":\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='50' fill='%2300F0FF'/%3E%3Ctext x='50' y='67' text-anchor='middle' fill='%230A0A0A' font-size='50' font-weight='bold'%3EP%3C/text%3E%3C/svg%3E\",\"sizes\":\"any\"}]}">
     <style>
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
-        /* DARK THEME – original cyan/dark style (restored) */
+        /* DARK THEME – original cyan/dark style (unchanged) */
         body {
             background-color: #0A0A0A;
             color: #FFFFFF;
@@ -80,7 +80,7 @@
             background: #62A29B;
             color: #FFFFFF;
         }
-        /* Gate stays dark for both themes (original cyan/dark) */
+        /* Gate stays dark for both themes */
         .gate {
             background: #0A0A0A !important;
         }
@@ -88,8 +88,8 @@
             background: #0A0A0A !important;
         }
         body.light .gate-card {
-            background: rgba(64, 224, 208, 0.08) !important;
-            border-color: rgba(64, 224, 208, 0.3) !important;
+            background: rgba(0, 240, 255, 0.08) !important;
+            border-color: rgba(0, 240, 255, 0.3) !important;
         }
         body.light .filter-bar select,
         body.light .filter-bar input,
@@ -135,17 +135,17 @@
             color: #FFFFFF !important;
             background: #62A29B;
         }
-        /* Seers DEN – dark blue in both themes */
+        /* Seers DEN – lighter blue for dark theme, same for light */
         .community-btn {
-            border-color: #001f3f !important;
-            color: #001f3f !important;
+            border-color: #2c5f8a !important;
+            color: #2c5f8a !important;
         }
         body.light .community-btn {
-            border-color: #001f3f !important;
-            color: #001f3f !important;
+            border-color: #2c5f8a !important;
+            color: #2c5f8a !important;
         }
         .community-btn:hover {
-            background: #001f3f20 !important;
+            background: #2c5f8a20 !important;
         }
         body.light .oracle-badge {
             background: #FFB80020;
@@ -161,7 +161,7 @@
         body.light .wallet-address {
             color: #35363E;
         }
-        /* Dark theme original styles */
+        /* Rest of the styles (dark theme original) */
         @keyframes blink {
             0%, 90%, 100% { transform: scaleY(1); }
             95% { transform: scaleY(0.1); }
@@ -595,7 +595,6 @@
             text-align: center;
         }
         .ad-banner { background: rgba(0, 240, 255, 0.1); border-radius: 16px; padding: 12px; text-align: center; margin-top: 20px; }
-        /* Static horoscope - no box, smaller on profile page */
         .static-horoscope {
             text-align: center;
             color: #00F0FF;
@@ -941,7 +940,7 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
 // ============================================================
-// PRAEDICTA – FINAL: dark theme restored, gate original, Seers DEN dark blue, static horoscope smaller on profile
+// PRAEDICTA – FINAL: dark theme restored, gate original, light theme correct (no cyan), Seers DEN lighter blue
 // ============================================================
 const SUPABASE_URL = "https://klgwyaeqnklydlqatzys.supabase.co";
 const SUPABASE_ANON_KEY = "sb_publishable_OL32s1-muu_5d5ACQ_4kVQ_yEEeyJl1";
